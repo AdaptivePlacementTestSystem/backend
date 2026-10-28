@@ -1,0 +1,474 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────── Enums (Khớp Class Diagram Trang-1 + Quyết định đã chốt) ─────────────
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+  EDUZ_SERVICE
+}
+
+enum SessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum StoppingReason {
+  MAX_ITEMS_REACHED
+  SE_THRESHOLD
+  ITEM_BANK_BOUNDARY
+  TIMEOUT
+}
+
+enum CEFRLevel {
+  PRE_A1
+  A1
+  A2
+  B1
+  B2
+  C1_PLUS
+}
+
+enum CEFRConfidence {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Skill {
+  VOCABULARY
+  GRAMMAR
+}
+
+// DC-39 (KE_HOACH_SINH_VA_DUYET_DE_AI.md Mục 2): một chiều DRAFT -> FIRST_APPROVED -> SECOND_APPROVED -> FINAL_APPROVED.
+// REJECTED = người loại (không lưu lý do, #56); AI_REJECTED = máy loại (lưu mã lý do ở item_check_results). CAT chỉ chọn FINAL_APPROVED.
+enum ItemStatus {
+  DRAFT
+  FIRST_APPROVED
+  SECOND_APPROVED
+  FINAL_APPROVED
+  REJECTED
+  AI_REJECTED
+}
+
+// Nguồn của LÔ (không còn nằm trên Item): nguồn câu hỏi suy ra từ item.batch.source. Quyết định 16/10/2026.
+enum ItemBatchSource {
+  AI_GENERATED
+  IMPORTED
+}
+
+// Trạng thái lô (DC-27, Mục 2.3 kế hoạch)
+enum ItemBatchStatus {
+  GENERATING
+  IMPORTING
+  CHECKING
+  READY_TO_ASSIGN
+  IN_REVIEW
+  READY_TO_FINALIZE
+  FINAL_CHECKED
+  DONE
+  FAILED
+  PARTIAL
+}
+
+enum PackageStatus {
+  OPEN
+  SENT
+  DONE
+}
+
+// Điểm AI check: C1 sau khi AI sinh, C2 khi import file, C3 trước import cuối (Mục 4)
+enum CheckPoint {
+  C1
+  C2
+  C3
+}
+
+enum CheckLevel {
+  PASS
+  SOFT
+  HARD
+}
+
+enum ReviewAction {
+  APPROVE
+  REJECT
+  CONFIRM
+  REMOVE
+  CONFIRM_ALL
+  IMPORT
+  REASSIGN
+  EXTEND
+  FORCE_SEND
+  ACCEPT_FLAG
+}
+
+enum ExamRoundStatus {
+  DRAFT
+  SCHEDULED
+  OPEN
+  CLOSED
+}
+
+enum AuthProviderType {
+  LOCAL
+  GOOGLE
+  MICROSOFT
+}
+
+// ───────────── Người dùng (hệ thống đơn trường, DC-19) ─────────────
+model User {
+  id                 String            @id @default(uuid()) @db.Uuid
+  email              String            @unique @db.VarChar(255)
+  passwordHash       String?           @map("password_hash")
+  authProvider       AuthProviderType? @map("auth_provider")
+  externalId         String?           @map("external_id")
+  fullName           String            @map("full_name") @db.VarChar(200)
+  role               UserRole
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  // Đăng nhập email + mật khẩu (DC-02/DC-03/DC-23)
+  mustChangePassword Boolean           @default(false) @map("must_change_password")
+  passwordChangedAt  DateTime?         @map("password_changed_at") @db.Timestamptz(6)
+  isActive           Boolean           @default(true) @map("is_active")
+
+  studentProfile    StudentProfile?
+  teacherProfile    TeacherProfile?
+  approvedItems     Item[]                 @relation("ItemApprover")
+  createdBatches    ItemBatch[]            @relation("BatchCreator")
+  batchAssignments  ItemBatchAssignment[]  @relation("BatchAssigner")
+  confirmerOf       ItemBatchAssignment[]  @relation("BatchConfirmer")
+  reviewAssignments ItemReviewAssignment[] @relation("ReviewAssignee")
+  packagesAsA       ItemPackage[]          @relation("PackageReviewer")
+  packagesAsB       ItemPackage[]          @relation("PackageConfirmer")
+  reviewEvents      ItemReviewEvent[]      @relation("ReviewEventActor")
+  testSessions      TestSession[]
+  profiles          LanguageProfile[]
+  createdExamRounds ExamRound[]            @relation("ExamRoundCreator")
+  examParticipation ExamRoundParticipant[]
+
+  @@unique([authProvider, externalId], map: "uq_users_provider_external")
+  @@index([role])
+  @@map("users")
+}
+
+model StudentProfile {
+  userId      String @id @map("user_id") @db.Uuid
+  studentCode String @unique @map("student_code") @db.VarChar(50)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model TeacherProfile {
+  userId      String @id @map("user_id") @db.Uuid
+  teacherCode String @unique @map("teacher_code") @db.VarChar(50)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_profiles")
+}
+
+// ───────────── Ngân hàng câu hỏi ─────────────
+model Item {
+  id            String     @id @default(uuid()) @db.Uuid
+  content       String
+  options       Json
+  correctAnswer String     @map("correct_answer") @db.Char(1)
+  skill         Skill
+  topicTag      String?    @map("topic_tag") @db.VarChar(50)
+  cefrTarget    CEFRLevel  @map("cefr_target")
+  irtB          Float      @map("irt_b")
+  irtA          Float      @default(1.0) @map("irt_a")
+  irtC          Float      @default(0.25) @map("irt_c")
+  status        ItemStatus @default(DRAFT)
+  approvedById  String?    @map("approved_by") @db.Uuid
+  approvedAt    DateTime?  @map("approved_at") @db.Timestamptz(6)
+  timesUsed     Int        @default(0) @map("times_used")
+  calibrated    Boolean    @default(false)
+  // batch_id bắt buộc (quyết định 16/10/2026): mọi câu thuộc một lô; câu seed/cũ thuộc các lô seed (source = IMPORTED, status = DONE).
+  // content_hash và package_id nullable có chủ đích: chưa có hash ở dữ liệu cũ; package_id chỉ có sau khi A gửi gói (câu A loại không vào gói).
+  // content_hash = băm chuẩn hóa (nội dung + đáp án + giải thích) cho lọc trùng T1; chỉ mục băm ở custom_migrations.sql.
+  contentHash   String?    @map("content_hash") @db.VarChar(64)
+  batchId       String     @map("batch_id") @db.Uuid
+  packageId     String?    @map("package_id") @db.Uuid
+  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  approvedBy       User?                 @relation("ItemApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  batch            ItemBatch             @relation(fields: [batchId], references: [id], onDelete: Restrict)
+  package          ItemPackage?          @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  explanation      Explanation?
+  responses        SessionResponse[]
+  reviewAssignment ItemReviewAssignment?
+  embedding        ItemEmbedding?
+  checkResults     ItemCheckResult[]     @relation("CheckedItem")
+  suspectedBy      ItemCheckResult[]     @relation("SuspectedDuplicate")
+  reviewEvents     ItemReviewEvent[]
+
+  @@index([batchId, status])
+  @@index([packageId])
+  @@map("items")
+}
+
+model Explanation {
+  id          String   @id @default(uuid()) @db.Uuid
+  itemId      String   @unique @map("item_id") @db.Uuid
+  content     String
+  generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("explanations")
+}
+
+// ───────────── Sinh và duyệt đề AI (DC-27…DC-45; mọi tên là đề xuất, KE_HOACH_SINH_VA_DUYET_DE_AI.md Mục 10) ─────────────
+model ItemBatch {
+  id             String          @id @default(uuid()) @db.Uuid
+  source         ItemBatchSource
+  // Nhãn hiển thị, tùy chọn; dùng cho lô seed theo bộ nguồn (CEFR-J, CLOTH, GV tự soạn).
+  name           String?         @db.VarChar(100)
+  createdById    String          @map("created_by") @db.Uuid
+  // Nullable có chủ đích: lô IMPORTED gồm nhiều skill/CEFR (mỗi dòng file tự có); chỉ lô AI_GENERATED có đích đơn.
+  skill          Skill?
+  cefrTarget     CEFRLevel?      @map("cefr_target")
+  topicTag       String?         @map("topic_tag") @db.VarChar(50)
+  // Chỉ lô AI_GENERATED có N; lô IMPORTED/seed để trống (khớp SRS DDL item_batches.requested_count nullable).
+  requestedCount Int?            @map("requested_count")
+  status         ItemBatchStatus
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  createdBy  User                  @relation("BatchCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  items      Item[]
+  assignment ItemBatchAssignment?
+  packages   ItemPackage[]
+  events     ItemReviewEvent[]
+
+  @@index([status])
+  @@map("item_batches")
+}
+
+// Chỉ tồn tại sau khi Admin bấm Giao việc (tránh cột trống trên item_batches). 1-1 với lô.
+// Nhóm A = tập assignee trong item_review_assignments của lô; ràng buộc "GV B không thuộc nhóm A" kiểm ở tầng ứng dụng
+// (CONFIRMER_IN_REVIEW_GROUP, 409), không biểu diễn được bằng FK/CHECK. CHECK review_days/confirm_days >= 1 ở custom_migrations.sql.
+model ItemBatchAssignment {
+  batchId      String   @id @map("batch_id") @db.Uuid
+  confirmerId  String   @map("confirmer_id") @db.Uuid
+  assignedById String   @map("assigned_by") @db.Uuid
+  reviewDays   Int      @map("review_days")
+  confirmDays  Int      @map("confirm_days")
+  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+
+  batch      ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  confirmer  User      @relation("BatchConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
+  assignedBy User      @relation("BatchAssigner", fields: [assignedById], references: [id], onDelete: Restrict)
+
+  @@map("item_batch_assignments")
+}
+
+// Mỗi câu giao cho đúng 1 GV A (item_id UNIQUE, khai báo bằng @unique).
+model ItemReviewAssignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  itemId       String   @unique @map("item_id") @db.Uuid
+  assigneeId   String   @map("assignee_id") @db.Uuid
+  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  dueAt        DateTime @map("due_at") @db.Timestamptz(6)
+  reminderSent Boolean  @default(false) @map("reminder_sent")
+
+  item     Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  assignee User @relation("ReviewAssignee", fields: [assigneeId], references: [id], onDelete: Restrict)
+
+  @@index([assigneeId, dueAt])
+  @@map("item_review_assignments")
+}
+
+// Gói được tạo ngay lúc Admin giao việc (status OPEN, một gói cho mỗi GV A); A bấm Gửi thì OPEN → SENT, B xong thì DONE (quyết định 16/10/2026).
+// Mỗi GV A gửi đúng một gói cho B (UNIQUE batch+reviewer). sentAt/dueAt nullable có chủ đích:
+// gói OPEN chưa gửi nên chưa có ngày gửi; due_at = cuối ngày (sentAt + confirmDays) chỉ tính khi chuyển SENT (Q-3).
+model ItemPackage {
+  id           String        @id @default(uuid()) @db.Uuid
+  batchId      String        @map("batch_id") @db.Uuid
+  reviewerId   String        @map("reviewer_id") @db.Uuid
+  confirmerId  String        @map("confirmer_id") @db.Uuid
+  status       PackageStatus @default(OPEN)
+  sentAt       DateTime?     @map("sent_at") @db.Timestamptz(6)
+  dueAt        DateTime?     @map("due_at") @db.Timestamptz(6)
+  reminderSent Boolean       @default(false) @map("reminder_sent")
+
+  batch     ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  reviewer  User      @relation("PackageReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  confirmer User      @relation("PackageConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
+  items     Item[]
+  events    ItemReviewEvent[]
+
+  @@unique([batchId, reviewerId], map: "uq_package_batch_reviewer")
+  @@index([confirmerId, status])
+  @@map("item_packages")
+}
+
+// Embedding tính đúng một lần cho mỗi nội dung (nguyên tắc 4, Mục 4). Mô hình embedding còn chờ chốt (Q-9);
+// vector Float[] (cosine tính trong ứng dụng), không dùng pgvector.
+model ItemEmbedding {
+  itemId      String   @id @map("item_id") @db.Uuid
+  vector      Float[]
+  model       String   @db.VarChar(100)
+  contentHash String   @map("content_hash") @db.VarChar(64)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("item_embeddings")
+}
+
+// Báo cáo mỗi lần check, gắn content_hash để tái sử dụng kết quả khi hash không đổi (Mục 4, nguyên tắc 3).
+model ItemCheckResult {
+  id                   String     @id @default(uuid()) @db.Uuid
+  itemId               String     @map("item_id") @db.Uuid
+  checkpoint           CheckPoint
+  contentHash          String     @map("content_hash") @db.VarChar(64)
+  level                CheckLevel
+  reasonCodes          String[]   @default([]) @map("reason_codes")
+  // Nullable có chủ đích: chỉ có khi lý do là nghi trùng (T1/T2/T3).
+  suspectedDuplicateId String?    @map("suspected_duplicate_id") @db.Uuid
+  checkedAt            DateTime   @default(now()) @map("checked_at") @db.Timestamptz(6)
+
+  item               Item  @relation("CheckedItem", fields: [itemId], references: [id], onDelete: Cascade)
+  suspectedDuplicate Item? @relation("SuspectedDuplicate", fields: [suspectedDuplicateId], references: [id], onDelete: SetNull)
+
+  @@index([itemId, checkpoint, checkedAt(sort: Desc)])
+  @@map("item_check_results")
+}
+
+// Truy vết (tùy chọn theo Mục 10; đề xuất giữ). itemId/packageId nullable: CONFIRM_ALL, REASSIGN, EXTEND, FORCE_SEND tác động nhiều câu/gói.
+// packageId là cột thường (không FK) để log sống độc lập với gói.
+model ItemReviewEvent {
+  id        String       @id @default(uuid()) @db.Uuid
+  batchId   String       @map("batch_id") @db.Uuid
+  itemId    String?      @map("item_id") @db.Uuid
+  packageId String?      @map("package_id") @db.Uuid
+  actorId   String       @map("actor_id") @db.Uuid
+  action    ReviewAction
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  batch ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  item  Item?     @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  package ItemPackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  actor User      @relation("ReviewEventActor", fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([batchId, createdAt])
+  @@index([packageId])
+  @@map("item_review_events")
+}
+
+// ───────────── Kỳ thi (DC-07…DC-10, DC-20) ─────────────
+model ExamRound {
+  id              String          @id @default(uuid()) @db.Uuid
+  name            String          @db.VarChar(200)
+  createdById     String          @map("created_by") @db.Uuid
+  opensAt         DateTime        @map("opens_at") @db.Timestamptz(6)
+  closesAt        DateTime        @map("closes_at") @db.Timestamptz(6)
+  // NOT NULL DEFAULT 45; CHECK 5..180 (custom_migrations.sql). DC-24/brief muc 13
+  durationMinutes Int             @default(45) @map("duration_minutes")
+  status          ExamRoundStatus @default(DRAFT)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  createdBy    User                   @relation("ExamRoundCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  participants ExamRoundParticipant[]
+  sessions     TestSession[]
+
+  @@index([status])
+  @@map("exam_rounds")
+}
+
+model ExamRoundParticipant {
+  roundId   String   @map("round_id") @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  note      String?  @db.VarChar(255)
+  addedAt   DateTime @default(now()) @map("added_at") @db.Timestamptz(6)
+
+  round    ExamRound     @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  student  User          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  sessions TestSession[]
+
+  @@id([roundId, studentId])
+  @@index([studentId])
+  @@map("exam_round_participants")
+}
+
+// ───────────── Phiên thi ─────────────
+model TestSession {
+  id             String          @id @default(uuid()) @db.Uuid
+  studentId      String          @map("student_id") @db.Uuid
+  examRoundId    String          @map("exam_round_id") @db.Uuid
+  status         SessionStatus   @default(IN_PROGRESS)
+  thetaFinal     Float?          @map("theta_final")
+  seFinal        Float?          @map("se_final")
+  startedAt      DateTime        @default(now()) @map("started_at") @db.Timestamptz(6)
+  completedAt    DateTime?       @map("completed_at") @db.Timestamptz(6)
+  stoppingReason StoppingReason? @map("stopping_reason")
+  // expires_at = min(startedAt + durationMinutes, closesAt), tính 1 lần lúc bắt đầu phiên (DC-20)
+  expiresAt      DateTime        @map("expires_at") @db.Timestamptz(6)
+
+  student         User                 @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  participant     ExamRoundParticipant @relation(fields: [examRoundId, studentId], references: [roundId, studentId], onDelete: Restrict)
+  round           ExamRound            @relation(fields: [examRoundId], references: [id], onDelete: Restrict)
+  responses       SessionResponse[]
+  languageProfile LanguageProfile?
+
+  @@index([studentId, startedAt(sort: Desc)])
+  @@index([examRoundId, status])
+  @@map("test_sessions")
+}
+
+model SessionResponse {
+  id             String   @id @default(uuid()) @db.Uuid
+  sessionId      String   @map("session_id") @db.Uuid
+  itemId         String   @map("item_id") @db.Uuid
+  response       String   @db.Char(1)
+  isCorrect      Boolean  @map("is_correct")
+  thetaAfter     Float    @map("theta_after")
+  seAfter        Float    @map("se_after")
+  responseTimeMs Int?     @map("response_time_ms")
+  answeredAt     DateTime @default(now()) @map("answered_at") @db.Timestamptz(6)
+
+  session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  item    Item        @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@unique([sessionId, itemId], map: "uq_session_item")
+  @@index([sessionId, answeredAt])
+  @@index([itemId])
+  @@map("session_responses")
+}
+
+// ───────────── Hồ sơ năng lực (aggregate root) ─────────────
+model LanguageProfile {
+  id                   String         @id @default(uuid()) @db.Uuid
+  schemaVersion        String         @default("1.0") @map("schema_version") @db.VarChar(10)
+  studentId            String         @map("student_id") @db.Uuid
+  testSessionId        String         @unique @map("test_session_id") @db.Uuid
+  completedAt          DateTime       @map("completed_at") @db.Timestamptz(6)
+  theta                Float
+  standardError        Float          @map("standard_error")
+  confidenceInterval95 Float[]        @map("confidence_interval_95")
+  cefrLevel            CEFRLevel      @map("cefr_level")
+  cefrConfidence       CEFRConfidence @map("cefr_confidence")
+  boundaryEffect       Boolean        @default(false) @map("boundary_effect")
+  skillProfiles        Json           @map("skill_profiles")
+  errorPatterns        Json           @default("[]") @map("error_patterns")
+  testMetadata         Json           @map("test_metadata")
+  aiRecommendations    String[]       @default([]) @map("ai_recommendations")
+
+  student     User        @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  testSession TestSession @relation(fields: [testSessionId], references: [id], onDelete: Restrict)
+
+  @@index([cefrLevel])
+  @@index([studentId, completedAt(sort: Desc)])
+  @@map("language_profiles")
+}

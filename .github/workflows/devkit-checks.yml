@@ -1,0 +1,99 @@
+name: devkit-checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.18.4"
+
+jobs:
+  branch-policy:
+    name: branch-policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kiểm tra tên nhánh và hướng merge
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          types='feat|fix|docs|test|chore|refactor'
+          slug='[a-z0-9]+(-[a-z0-9]+)*'
+          echo "PR: $HEAD_REF -> $BASE_REF"
+          if [ "$BASE_REF" = "develop" ]; then
+            if ! [[ "$HEAD_REF" =~ ^($types)/$slug$ ]]; then
+              echo "::error::Vào develop chỉ nhận nhánh (feat|fix|docs|test|chore|refactor)/<ten-viet-thuong-gach-ngang>, nhận '$HEAD_REF'."; exit 1
+            fi
+          elif [ "$BASE_REF" = "main" ]; then
+            if ! { [ "$HEAD_REF" = "develop" ] || [[ "$HEAD_REF" =~ ^hotfix/$slug$ ]]; }; then
+              echo "::error::Vào main chỉ nhận 'develop' hoặc 'hotfix/<ten>', nhận '$HEAD_REF'."; exit 1
+            fi
+          fi
+
+  commit-lint:
+    name: commit-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Kiểm tra tiêu đề PR và commit
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          types='feat|fix|docs|test|chore|refactor'
+          re="^($types)(\([a-z0-9-]+\))?!?: (.+)$"
+          generic='^(update|updates|fix|fixes|fix bug|fix bugs|bug fix|change|changes|wip|test|tests|stuff|misc|minor)$'
+          bad=0
+          check() {
+            local s="$1" d lower
+            case "$s" in "Merge "*|"Revert \""*) return 0 ;; esac
+            if ! [[ "$s" =~ $re ]]; then echo "::error::Sai Conventional Commits: $s"; return 1; fi
+            d="${BASH_REMATCH[3]}"
+            lower=$(printf '%s' "$d" | tr '[:upper:]' '[:lower:]')
+            if [ "${#s}" -gt 72 ] || [ "${#d}" -lt 10 ] || [[ "$lower" =~ $generic ]]; then
+              echo "::error::Mô tả quá dài/ngắn/chung chung: $s"; return 1
+            fi
+          }
+          # Develop -> main: các commit đã được lint ở PR feature, không lint lại.
+          if [ "$HEAD_REF" = "develop" ] && [ "$BASE_REF" = "main" ]; then echo "Bỏ qua (release develop -> main)."; exit 0; fi
+          # Squash vào develop dùng tiêu đề PR làm commit message.
+          if [ "$BASE_REF" = "develop" ]; then check "$PR_TITLE" || bad=1; fi
+          while IFS= read -r s; do check "$s" || bad=1; done < <(git log --no-merges --format=%s "$BASE_SHA..$HEAD_SHA")
+          exit $bad
+
+  pr-checklist:
+    name: pr-checklist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mọi mục checklist đã tick
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if ! printf '%s' "$PR_BODY" | grep -qE '^\s*- \[[xX]\]'; then
+            echo "::error::PR chưa có checklist. Dùng template .github/pull_request_template.md."; exit 1
+          fi
+          if printf '%s' "$PR_BODY" | grep -qE '^\s*- \[ \]'; then
+            echo "::error::Còn mục checklist chưa tick (không áp dụng thì tick và ghi N/A: lý do)."
+            printf '%s' "$PR_BODY" | grep -nE '^\s*- \[ \]'; exit 1
+          fi
+
+  secret-scan:
+    name: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Quét secret toàn bộ lịch sử bằng gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --verbose

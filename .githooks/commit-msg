@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Chặn commit message không theo Conventional Commits.
+. "$(dirname "$0")/_lib.sh"
+subject=$(grep -v '^#' "$1" | sed -n '1p')
+dk_check_subject "$subject" || exit 1

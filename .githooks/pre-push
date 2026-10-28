@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Chặn push: thẳng vào main/develop, xóa nhánh bảo vệ, tên nhánh sai, commit message sai, secret, lint/test cục bộ.
+# Ngoại lệ DUY NHẤT: DEVKIT_BOOTSTRAP=1 git push (lần đầu tạo main/develop, làm TRƯỚC khi bật ruleset).
+. "$(dirname "$0")/_lib.sh"
+
+fail=0
+run_local_checks=0
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in refs/heads/*) ;; *) continue ;; esac
+  dest="${remote_ref#refs/heads/}"
+
+  if [[ "$local_sha" =~ ^0+$ ]]; then
+    if dk_is_protected "$dest"; then dk_err "Khong duoc xoa nhanh bao ve '$dest'."; fail=1; fi
+    continue
+  fi
+
+  if dk_is_protected "$dest"; then
+    if [ "${DEVKIT_BOOTSTRAP:-0}" != "1" ]; then
+      dk_err "Khong push thang vao '$dest'. Mo Pull Request: feat/* -> develop, develop -> main."
+      fail=1
+      continue
+    fi
+    dk_warn "DEVKIT_BOOTSTRAP=1: cho phep push '$dest' (chi dung de khoi tao repo)."
+  elif ! dk_check_branch_name "$dest"; then
+    dk_err "Ten nhanh '$dest' sai quy uoc (feat|fix|docs|chore|test|refactor|hotfix/<ten-viet-thuong-gach-ngang>)."
+    fail=1
+    continue
+  fi
+
+  if [[ "$remote_sha" =~ ^0+$ ]]; then
+    range="$local_sha --not --remotes"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  # shellcheck disable=SC2086
+  for c in $(git rev-list --no-merges $range); do
+    dk_check_subject "$(git log -1 --format=%s "$c")" || { dk_err "  (commit ${c:0:8})"; fail=1; }
+  done
+
+  if dk_has_gitleaks; then
+    gitleaks detect --source . --redact --log-opts="$range" >/dev/null 2>&1 \
+      || { dk_err "gitleaks phat hien secret trong commit sap push."; fail=1; }
+  else
+    dk_warn "Chua cai gitleaks -> bo qua quet secret khi push (CI van quet)."
+  fi
+  run_local_checks=1
+done
+
+if [ "$fail" -eq 0 ] && [ "$run_local_checks" -eq 1 ] && [ -f "$(dk_repo_root)/.githooks/local-checks.sh" ]; then
+  ( cd "$(dk_repo_root)" && bash .githooks/local-checks.sh ) || { dk_err "Kiem tra cuc bo (lint/test) that bai."; fail=1; }
+fi
+
+exit $fail

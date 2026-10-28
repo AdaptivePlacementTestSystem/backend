@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Chặn: commit thẳng vào main/develop, tên nhánh sai, file .env, file quá nặng, secret (nếu có gitleaks).
+. "$(dirname "$0")/_lib.sh"
+
+branch=$(git symbolic-ref --short -q HEAD || true)
+fail=0
+
+if [ -n "$branch" ]; then
+  if dk_is_protected "$branch"; then
+    # Commit đầu tiên của repo (chưa có HEAD) được phép để khởi tạo main.
+    if git rev-parse -q --verify HEAD >/dev/null 2>&1; then
+      dk_err "Khong commit thang vao '$branch'. Tao nhanh: git switch -c feat/<ten-chuc-nang> develop"
+      fail=1
+    fi
+  elif ! dk_check_branch_name "$branch"; then
+    dk_err "Ten nhanh '$branch' sai quy uoc. Dung: feat|fix|docs|chore|test|refactor|hotfix/<ten-viet-thuong-gach-ngang>"
+    dk_err "  Doi ten: git branch -m feat/<ten-chuc-nang>"
+    fail=1
+  fi
+fi
+
+max_bytes=$(( DEVKIT_MAX_FILE_MB * 1024 * 1024 ))
+while IFS= read -r f; do
+  base=$(basename "$f")
+  case "$base" in
+    .env.example|.env.sample|.env.template) ;;
+    .env|.env.*) dk_err "Khong commit file moi truong that: $f (chi commit .env.example)"; fail=1 ;;
+  esac
+  size=$(git cat-file -s ":$f" 2>/dev/null || echo 0)
+  if [ "$size" -gt "$max_bytes" ]; then
+    dk_err "File '$f' nang $(( size / 1024 / 1024 )) MB (vuot ${DEVKIT_MAX_FILE_MB} MB). Dung Git LFS hoac khong commit."
+    fail=1
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+if dk_has_gitleaks; then
+  gitleaks protect --staged --redact >/dev/null 2>&1 || { dk_err "gitleaks phat hien secret trong thay doi da stage."; fail=1; }
+else
+  dk_warn "Chua cai gitleaks -> bo qua quet secret o may nay (CI van quet). Cai: https://github.com/gitleaks/gitleaks#installing"
+fi
+
+exit $fail
