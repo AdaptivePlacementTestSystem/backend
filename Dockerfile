@@ -18,10 +18,10 @@ RUN apk add --no-cache git
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 RUN apk del git
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/node_modules/@apt/shared-types ./node_modules/@apt/shared-types
+COPY --from=build --chown=node:node /app/dist ./dist
+COPY --from=build --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build --chown=node:node /app/prisma ./prisma
+COPY --from=build --chown=node:node /app/node_modules/@apt/shared-types ./node_modules/@apt/shared-types
 
 USER node
 EXPOSE 3001
