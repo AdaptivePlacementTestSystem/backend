@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+reports
+report
+.git
+.githooks
+.env
+.env.*
+!.env.example
+*.log
+.idea
+.vscode
+*.tsbuildinfo

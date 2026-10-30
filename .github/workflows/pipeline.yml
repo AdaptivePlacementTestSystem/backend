@@ -1,0 +1,160 @@
+name: pipeline
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop]
+  workflow_dispatch:
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+permissions:
+  contents: read
+jobs:
+  build-test:
+    name: build-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # Biến tối thiểu để test/e2e chạy; giá trị giả, không phải secret thật
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/apt_test
+      REDIS_HOST: localhost
+      REDIS_PORT: "6379"
+      JWT_SECRET: ci-only-secret-khong-dung-that
+      NODE_ENV: test
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: apt_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npx prisma generate
+      # - run: npx prisma migrate deploy # BẬT sau khi có migration
+      - run: npm run lint
+      - run: npm run dup
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run test:cov
+      - run: npm run build
+      - name: Báo cáo coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: coverage-backend, path: coverage, if-no-files-found: ignore }
+      - name: SonarCloud
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v7
+
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: "8.18.4"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - name: Quét secret toàn lịch sử (gitleaks)
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --verbose
+      - run: npm audit --omit=dev --audit-level=high
+      - name: Review phụ thuộc trên PR
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        continue-on-error: true
+
+  package:
+    name: package
+    needs: [build-test, security]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions: { contents: read, packages: write }
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tên image (chữ thường)
+        id: meta
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "image=${IMAGE}:sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "repo=${IMAGE}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}
+            ${{ steps.meta.outputs.repo }}:develop
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: deploy-staging
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    permissions: { contents: read, packages: read }
+    steps:
+      - name: Kiểm tra secret staging
+        id: guard
+        env:
+          READY: ${{ secrets.STAGING_SSH_KEY != '' && secrets.STAGING_KNOWN_HOSTS != '' && secrets.STAGING_HOST != '' && secrets.STAGING_USER != '' }}
+        run: |
+          echo "ready=${READY}" >> "$GITHUB_OUTPUT"
+          [ "$READY" = "true" ] || echo "::warning::Thiếu secret staging nên bỏ qua deploy."
+      - name: Cấu hình SSH
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.STAGING_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_staging
+          chmod 600 ~/.ssh/id_staging
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Đăng nhập GHCR trên server
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/id_staging "$TARGET" "docker login ghcr.io -u '$ACTOR' --password-stdin"
+      - name: Deploy
+        if: steps.guard.outputs.ready == 'true'
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+          IMAGE: ${{ needs.package.outputs.image }}
+        run: |
+          ssh -i ~/.ssh/id_staging "$TARGET" "flock /tmp/placement-deploy.lock bash ~/placement/deploy.sh backend '$IMAGE'"
+      - name: Đăng xuất GHCR trên server
+        if: always() && steps.guard.outputs.ready == 'true'
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+        run: ssh -i ~/.ssh/id_staging "$TARGET" "docker logout ghcr.io" || true
