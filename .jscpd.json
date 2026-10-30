@@ -1,0 +1,11 @@
+{
+  "path": ["src"],
+  "format": ["typescript"],
+  "ignore": ["**/node_modules/**", "**/dist/**", "**/_legacy/**"],
+  "minLines": 5,
+  "minTokens": 50,
+  "threshold": 3,
+  "reporters": ["console", "html", "json"],
+  "output": "./reports/jscpd",
+  "gitignore": true
+}

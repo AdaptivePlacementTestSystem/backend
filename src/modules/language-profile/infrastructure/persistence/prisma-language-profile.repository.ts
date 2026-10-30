@@ -7,7 +7,9 @@ import { AbilityEstimateEntity } from '../../../cat-engine/domain/entities/abili
 export class PrismaLanguageProfileRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findLatestByStudentId(studentId: string): Promise<LanguageProfileEntity | null> {
+  async findLatestByStudentId(
+    studentId: string,
+  ): Promise<LanguageProfileEntity | null> {
     const raw = await this.prisma.languageProfile.findFirst({
       where: { studentId },
       orderBy: { completedAt: 'desc' },
@@ -16,7 +18,10 @@ export class PrismaLanguageProfileRepository {
     if (!raw) return null;
 
     const [lower, upper] = raw.confidenceInterval95;
-    const ability = new AbilityEstimateEntity(raw.theta, raw.standardError, [lower, upper]);
+    const ability = new AbilityEstimateEntity(raw.theta, raw.standardError, [
+      lower,
+      upper,
+    ]);
 
     return new LanguageProfileEntity(
       raw.id,

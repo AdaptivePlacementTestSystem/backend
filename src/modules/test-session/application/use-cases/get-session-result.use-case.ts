@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { SessionStatus } from '../../domain/entities/test-session.entity';
 import { UserRole } from '../../../auth/domain/enums/user-role.enum';
@@ -21,7 +26,11 @@ export interface SessionResultDto {
 export class GetSessionResultUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(sessionId: string, userId: string, userRole: string): Promise<SessionResultDto> {
+  async execute(
+    sessionId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<SessionResultDto> {
     const session = await this.prisma.testSession.findUnique({
       where: { id: sessionId },
       include: {
@@ -34,7 +43,9 @@ export class GetSessionResultUseCase {
     }
 
     if (userRole === UserRole.STUDENT && session.studentId !== userId) {
-      throw new ForbiddenException('Bạn không có quyền truy cập kết quả bài thi này');
+      throw new ForbiddenException(
+        'Bạn không có quyền truy cập kết quả bài thi này',
+      );
     }
 
     if (session.status !== SessionStatus.COMPLETED) {
@@ -46,7 +57,9 @@ export class GetSessionResultUseCase {
     });
 
     const durationSeconds = session.completedAt
-      ? Math.round((session.completedAt.getTime() - session.startedAt.getTime()) / 1000)
+      ? Math.round(
+          (session.completedAt.getTime() - session.startedAt.getTime()) / 1000,
+        )
       : 0;
 
     return {

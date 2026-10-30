@@ -11,9 +11,19 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { StartSessionUseCase } from '../application/use-cases/start-session.use-case';
-import { SubmitResponseUseCase, SubmitResponseDto } from '../application/use-cases/submit-response.use-case';
+import {
+  SubmitResponseUseCase,
+  SubmitResponseDto,
+} from '../application/use-cases/submit-response.use-case';
 import { ResumeSessionUseCase } from '../application/use-cases/resume-session.use-case';
 import { GetActiveSessionUseCase } from '../application/use-cases/get-active-session.use-case';
 import { GetSessionResultUseCase } from '../application/use-cases/get-session-result.use-case';
@@ -25,7 +35,10 @@ import type { IItemRepository } from '../../item-bank/domain/repositories/item.r
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../../shared/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  JwtPayload,
+} from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
 
 export class SubmitResponseBodyDto {
@@ -67,7 +80,10 @@ export class TestSessionController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.STUDENT, UserRole.ADMIN)
-  async startSession(@CurrentUser() user: JwtPayload, @Body() body: StartSessionBodyDto) {
+  async startSession(
+    @CurrentUser() user: JwtPayload,
+    @Body() body: StartSessionBodyDto,
+  ) {
     return this.startSessionUseCase.execute(user.sub, body.examRoundId);
   }
 
@@ -87,20 +103,33 @@ export class TestSessionController {
     const cacheState = await this.cacheService.getState(sessionId);
 
     // Nếu đang chờ câu trả lời cho câu hỏi hiện tại, trả lại câu hỏi đó (chống spam reload)
-    if (cacheState && cacheState.state === 'WAITING_FOR_ANSWER' && cacheState.currentItemId) {
-      const existingItem = await this.itemRepository.findById(cacheState.currentItemId);
+    if (
+      cacheState &&
+      cacheState.state === 'WAITING_FOR_ANSWER' &&
+      cacheState.currentItemId
+    ) {
+      const existingItem = await this.itemRepository.findById(
+        cacheState.currentItemId,
+      );
       if (existingItem) {
         return this.formatItemForStudent(existingItem);
       }
     }
 
     // 1. Chọn kỹ năng tiếp theo (Round-robin)
-    const nextSkill = this.catEngineService.pickNextSkill(cacheState?.lastSkillPicked ?? null);
+    const nextSkill = this.catEngineService.pickNextSkill(
+      cacheState?.lastSkillPicked ?? null,
+    );
 
     // 2. Lấy danh sách Top-5 ứng viên gần theta nhất
     const usedIds = cacheState?.itemsAdministered ?? [];
     const currentTheta = cacheState?.theta ?? -0.5;
-    const candidates = await this.itemRepository.findForCAT(nextSkill, usedIds, currentTheta, 5);
+    const candidates = await this.itemRepository.findForCAT(
+      nextSkill,
+      usedIds,
+      currentTheta,
+      5,
+    );
 
     // 3. Chọn ngẫu nhiên đều 1 câu từ Top-5
     const selectedItem = this.catEngineService.selectNextItem(candidates);
@@ -178,7 +207,9 @@ export class TestSessionController {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
     if (session.studentId !== user.sub) {
-      throw new ForbiddenException('Bạn không có quyền thao tác trên phiên làm bài này');
+      throw new ForbiddenException(
+        'Bạn không có quyền thao tác trên phiên làm bài này',
+      );
     }
   }
 

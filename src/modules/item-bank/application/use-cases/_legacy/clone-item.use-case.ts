@@ -39,7 +39,7 @@ export class CloneItemUseCase {
       original.topicTag,
       null, // approvedById
       null, // approvedAt
-      0,    // timesUsed reset về 0
+      0, // timesUsed reset về 0
       false, // calibrated reset về false
     );
 

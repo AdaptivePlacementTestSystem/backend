@@ -1,0 +1,47 @@
+# Rollback thủ công: deploy lại một image CŨ đã có trên GHCR
+name: rollback
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Image đầy đủ cần quay về, ví dụ ghcr.io/adaptiveplacementtestsystem/backend:sha-abc1234"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: staging
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Cấu hình SSH
+        env:
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.STAGING_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_staging
+          chmod 600 ~/.ssh/id_staging
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Đăng nhập GHCR trên server
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/id_staging "$TARGET" "docker login ghcr.io -u '$ACTOR' --password-stdin"
+      - name: Deploy lại image cũ
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+          IMAGE: ${{ inputs.image }}
+        run: |
+          ssh -i ~/.ssh/id_staging "$TARGET" "flock /tmp/placement-deploy.lock bash ~/placement/deploy.sh backend '$IMAGE'"
+      - name: Đăng xuất GHCR trên server
+        if: always()
+        env:
+          TARGET: ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}
+        run: ssh -i ~/.ssh/id_staging "$TARGET" "docker logout ghcr.io" || true

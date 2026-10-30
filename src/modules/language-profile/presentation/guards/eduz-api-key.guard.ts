@@ -28,12 +28,17 @@ export class EduzApiKeyGuard implements CanActivate {
     const apiKey = request.headers['x-eduz-api-key'];
 
     if (!apiKey || typeof apiKey !== 'string') {
-      throw new UnauthorizedException('Thiếu API Key EduZ trong header X-Eduz-API-Key');
+      throw new UnauthorizedException(
+        'Thiếu API Key EduZ trong header X-Eduz-API-Key',
+      );
     }
 
     const keyBuf = Buffer.from(apiKey);
     const validBuf = Buffer.from(this.validApiKey);
-    if (keyBuf.length !== validBuf.length || !timingSafeEqual(keyBuf, validBuf)) {
+    if (
+      keyBuf.length !== validBuf.length ||
+      !timingSafeEqual(keyBuf, validBuf)
+    ) {
       throw new UnauthorizedException('API Key không hợp lệ');
     }
 

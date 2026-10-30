@@ -30,7 +30,9 @@ describe('CatEngineService & EAP Algorithm', () => {
     const pickNextSkillUseCase = new PickNextSkillUseCase();
     const selectNextItemUseCase = new SelectNextItemUseCase();
     const computeEapUseCase = new ComputeEapUseCase(configService);
-    const checkStoppingCriterionUseCase = new CheckStoppingCriterionUseCase(configService);
+    const checkStoppingCriterionUseCase = new CheckStoppingCriterionUseCase(
+      configService,
+    );
 
     catEngineService = new CatEngineService(
       pickNextSkillUseCase,
@@ -42,8 +44,12 @@ describe('CatEngineService & EAP Algorithm', () => {
 
   describe('pickNextSkill (Round-robin)', () => {
     it('chọn xen kẽ giữa VOCABULARY và GRAMMAR', () => {
-      expect(catEngineService.pickNextSkill(Skill.VOCABULARY)).toBe(Skill.GRAMMAR);
-      expect(catEngineService.pickNextSkill(Skill.GRAMMAR)).toBe(Skill.VOCABULARY);
+      expect(catEngineService.pickNextSkill(Skill.VOCABULARY)).toBe(
+        Skill.GRAMMAR,
+      );
+      expect(catEngineService.pickNextSkill(Skill.GRAMMAR)).toBe(
+        Skill.VOCABULARY,
+      );
     });
 
     it('chọn một trong hai skill khi chưa có skill nào trước đó (câu đầu tiên)', () => {
@@ -104,7 +110,7 @@ describe('CatEngineService & EAP Algorithm', () => {
     it('dừng khi đạt tối đa 25 câu', () => {
       const result = catEngineService.checkStoppingCriterion({
         itemCount: 25,
-        standardError: 0.40,
+        standardError: 0.4,
         currentTheta: 0.0,
         expiresAt: new Date(Date.now() + 45 * 60 * 1000),
       });
@@ -126,7 +132,7 @@ describe('CatEngineService & EAP Algorithm', () => {
     it('dừng với ITEM_BANK_BOUNDARY khi đạt Outlier Early Stop (theta > 1.5 hoặc theta < -2.5 sau >= 8 câu)', () => {
       const resultHigh = catEngineService.checkStoppingCriterion({
         itemCount: 8,
-        standardError: 0.40,
+        standardError: 0.4,
         currentTheta: 1.6,
         expiresAt: new Date(Date.now() + 45 * 60 * 1000),
       });
@@ -135,7 +141,7 @@ describe('CatEngineService & EAP Algorithm', () => {
 
       const resultLow = catEngineService.checkStoppingCriterion({
         itemCount: 8,
-        standardError: 0.40,
+        standardError: 0.4,
         currentTheta: -2.6,
         expiresAt: new Date(Date.now() + 45 * 60 * 1000),
       });
@@ -145,7 +151,7 @@ describe('CatEngineService & EAP Algorithm', () => {
       // Chưa đủ 8 câu thì không dừng theo Outlier Early Stop
       const resultNotEnough = catEngineService.checkStoppingCriterion({
         itemCount: 7,
-        standardError: 0.40,
+        standardError: 0.4,
         currentTheta: 1.6,
         expiresAt: new Date(Date.now() + 45 * 60 * 1000),
       });

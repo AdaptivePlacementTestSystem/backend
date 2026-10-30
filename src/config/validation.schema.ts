@@ -7,7 +7,9 @@ import * as Joi from 'joi';
 export const validationSchema = Joi.object({
   // App
   PORT: Joi.number().default(3001),
-  NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+  NODE_ENV: Joi.string()
+    .valid('development', 'production', 'test')
+    .default('development'),
   API_PREFIX: Joi.string().default('api/v1'),
   CORS_ORIGINS: Joi.string().optional(),
   REVIEW_ENABLED: Joi.boolean().default(true),
@@ -52,8 +54,6 @@ export const validationSchema = Joi.object({
 
   // EduZ M2M
   EDUZ_API_KEY: Joi.string().optional(),
-
-
 
   // Multi-tenant
 });

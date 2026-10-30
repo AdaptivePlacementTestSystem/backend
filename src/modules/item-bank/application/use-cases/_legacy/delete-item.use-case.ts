@@ -1,6 +1,11 @@
 // VÔ HIỆU HÓA (DC-32, #106): CRUD câu hỏi bằng form đã bỏ; câu hỏi chỉ vào hệ thống qua lô (AI sinh / import file).
 // Giữ làm tham khảo cho luồng duyệt A/B ở đợt module lô/gói; KHÔNG biên dịch (loại khỏi tsconfig, vitest). Import tương đối đã lệch một cấp.
-import { Injectable, NotFoundException, ConflictException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  Inject,
+} from '@nestjs/common';
 import type { IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { ItemStatus } from '@apt/shared-types';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
@@ -23,7 +28,11 @@ export class DeleteItemUseCase {
     const responseCount = await this.prisma.sessionResponse.count({
       where: { itemId },
     });
-    if (responseCount > 0 || existing.isApproved() || existing.status === ItemStatus.FINAL_APPROVED) {
+    if (
+      responseCount > 0 ||
+      existing.isApproved() ||
+      existing.status === ItemStatus.FINAL_APPROVED
+    ) {
       throw new ConflictException(
         'Không thể xóa câu hỏi đã được duyệt hoặc đã có sinh viên làm bài trong hệ thống',
       );

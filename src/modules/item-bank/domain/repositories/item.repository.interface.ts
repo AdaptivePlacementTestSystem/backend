@@ -18,5 +18,10 @@ export interface IItemRepository {
    * BẮT BUỘC filter WHERE status = 'FINAL_APPROVED' tại tầng Repository.
    * Lấy Top-N (mặc định 5) ứng viên gần theta nhất chưa được sử dụng.
    */
-  findForCAT(skill: Skill, usedIds: string[], theta: number, limit?: number): Promise<ItemEntity[]>;
+  findForCAT(
+    skill: Skill,
+    usedIds: string[],
+    theta: number,
+    limit?: number,
+  ): Promise<ItemEntity[]>;
 }

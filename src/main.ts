@@ -26,7 +26,9 @@ async function bootstrap() {
   );
 
   // Enable CORS
-  const corsOrigins = configService.get<string[]>('corsOrigins') || ['http://localhost:3000'];
+  const corsOrigins = configService.get<string[]>('corsOrigins') || [
+    'http://localhost:3000',
+  ];
   app.enableCors({
     origin: corsOrigins,
     credentials: true,
@@ -34,6 +36,8 @@ async function bootstrap() {
 
   const port = configService.get<number>('port') || 3001;
   await app.listen(port);
-  logger.log(`Backend server đang chạy tại: http://localhost:${port}/${apiPrefix}`);
+  logger.log(
+    `Backend server đang chạy tại: http://localhost:${port}/${apiPrefix}`,
+  );
 }
 void bootstrap();

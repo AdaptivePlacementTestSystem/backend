@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { IItemRepository, ItemFilterOptions } from '../../domain/repositories/item.repository.interface';
+import {
+  IItemRepository,
+  ItemFilterOptions,
+} from '../../domain/repositories/item.repository.interface';
 import { ItemEntity, OptionMap } from '../../domain/entities/item.entity';
 import { Skill, CEFRLevel, ItemStatus } from '@apt/shared-types';
 
@@ -64,16 +67,20 @@ export class PrismaItemRepository implements IItemRepository {
       return [];
     }
 
-    candidates.sort((a: { id: string; irtB: number }, b: { id: string; irtB: number }) => {
-      const distA = Math.abs(a.irtB - theta);
-      const distB = Math.abs(b.irtB - theta);
-      if (Math.abs(distA - distB) < 1e-6) {
-        return a.id.localeCompare(b.id);
-      }
-      return distA - distB;
-    });
+    candidates.sort(
+      (a: { id: string; irtB: number }, b: { id: string; irtB: number }) => {
+        const distA = Math.abs(a.irtB - theta);
+        const distB = Math.abs(b.irtB - theta);
+        if (Math.abs(distA - distB) < 1e-6) {
+          return a.id.localeCompare(b.id);
+        }
+        return distA - distB;
+      },
+    );
 
-    const topIds = candidates.slice(0, limit).map((c: { id: string; irtB: number }) => c.id);
+    const topIds = candidates
+      .slice(0, limit)
+      .map((c: { id: string; irtB: number }) => c.id);
 
     const fullItems = await this.prisma.item.findMany({
       where: {

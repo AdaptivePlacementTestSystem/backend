@@ -22,10 +22,16 @@ export interface EduZLanguageProfileJson {
 
 @Injectable()
 export class ExportForEduZUseCase {
-  constructor(private readonly profileRepository: PrismaLanguageProfileRepository) {}
+  constructor(
+    private readonly profileRepository: PrismaLanguageProfileRepository,
+  ) {}
 
-  async execute(studentId: string, studentCode: string): Promise<EduZLanguageProfileJson> {
-    const profile = await this.profileRepository.findLatestByStudentId(studentId);
+  async execute(
+    studentId: string,
+    studentCode: string,
+  ): Promise<EduZLanguageProfileJson> {
+    const profile =
+      await this.profileRepository.findLatestByStudentId(studentId);
     if (!profile) {
       throw new NotFoundException('Không tìm thấy hồ sơ năng lực để xuất');
     }

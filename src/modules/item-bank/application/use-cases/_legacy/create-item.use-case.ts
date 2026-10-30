@@ -79,7 +79,9 @@ export class CreateItemUseCase {
 
   async execute(dto: CreateItemDto): Promise<ItemEntity> {
     if (!['A', 'B', 'C', 'D'].includes(dto.correctAnswer)) {
-      throw new BadRequestException('Đáp án đúng phải là một trong các giá trị A, B, C, D');
+      throw new BadRequestException(
+        'Đáp án đúng phải là một trong các giá trị A, B, C, D',
+      );
     }
 
     const item = new ItemEntity(

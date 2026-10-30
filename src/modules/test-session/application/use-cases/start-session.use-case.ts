@@ -1,10 +1,19 @@
 import { ErrorCode } from '@apt/shared-types';
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaTestSessionRepository } from '../../infrastructure/persistence/prisma-test-session.repository';
 import { RedisSessionCacheService } from '../../infrastructure/cache/redis-session-cache.service';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { TestSessionEntity, SessionStatus, StoppingReason } from '../../domain/entities/test-session.entity';
+import {
+  TestSessionEntity,
+  SessionStatus,
+  StoppingReason,
+} from '../../domain/entities/test-session.entity';
 import { ComputeResultUseCase } from './compute-result.use-case';
 import { randomUUID } from 'crypto';
 
@@ -18,7 +27,10 @@ export class StartSessionUseCase {
     private readonly computeResultUseCase: ComputeResultUseCase,
   ) {}
 
-  async execute(userId: string, examRoundId: string): Promise<{ sessionId: string; expiresAt: Date }> {
+  async execute(
+    userId: string,
+    examRoundId: string,
+  ): Promise<{ sessionId: string; expiresAt: Date }> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('Không tìm thấy thông tin sinh viên');
@@ -29,22 +41,39 @@ export class StartSessionUseCase {
 
     // DC-07, DC-20: phiên thi luôn gắn với một kỳ thi; SV phải thuộc danh sách thi của kỳ (không tự thêm)
     const participant = await this.prisma.examRoundParticipant.findUnique({
-      where: { roundId_studentId: { roundId: examRoundId, studentId: user.id } },
+      where: {
+        roundId_studentId: { roundId: examRoundId, studentId: user.id },
+      },
       include: { round: true },
     });
     if (!participant) {
-      throw new ForbiddenException({ code: ErrorCode.NOT_IN_ROUND, message: 'Bạn không thuộc danh sách thi của kỳ này.' });
+      throw new ForbiddenException({
+        code: ErrorCode.NOT_IN_ROUND,
+        message: 'Bạn không thuộc danh sách thi của kỳ này.',
+      });
     }
     const round = participant.round;
 
     // Trạng thái hiệu lực chuyển lazy theo thời gian (DC-10): DRAFT/CLOSED (đóng thủ công) hoặc ngoài [opensAt, closesAt)
     const now = new Date();
-    if (round.status === 'DRAFT' || round.status === 'CLOSED' || now < round.opensAt || now >= round.closesAt) {
-      throw new ConflictException({ code: ErrorCode.ROUND_NOT_OPEN, message: 'Kỳ thi hiện không mở.' });
+    if (
+      round.status === 'DRAFT' ||
+      round.status === 'CLOSED' ||
+      now < round.opensAt ||
+      now >= round.closesAt
+    ) {
+      throw new ConflictException({
+        code: ErrorCode.ROUND_NOT_OPEN,
+        message: 'Kỳ thi hiện không mở.',
+      });
     }
 
     const completed = await this.prisma.testSession.findFirst({
-      where: { studentId: user.id, examRoundId, status: SessionStatus.COMPLETED as any },
+      where: {
+        studentId: user.id,
+        examRoundId,
+        status: SessionStatus.COMPLETED as any,
+      },
       select: { id: true },
     });
     if (completed) {
@@ -56,11 +85,16 @@ export class StartSessionUseCase {
 
     // expires_at = min(startedAt + durationMinutes của kỳ, closesAt), tính 1 lần lúc bắt đầu phiên (DC-20)
     const expiresAt = new Date(
-      Math.min(now.getTime() + round.durationMinutes * 60 * 1000, round.closesAt.getTime()),
+      Math.min(
+        now.getTime() + round.durationMinutes * 60 * 1000,
+        round.closesAt.getTime(),
+      ),
     );
 
-    const graceSeconds = this.configService.get<number>('cat.sessionGraceSeconds') ?? 60;
-    const minItems = this.configService.get<number>('cat.boundaryMinItems') ?? 8;
+    const graceSeconds =
+      this.configService.get<number>('cat.sessionGraceSeconds') ?? 60;
+    const minItems =
+      this.configService.get<number>('cat.boundaryMinItems') ?? 8;
 
     // Kiểm tra phiên thi IN_PROGRESS của sinh viên
     const activeSession = await this.prisma.testSession.findFirst({
@@ -77,11 +111,13 @@ export class StartSessionUseCase {
     });
 
     if (activeSession) {
-      const isExpired = Date.now() > activeSession.expiresAt.getTime() + graceSeconds * 1000;
+      const isExpired =
+        Date.now() > activeSession.expiresAt.getTime() + graceSeconds * 1000;
       if (isExpired) {
         // Phiên quá hạn -> Lazy Cleanup trong transaction
         if (activeSession.responses.length >= minItems) {
-          const lastResponse = activeSession.responses[activeSession.responses.length - 1];
+          const lastResponse =
+            activeSession.responses[activeSession.responses.length - 1];
           const thetaFinal = lastResponse?.thetaAfter ?? -0.5;
           const seFinal = lastResponse?.seAfter ?? 0.35;
           await this.computeResultUseCase.execute(

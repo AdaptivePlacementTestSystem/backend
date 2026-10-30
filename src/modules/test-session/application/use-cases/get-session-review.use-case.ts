@@ -1,5 +1,10 @@
 import { ErrorCode } from '@apt/shared-types';
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { SessionStatus } from '../../domain/entities/test-session.entity';
@@ -26,13 +31,19 @@ export class GetSessionReviewUseCase {
     private readonly configService: ConfigService,
   ) {}
 
-  async execute(sessionId: string, userId: string, userRole: string): Promise<ReviewEntryDto[]> {
+  async execute(
+    sessionId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<ReviewEntryDto[]> {
     // Quyết định #78 & K6: Kiểm tra công tắc REVIEW_ENABLED
-    const reviewEnabled = this.configService.get<boolean>('reviewEnabled') ?? true;
+    const reviewEnabled =
+      this.configService.get<boolean>('reviewEnabled') ?? true;
     if (!reviewEnabled) {
       throw new ForbiddenException({
         code: ErrorCode.REVIEW_DISABLED,
-        message: 'Tính năng xem lại kết quả bài thi đang tạm khóa trên hệ thống.',
+        message:
+          'Tính năng xem lại kết quả bài thi đang tạm khóa trên hệ thống.',
       });
     }
 
@@ -57,11 +68,15 @@ export class GetSessionReviewUseCase {
     }
 
     if (userRole === UserRole.STUDENT && session.studentId !== userId) {
-      throw new ForbiddenException('Bạn không có quyền xem lại kết quả bài thi này');
+      throw new ForbiddenException(
+        'Bạn không có quyền xem lại kết quả bài thi này',
+      );
     }
 
     if (session.status !== SessionStatus.COMPLETED) {
-      throw new BadRequestException('Chỉ có thể xem lại bài thi sau khi đã hoàn thành');
+      throw new BadRequestException(
+        'Chỉ có thể xem lại bài thi sau khi đã hoàn thành',
+      );
     }
 
     return session.responses.map((r, index) => {

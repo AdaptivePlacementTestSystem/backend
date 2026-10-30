@@ -9,11 +9,16 @@ import { Skill } from '../../../item-bank/domain/enums/skill.enum';
  */
 @Injectable()
 export class PickNextSkillUseCase {
-  execute(lastSkillPicked: Skill | null, randomSource: () => number = Math.random): Skill {
+  execute(
+    lastSkillPicked: Skill | null,
+    randomSource: () => number = Math.random,
+  ): Skill {
     if (!lastSkillPicked) {
       return randomSource() < 0.5 ? Skill.VOCABULARY : Skill.GRAMMAR;
     }
 
-    return lastSkillPicked === Skill.VOCABULARY ? Skill.GRAMMAR : Skill.VOCABULARY;
+    return lastSkillPicked === Skill.VOCABULARY
+      ? Skill.GRAMMAR
+      : Skill.VOCABULARY;
   }
 }

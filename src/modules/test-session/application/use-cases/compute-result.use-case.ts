@@ -23,10 +23,20 @@ export class ComputeResultUseCase {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
 
-    await this.sessionRepository.complete(sessionId, thetaFinal, seFinal, stoppingReason);
+    await this.sessionRepository.complete(
+      sessionId,
+      thetaFinal,
+      seFinal,
+      stoppingReason,
+    );
 
     const cefrLevel = this.mapThetaToCEFR(thetaFinal);
-    const cefrConfidence = seFinal < 0.35 ? CEFRConfidence.HIGH : seFinal < 0.5 ? CEFRConfidence.MEDIUM : CEFRConfidence.LOW;
+    const cefrConfidence =
+      seFinal < 0.35
+        ? CEFRConfidence.HIGH
+        : seFinal < 0.5
+          ? CEFRConfidence.MEDIUM
+          : CEFRConfidence.LOW;
     const boundaryEffect = thetaFinal > 1.5 || thetaFinal < -2.5;
 
     const ci95Lower = parseFloat((thetaFinal - 1.96 * seFinal).toFixed(4));
@@ -36,7 +46,7 @@ export class ComputeResultUseCase {
       data: {
         id: randomUUID(),
         studentId: session.studentId,
-                testSessionId: session.id,
+        testSessionId: session.id,
         completedAt: new Date(),
         theta: thetaFinal,
         standardError: seFinal,

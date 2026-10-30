@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { Skill } from '../../../item-bank/domain/enums/skill.enum';
@@ -27,7 +32,8 @@ export class RedisSessionCacheService implements OnModuleInit, OnModuleDestroy {
   private readonly ttlSeconds: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.ttlSeconds = this.configService.get<number>('redis.ttlSeconds') ?? 7200;
+    this.ttlSeconds =
+      this.configService.get<number>('redis.ttlSeconds') ?? 7200;
   }
 
   onModuleInit() {
@@ -41,7 +47,9 @@ export class RedisSessionCacheService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.redis.connect().catch((err) => {
-      this.logger.warn(`Không thể kết nối Redis tại ${host}:${port}. Chạy ở chế độ fallback memory/DB: ${err.message}`);
+      this.logger.warn(
+        `Không thể kết nối Redis tại ${host}:${port}. Chạy ở chế độ fallback memory/DB: ${err.message}`,
+      );
     });
   }
 
@@ -66,9 +74,16 @@ export class RedisSessionCacheService implements OnModuleInit, OnModuleDestroy {
 
   async setState(sessionId: string, state: SessionCacheState): Promise<void> {
     try {
-      await this.redis.set(this.getKey(sessionId), JSON.stringify(state), 'EX', this.ttlSeconds);
+      await this.redis.set(
+        this.getKey(sessionId),
+        JSON.stringify(state),
+        'EX',
+        this.ttlSeconds,
+      );
     } catch (err: any) {
-      this.logger.warn(`Lỗi ghi cache Redis session ${sessionId}: ${err.message}`);
+      this.logger.warn(
+        `Lỗi ghi cache Redis session ${sessionId}: ${err.message}`,
+      );
     }
   }
 

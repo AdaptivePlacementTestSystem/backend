@@ -20,7 +20,8 @@ export class GeminiFlashProvider {
 
   constructor(private readonly configService: ConfigService) {
     this.apiKey = this.configService.get<string>('gemini.apiKey');
-    this.modelName = this.configService.get<string>('gemini.model') || 'gemini-1.5-flash';
+    this.modelName =
+      this.configService.get<string>('gemini.model') || 'gemini-1.5-flash';
   }
 
   async generateExplanation(params: {
@@ -31,10 +32,22 @@ export class GeminiFlashProvider {
   }): Promise<string> {
     const fallbackGeneral = `Đáp án đúng là ${params.correctAnswer}. Phương án này chính xác nhất về mặt ngữ nghĩa và quy tắc ngữ pháp của kỹ năng ${params.skill}.`;
     const fallbackOptions: Record<string, string> = {
-      A: params.correctAnswer === 'A' ? 'Đáp án đúng theo ngữ cảnh câu hỏi.' : 'Phương án này không phù hợp với cấu trúc câu.',
-      B: params.correctAnswer === 'B' ? 'Đáp án đúng theo ngữ cảnh câu hỏi.' : 'Phương án này không phù hợp với ngữ cảnh ngữ pháp.',
-      C: params.correctAnswer === 'C' ? 'Đáp án đúng theo ngữ cảnh câu hỏi.' : 'Phương án này sai về cách dùng từ hoặc chia thì.',
-      D: params.correctAnswer === 'D' ? 'Đáp án đúng theo ngữ cảnh câu hỏi.' : 'Phương án này không hợp nghĩa với chủ ngữ.',
+      A:
+        params.correctAnswer === 'A'
+          ? 'Đáp án đúng theo ngữ cảnh câu hỏi.'
+          : 'Phương án này không phù hợp với cấu trúc câu.',
+      B:
+        params.correctAnswer === 'B'
+          ? 'Đáp án đúng theo ngữ cảnh câu hỏi.'
+          : 'Phương án này không phù hợp với ngữ cảnh ngữ pháp.',
+      C:
+        params.correctAnswer === 'C'
+          ? 'Đáp án đúng theo ngữ cảnh câu hỏi.'
+          : 'Phương án này sai về cách dùng từ hoặc chia thì.',
+      D:
+        params.correctAnswer === 'D'
+          ? 'Đáp án đúng theo ngữ cảnh câu hỏi.'
+          : 'Phương án này không hợp nghĩa với chủ ngữ.',
     };
 
     const schemaObj: ExplanationContentSchema = {
@@ -49,7 +62,9 @@ export class GeminiFlashProvider {
     };
 
     if (!this.apiKey) {
-      this.logger.warn('Chưa cấu hình GEMINI_API_KEY. Trả về cấu trúc JSON giải thích chuẩn hóa để demo/test.');
+      this.logger.warn(
+        'Chưa cấu hình GEMINI_API_KEY. Trả về cấu trúc JSON giải thích chuẩn hóa để demo/test.',
+      );
       return JSON.stringify(schemaObj);
     }
 

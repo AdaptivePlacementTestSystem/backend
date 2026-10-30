@@ -32,7 +32,10 @@ export class ProfileAccessPolicy {
       if (actor.userId === target.userId) {
         return { allowed: true };
       }
-      return { allowed: false, reason: 'Sinh viên chỉ có thể xem hồ sơ của chính mình' };
+      return {
+        allowed: false,
+        reason: 'Sinh viên chỉ có thể xem hồ sơ của chính mình',
+      };
     }
 
     if (actor.role === UserRole.TEACHER) {

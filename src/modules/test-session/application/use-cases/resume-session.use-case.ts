@@ -13,7 +13,9 @@ export class ResumeSessionUseCase {
     private readonly itemRepository: IItemRepository,
   ) {}
 
-  async execute(sessionId: string): Promise<{ currentItem: ItemEntity | null; state: any }> {
+  async execute(
+    sessionId: string,
+  ): Promise<{ currentItem: ItemEntity | null; state: any }> {
     const session = await this.sessionRepository.findById(sessionId);
     if (!session) {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
@@ -23,7 +25,8 @@ export class ResumeSessionUseCase {
 
     if (!cacheState) {
       const responses = session.responses;
-      const lastResponse = responses.length > 0 ? responses[responses.length - 1] : null;
+      const lastResponse =
+        responses.length > 0 ? responses[responses.length - 1] : null;
 
       cacheState = {
         state: 'READY_FOR_NEXT',
@@ -39,7 +42,9 @@ export class ResumeSessionUseCase {
 
     let currentItem: ItemEntity | null = null;
     if (cacheState.currentItemId) {
-      currentItem = await this.itemRepository.findById(cacheState.currentItemId);
+      currentItem = await this.itemRepository.findById(
+        cacheState.currentItemId,
+      );
     }
 
     return {

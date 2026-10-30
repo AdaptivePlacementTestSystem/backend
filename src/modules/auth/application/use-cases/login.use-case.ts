@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, Inject, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  Inject,
+  ForbiddenException,
+} from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { JwtProvider } from '../../infrastructure/providers/jwt.provider';
 import { LoginDto, AuthResponseDto } from '../dto/login.dto';
@@ -19,11 +24,15 @@ export class LoginUseCase {
     }
 
     if (!user.isActive) {
-      throw new ForbiddenException('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.');
+      throw new ForbiddenException(
+        'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.',
+      );
     }
 
     // #62: mật khẩu băm argon2; lỗi định dạng hash coi như sai mật khẩu
-    const isPasswordValid = await argon2.verify(user.passwordHash, dto.password).catch(() => false);
+    const isPasswordValid = await argon2
+      .verify(user.passwordHash, dto.password)
+      .catch(() => false);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Thông tin đăng nhập không chính xác');

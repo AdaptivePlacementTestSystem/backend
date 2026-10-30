@@ -4,10 +4,13 @@ import { LanguageProfileEntity } from '../../domain/entities/language-profile.en
 
 @Injectable()
 export class GetProfileUseCase {
-  constructor(private readonly profileRepository: PrismaLanguageProfileRepository) {}
+  constructor(
+    private readonly profileRepository: PrismaLanguageProfileRepository,
+  ) {}
 
   async execute(studentId: string): Promise<LanguageProfileEntity> {
-    const profile = await this.profileRepository.findLatestByStudentId(studentId);
+    const profile =
+      await this.profileRepository.findLatestByStudentId(studentId);
     if (!profile) {
       throw new NotFoundException('Chưa có hồ sơ năng lực cho sinh viên này');
     }

@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ClassReportEntity, CEFRDistribution } from '../../domain/entities/class-report.entity';
+import {
+  ClassReportEntity,
+  CEFRDistribution,
+} from '../../domain/entities/class-report.entity';
 
 @Injectable()
 export class GenerateClassReportUseCase {
@@ -31,12 +34,16 @@ export class GenerateClassReportUseCase {
 
     let totalTheta = 0;
     for (const p of profiles) {
-      initialDistribution[p.cefrLevel] = (initialDistribution[p.cefrLevel] || 0) + 1;
+      initialDistribution[p.cefrLevel] =
+        (initialDistribution[p.cefrLevel] || 0) + 1;
       totalTheta += p.theta;
     }
 
     const totalStudents = profiles.length;
-    const averageTheta = totalStudents > 0 ? parseFloat((totalTheta / totalStudents).toFixed(4)) : 0;
+    const averageTheta =
+      totalStudents > 0
+        ? parseFloat((totalTheta / totalStudents).toFixed(4))
+        : 0;
 
     return new ClassReportEntity(
       examRoundId ?? null,

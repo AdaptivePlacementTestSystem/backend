@@ -8,10 +8,12 @@
 
 # Environment files
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+
+# Reports (jscpd, etc.) - leading slash to avoid ignoring src/**/reports
+/reports/
+/report/
 
 # Logs
 /logs

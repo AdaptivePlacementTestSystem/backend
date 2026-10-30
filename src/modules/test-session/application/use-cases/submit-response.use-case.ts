@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaTestSessionRepository } from '../../infrastructure/persistence/prisma-test-session.repository';
 import { RedisSessionCacheService } from '../../infrastructure/cache/redis-session-cache.service';
 import { CatEngineService } from '../../../cat-engine/application/services/cat-engine.service';
@@ -7,7 +12,13 @@ import { SessionResponseEntity } from '../../domain/entities/session-response.en
 import { ComputeResultUseCase } from './compute-result.use-case';
 import { randomUUID } from 'crypto';
 
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class SubmitResponseDto {
   @IsString()
@@ -53,8 +64,14 @@ export class SubmitResponseUseCase {
     }
 
     let cacheState = await this.cacheService.getState(dto.sessionId);
-    if (cacheState && cacheState.state === 'WAITING_FOR_ANSWER' && cacheState.currentItemId !== dto.itemId) {
-      throw new BadRequestException('Câu hỏi nộp không khớp với câu hỏi hiện tại');
+    if (
+      cacheState &&
+      cacheState.state === 'WAITING_FOR_ANSWER' &&
+      cacheState.currentItemId !== dto.itemId
+    ) {
+      throw new BadRequestException(
+        'Câu hỏi nộp không khớp với câu hỏi hiện tại',
+      );
     }
 
     const item = await this.itemRepository.findById(dto.itemId);
@@ -62,17 +79,15 @@ export class SubmitResponseUseCase {
       throw new NotFoundException('Không tìm thấy câu hỏi tương ứng');
     }
 
-    const isCorrect = item.correctAnswer.toUpperCase() === dto.response.toUpperCase();
+    const isCorrect =
+      item.correctAnswer.toUpperCase() === dto.response.toUpperCase();
 
     const previousResponses = session.responses.map((r) => ({
       irtB: r.irtB,
       isCorrect: r.isCorrect,
     }));
 
-    const allHistory = [
-      ...previousResponses,
-      { irtB: item.irtB, isCorrect },
-    ];
+    const allHistory = [...previousResponses, { irtB: item.irtB, isCorrect }];
 
     const estimate = this.catEngineService.computeEAP(allHistory);
 
@@ -97,7 +112,9 @@ export class SubmitResponseUseCase {
     );
     await this.sessionRepository.recordResponse(responseEntity);
 
-    const updatedAdministered = cacheState ? [...cacheState.itemsAdministered, dto.itemId] : [dto.itemId];
+    const updatedAdministered = cacheState
+      ? [...cacheState.itemsAdministered, dto.itemId]
+      : [dto.itemId];
     await this.cacheService.setState(dto.sessionId, {
       state: 'READY_FOR_NEXT',
       currentItemId: null,

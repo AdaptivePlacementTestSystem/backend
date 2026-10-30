@@ -1,124 +1,96 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Adaptive Placement Test System — Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Hệ thống kiểm tra trình độ thích ứng trên nền tảng Web theo thuật toán CAT-Rasch (Computerized Adaptive Testing) và ước lượng năng lực EAP (Expected A Posteriori).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 1. Công nghệ sử dụng
 
-## Description
+- **Runtime & Framework:** Node.js 24, NestJS 12
+- **Cơ sở dữ liệu:** PostgreSQL 16 (lưu trữ chính) & Redis 7 (quản lý phiên thi thời gian thực)
+- **ORM:** Prisma 6
+- **Kiểm thử & Chất lượng:** Vitest, Oxlint, Prettier, jscpd, Gitleaks, CodeQL
+- **Gói chia sẻ dùng chung:** `@apt/shared-types` (DTOs, Enums, Error Codes)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 2. Cấu trúc thư mục
 
-## Project setup
-
-```bash
-$ npm install
+```text
+backend/
+├── .githooks/                # Git hooks chuẩn hóa commit, checklist, secret scan
+├── .github/
+│   ├── workflows/            # GitHub Actions CI/CD workflows
+│   │   ├── pipeline.yml      # CI pipeline chính (build, test, security, package, deploy)
+│   │   ├── codeql.yml        # Phân tích tĩnh bảo mật CodeQL
+│   │   ├── rollback.yml      # Rollback container phiên bản trước trên GHCR
+│   │   └── devkit-checks.yml # Kiểm tra branch policy, commit message, checklist
+│   └── pull_request_template.md
+├── src/
+│   ├── config/               # Cấu hình môi trường và Joi schema validation
+│   ├── modules/              # 14 module chức năng theo Clean Architecture
+│   │   ├── auth/             # Xác thực JWT & phân quyền RBAC
+│   │   ├── cat-engine/       # Thuật toán CAT (EAP, Fisher Information, stopping rule)
+│   │   ├── exam-round/       # Quản lý kỳ thi và đợt thi
+│   │   ├── health/           # Health probe (/health) và Readiness probe (/ready)
+│   │   ├── item-bank/        # Ngân hàng câu hỏi thích ứng
+│   │   ├── item-generation/  # Tự động sinh câu hỏi qua AI LLM
+│   │   ├── language-profile/ # Hồ sơ năng lực ngôn ngữ theo CEFR
+│   │   ├── llm-gateway/      # Cổng giao tiếp mô hình AI ngôn ngữ lớn
+│   │   ├── mail/             # Dịch vụ gửi email thông báo
+│   │   ├── reporting/        # Báo cáo kết quả lớp học và kỳ thi
+│   │   ├── test-session/     # Quản lý phiên làm bài thích ứng
+│   │   ├── user-admin/       # Quản trị người dùng hệ thống
+│   │   └── user-import/      # Import người dùng và ngân hàng đề hàng loạt
+│   ├── shared/               # Decorators, Filters, Guards, Prisma Client
+│   ├── app.module.ts         # Module gốc
+│   └── main.ts               # Điểm khởi chạy ứng dụng (prefix: api/v1)
+├── test/                     # Integration tests và E2E tests
+├── Dockerfile                # Multi-stage Docker build cho container hóa
+├── .jscpd.json               # Cấu hình kiểm tra trùng lặp mã (ngưỡng 3%)
+├── CODING_CONVENTION.md      # Quy ước lập trình
+└── TECH_DEBT.md              # Theo dõi nợ kỹ thuật
 ```
 
-## Compile and run the project
+## 3. Cài đặt & Khởi chạy
+
+### 3.1. Cài đặt môi trường
+
+Sao chép file `.env.example` thành `.env` và cấu hình các biến phù hợp:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
+npm install
+npx prisma generate
 ```
 
-## Run tests
+### 3.2. Lệnh phát triển & Kiểm thử
 
 ```bash
-# unit tests
-$ npm run test
+# Khởi chạy chế độ phát triển
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Kiểm tra chất lượng mã nguồn
+npm run lint          # Kiểm tra lỗi lint qua Oxlint
+npm run typecheck     # Kiểm tra kiểu qua TypeScript compiler
+npm run format:check  # Kiểm tra định dạng code qua Prettier
+npm run dup           # Kiểm tra trùng lặp mã nguồn (ngưỡng <= 3%)
 
-# test coverage
-$ npm run test:cov
+# Kiểm thử
+npm run test          # Chạy unit tests
+npm run test:cov      # Đo lường độ phủ kiểm thử (coverage)
+npm run test:e2e      # Chạy end-to-end tests
+
+# Build ứng dụng
+npm run build
 ```
 
-## Deployment
+## 4. Endpoints Giám sát (Monitoring & Health)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- `GET /api/v1/health`: Liveness probe phục vụ Docker container healthcheck và uptime monitoring.
+- `GET /api/v1/ready`: Readiness probe kiểm tra kết nối cơ sở dữ liệu PostgreSQL và Redis cache trước khi điều hướng lưu lượng.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 5. Quy trình CI/CD
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
-
-```bash
-$ npm install @nestjs/observe
-```
-
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Mọi commit và Pull Request đều được kiểm tra tự động qua 6 chặng của pipeline GitHub Actions:
+1. **Build & Test:** Kiểm tra compile, linting, trùng lặp mã, typecheck, format, unit test coverage.
+2. **Security:** Quét phát hiện lộ lọt bí mật bằng Gitleaks, quét phụ thuộc bằng `npm audit` và `dependency-review`.
+3. **Analyze:** Phân tích tĩnh lỗ hổng bảo mật chuyên sâu bằng GitHub CodeQL.
+4. **Package:** Đóng gói Docker image và đẩy lên GitHub Packages (GHCR) gắn thẻ theo commit SHA.
+5. **Deploy Staging:** Triển khai tự động lên môi trường staging sau khi vượt qua tất cả các chặng kiểm tra.

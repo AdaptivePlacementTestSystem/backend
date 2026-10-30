@@ -27,7 +27,8 @@ export class CheckStoppingCriterionUseCase {
   private readonly outlierMinItems: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.seThreshold = this.configService.get<number>('cat.seThreshold') ?? 0.35;
+    this.seThreshold =
+      this.configService.get<number>('cat.seThreshold') ?? 0.35;
     this.maxItems = this.configService.get<number>('cat.maxItems') ?? 25;
     this.outlierThetaMin =
       this.configService.get<number>('cat.outlierThetaMin') ??
@@ -55,7 +56,8 @@ export class CheckStoppingCriterionUseCase {
     // 2. Ưu tiên 2: Outlier Early Stop (θ < outlierThetaMin hoặc θ > outlierThetaMax) sau >= outlierMinItems câu (SRS Mục 4.5)
     if (
       params.itemCount >= this.outlierMinItems &&
-      (params.currentTheta < this.outlierThetaMin || params.currentTheta > this.outlierThetaMax)
+      (params.currentTheta < this.outlierThetaMin ||
+        params.currentTheta > this.outlierThetaMax)
     ) {
       return {
         shouldStop: true,

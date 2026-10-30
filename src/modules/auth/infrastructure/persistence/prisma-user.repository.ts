@@ -19,7 +19,10 @@ export class PrismaUserRepository implements IUserRepository {
     return user ? this.toDomain(user) : null;
   }
 
-  async findByExternalId(provider: string, externalId: string): Promise<UserEntity | null> {
+  async findByExternalId(
+    provider: string,
+    externalId: string,
+  ): Promise<UserEntity | null> {
     const user = await this.prisma.user.findFirst({
       where: {
         authProvider: provider as any,

@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ICATEngineDomainService, StoppingCriterionResult } from '../../domain/services/cat-engine.domain-service';
+import {
+  ICATEngineDomainService,
+  StoppingCriterionResult,
+} from '../../domain/services/cat-engine.domain-service';
 import { PickNextSkillUseCase } from '../use-cases/pick-next-skill.use-case';
 import { SelectNextItemUseCase } from '../use-cases/select-next-item.use-case';
-import { ComputeEapUseCase, ItemResponseInput } from '../use-cases/compute-eap.use-case';
-import { CheckStoppingCriterionUseCase, CheckStoppingParams } from '../use-cases/check-stopping-criterion.use-case';
+import {
+  ComputeEapUseCase,
+  ItemResponseInput,
+} from '../use-cases/compute-eap.use-case';
+import {
+  CheckStoppingCriterionUseCase,
+  CheckStoppingParams,
+} from '../use-cases/check-stopping-criterion.use-case';
 import { Skill } from '../../../item-bank/domain/enums/skill.enum';
 import { ItemEntity } from '../../../item-bank/domain/entities/item.entity';
 import { AbilityEstimateEntity } from '../../domain/entities/ability-estimate.entity';

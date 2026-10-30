@@ -28,7 +28,10 @@ export class LanguageProfileController {
    */
   @Get(':studentCode/eduz-export')
   @UseGuards(EduZApiKeyGuard, ProfileAccessGuard)
-  async exportForEduZ(@Req() req: any, @Param('studentCode') studentCode: string) {
+  async exportForEduZ(
+    @Req() req: any,
+    @Param('studentCode') studentCode: string,
+  ) {
     const target = req.targetStudent;
     return this.exportForEduZUseCase.execute(target.userId, studentCode);
   }

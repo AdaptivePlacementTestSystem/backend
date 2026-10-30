@@ -28,7 +28,9 @@ export class ProfileAccessGuard implements CanActivate {
 
     const target = await this.targetLookup.findStudentByCode(studentCode);
     if (!target) {
-      throw new NotFoundException(`Không tìm thấy sinh viên có mã: ${studentCode}`);
+      throw new NotFoundException(
+        `Không tìm thấy sinh viên có mã: ${studentCode}`,
+      );
     }
 
     const decision = ProfileAccessPolicy.canView(
@@ -40,7 +42,9 @@ export class ProfileAccessGuard implements CanActivate {
     );
 
     if (!decision.allowed) {
-      throw new ForbiddenException(decision.reason || 'Không có quyền truy cập hồ sơ này');
+      throw new ForbiddenException(
+        decision.reason || 'Không có quyền truy cập hồ sơ này',
+      );
     }
 
     request.targetStudent = target;

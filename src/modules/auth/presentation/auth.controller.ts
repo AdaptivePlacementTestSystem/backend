@@ -1,9 +1,20 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { LoginDto, AuthResponseDto } from '../application/dto/login.dto';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
-import { CurrentUser, JwtPayload } from '../../../shared/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  JwtPayload,
+} from '../../../shared/decorators/current-user.decorator';
 
 @Controller('auth')
 export class AuthController {

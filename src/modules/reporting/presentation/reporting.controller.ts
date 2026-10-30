@@ -4,7 +4,6 @@ import { ExportCsvUseCase } from '../application/use-cases/export-csv.use-case';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { Response } from 'express';
 
@@ -31,7 +30,10 @@ export class ReportingController {
     const csvContent = await this.exportCsvUseCase.execute(examRoundId);
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="placement-test-report.csv"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="placement-test-report.csv"',
+    );
     return res.send(csvContent);
   }
 }

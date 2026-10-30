@@ -9,6 +9,12 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/_legacy/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/_legacy/**', '**/*.e2e-spec.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'html', 'lcov'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/**/_legacy/**'],
+    },
   },
 });

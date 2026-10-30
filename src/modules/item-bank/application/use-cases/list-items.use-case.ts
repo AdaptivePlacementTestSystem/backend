@@ -1,5 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
-import type { IItemRepository, ItemFilterOptions } from '../../domain/repositories/item.repository.interface';
+import type {
+  IItemRepository,
+  ItemFilterOptions,
+} from '../../domain/repositories/item.repository.interface';
 import { ItemEntity } from '../../domain/entities/item.entity';
 
 @Injectable()

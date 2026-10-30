@@ -23,7 +23,8 @@ export class ExportCsvUseCase {
       orderBy: { completedAt: 'desc' },
     });
 
-    const header = 'StudentCode,FullName,Email,CEFRLevel,Theta,StandardError,CompletedAt\n';
+    const header =
+      'StudentCode,FullName,Email,CEFRLevel,Theta,StandardError,CompletedAt\n';
     const rows = profiles.map((p) => {
       const code = p.student?.studentProfile?.studentCode || 'N/A';
       const name = `"${p.student?.fullName || ''}"`;

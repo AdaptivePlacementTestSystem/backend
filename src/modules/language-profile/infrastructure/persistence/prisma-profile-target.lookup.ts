@@ -9,7 +9,9 @@ export interface StudentTargetInfo {
 export class PrismaProfileTargetLookup {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findStudentByCode(studentCode: string): Promise<StudentTargetInfo | null> {
+  async findStudentByCode(
+    studentCode: string,
+  ): Promise<StudentTargetInfo | null> {
     const profile = await this.prisma.studentProfile.findUnique({
       where: { studentCode },
       select: {

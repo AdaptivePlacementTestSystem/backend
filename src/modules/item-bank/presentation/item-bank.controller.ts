@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Param, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ItemService } from '../application/services/item.service';
 import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
@@ -19,7 +27,10 @@ export class ItemBankController {
 
   @Get()
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
-  async listItems(@Query('status') status?: ItemStatus, @Query('skill') skill?: Skill) {
+  async listItems(
+    @Query('status') status?: ItemStatus,
+    @Query('skill') skill?: Skill,
+  ) {
     return this.itemService.listItems({ status, skill });
   }
 

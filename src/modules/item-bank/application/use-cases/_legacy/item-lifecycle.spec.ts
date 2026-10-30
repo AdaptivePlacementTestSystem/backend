@@ -64,7 +64,10 @@ describe('Item Lifecycle: Clone, Update, Delete Rules (Quyết định #64 & #75
         },
       };
 
-      const cloneUseCase = new CloneItemUseCase(mockRepo as any, mockPrisma as any);
+      const cloneUseCase = new CloneItemUseCase(
+        mockRepo as any,
+        mockPrisma as any,
+      );
       const cloned = await cloneUseCase.execute('item-1');
 
       expect(cloned.id).not.toBe('item-1');
@@ -97,7 +100,9 @@ describe('Item Lifecycle: Clone, Update, Delete Rules (Quyết định #64 & #75
       };
 
       const updateUseCase = new UpdateItemUseCase(mockRepo as any);
-      const updated = await updateUseCase.execute('item-2', { content: 'Updated draft content' });
+      const updated = await updateUseCase.execute('item-2', {
+        content: 'Updated draft content',
+      });
 
       expect(updated.content).toBe('Updated draft content');
       expect(mockRepo.save).toHaveBeenCalled();
@@ -115,8 +120,13 @@ describe('Item Lifecycle: Clone, Update, Delete Rules (Quyết định #64 & #75
         },
       };
 
-      const deleteUseCase = new DeleteItemUseCase(mockRepo as any, mockPrisma as any);
-      await expect(deleteUseCase.execute('item-1')).rejects.toThrow(ConflictException);
+      const deleteUseCase = new DeleteItemUseCase(
+        mockRepo as any,
+        mockPrisma as any,
+      );
+      await expect(deleteUseCase.execute('item-1')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('cho phép xóa câu DRAFT chưa từng làm bài', async () => {
@@ -135,9 +145,14 @@ describe('Item Lifecycle: Clone, Update, Delete Rules (Quyết định #64 & #75
         },
       };
 
-      const deleteUseCase = new DeleteItemUseCase(mockRepo as any, mockPrisma as any);
+      const deleteUseCase = new DeleteItemUseCase(
+        mockRepo as any,
+        mockPrisma as any,
+      );
       await expect(deleteUseCase.execute('item-2')).resolves.toBeUndefined();
-      expect(mockPrisma.item.delete).toHaveBeenCalledWith({ where: { id: 'item-2' } });
+      expect(mockPrisma.item.delete).toHaveBeenCalledWith({
+        where: { id: 'item-2' },
+      });
     });
   });
 });

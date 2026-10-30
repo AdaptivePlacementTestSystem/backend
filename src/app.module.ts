@@ -16,6 +16,7 @@ import { ExamRoundModule } from './modules/exam-round/exam-round.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ItemGenerationModule } from './modules/item-generation/item-generation.module';
 import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
       validationSchema,
     }),
     PrismaModule,
+    HealthModule,
     AuthModule,
     UserImportModule,
     UserAdminModule,

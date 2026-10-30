@@ -28,7 +28,9 @@ export class ItemService {
     return this.listItemsUseCase.execute(options);
   }
 
-  async generateExplanation(dto: GenerateExplanationDto): Promise<{ explanation: string }> {
+  async generateExplanation(
+    dto: GenerateExplanationDto,
+  ): Promise<{ explanation: string }> {
     return this.generateExplanationUseCase.execute(dto);
   }
 }

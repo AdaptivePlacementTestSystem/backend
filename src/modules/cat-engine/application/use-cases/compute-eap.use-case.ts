@@ -22,9 +22,11 @@ export class ComputeEapUseCase {
   private readonly priorVariance: number;
 
   constructor(private readonly configService: ConfigService) {
-    const numPoints = this.configService.get<number>('cat.quadraturePoints') ?? 41;
+    const numPoints =
+      this.configService.get<number>('cat.quadraturePoints') ?? 41;
     this.priorMean = this.configService.get<number>('cat.priorMean') ?? 0.0;
-    this.priorVariance = this.configService.get<number>('cat.priorVariance') ?? 1.0;
+    this.priorVariance =
+      this.configService.get<number>('cat.priorVariance') ?? 1.0;
 
     // Sinh 41 điểm rời rạc trên [-4, +4], bước 0.2
     this.quadraturePoints = [];
@@ -39,7 +41,8 @@ export class ComputeEapUseCase {
   execute(responses: ItemResponseInput[]): AbilityEstimateEntity {
     // Nếu chưa có câu trả lời nào, trả về prior mean và prior SE
     if (!responses || responses.length === 0) {
-      const defaultTheta = this.configService.get<number>('cat.thetaInit') ?? -0.5;
+      const defaultTheta =
+        this.configService.get<number>('cat.thetaInit') ?? -0.5;
       return AbilityEstimateEntity.fromThetaAndSE(defaultTheta, 1.0);
     }
 
@@ -49,7 +52,11 @@ export class ComputeEapUseCase {
 
     for (const theta_k of this.quadraturePoints) {
       // Prior density: π(θ_k) = N(μ, σ²)
-      const prior = this.gaussianPdf(theta_k, this.priorMean, this.priorVariance);
+      const prior = this.gaussianPdf(
+        theta_k,
+        this.priorMean,
+        this.priorVariance,
+      );
 
       // Log-likelihood để tránh underflow số học với nhiều câu hỏi
       let logLikelihood = 0;
@@ -69,7 +76,8 @@ export class ComputeEapUseCase {
     }
 
     // Ước lượng EAP: E[θ | u]
-    let thetaEap = sumWeight > 0 ? sumWeightedTheta / sumWeight : this.priorMean;
+    let thetaEap =
+      sumWeight > 0 ? sumWeightedTheta / sumWeight : this.priorMean;
 
     // Clip về [-4, +4]
     thetaEap = Math.max(-4.0, Math.min(4.0, thetaEap));
@@ -82,7 +90,8 @@ export class ComputeEapUseCase {
       sumWeightedVariance += diff * diff * weights[i];
     }
 
-    let seEap = sumWeight > 0 ? Math.sqrt(sumWeightedVariance / sumWeight) : 1.0;
+    let seEap =
+      sumWeight > 0 ? Math.sqrt(sumWeightedVariance / sumWeight) : 1.0;
     seEap = Math.max(0.1, seEap); // sàn tối thiểu cho SE
 
     return AbilityEstimateEntity.fromThetaAndSE(thetaEap, seEap);
