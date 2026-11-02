@@ -187,7 +187,9 @@ model Item {
   irtB          Float      @map("irt_b")
   irtA          Float      @default(1.0) @map("irt_a")
   irtC          Float      @default(0.25) @map("irt_c")
-  status        ItemStatus @default(DRAFT)
+  status           ItemStatus @default(DRAFT)
+  // Snapshot bản gốc lần đầu khi GV A sửa (ghi một lần, GV B và Admin chỉ đọc để xem diff)
+  originalSnapshot Json?      @map("original_snapshot")
   approvedById  String?    @map("approved_by") @db.Uuid
   approvedAt    DateTime?  @map("approved_at") @db.Timestamptz(6)
   timesUsed     Int        @default(0) @map("times_used")
