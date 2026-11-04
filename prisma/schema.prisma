@@ -79,12 +79,6 @@ enum ItemBatchStatus {
   PARTIAL
 }
 
-enum PackageStatus {
-  OPEN
-  SENT
-  DONE
-}
-
 // Điểm AI check: C1 sau khi AI sinh, C2 khi import file, C3 trước import cuối (Mục 4)
 enum CheckPoint {
   C1
@@ -105,9 +99,8 @@ enum ReviewAction {
   REMOVE
   CONFIRM_ALL
   IMPORT
+  ASSIGN
   REASSIGN
-  EXTEND
-  FORCE_SEND
   ACCEPT_FLAG
 }
 
@@ -143,11 +136,8 @@ model User {
   teacherProfile    TeacherProfile?
   approvedItems     Item[]                 @relation("ItemApprover")
   createdBatches    ItemBatch[]            @relation("BatchCreator")
-  batchAssignments  ItemBatchAssignment[]  @relation("BatchAssigner")
-  confirmerOf       ItemBatchAssignment[]  @relation("BatchConfirmer")
-  reviewAssignments ItemReviewAssignment[] @relation("ReviewAssignee")
-  packagesAsA       ItemPackage[]          @relation("PackageReviewer")
-  packagesAsB       ItemPackage[]          @relation("PackageConfirmer")
+  itemsAsReviewer   Item[]                 @relation("ItemReviewer")
+  itemsAsConfirmer  Item[]                 @relation("ItemConfirmer")
   reviewEvents      ItemReviewEvent[]      @relation("ReviewEventActor")
   testSessions      TestSession[]
   profiles          LanguageProfile[]
@@ -187,35 +177,45 @@ model Item {
   irtB          Float      @map("irt_b")
   irtA          Float      @default(1.0) @map("irt_a")
   irtC          Float      @default(0.25) @map("irt_c")
-  status           ItemStatus @default(DRAFT)
-  // Snapshot bản gốc lần đầu khi GV A sửa (ghi một lần, GV B và Admin chỉ đọc để xem diff)
-  originalSnapshot Json?      @map("original_snapshot")
+  status        ItemStatus @default(DRAFT)
   approvedById  String?    @map("approved_by") @db.Uuid
   approvedAt    DateTime?  @map("approved_at") @db.Timestamptz(6)
   timesUsed     Int        @default(0) @map("times_used")
   calibrated    Boolean    @default(false)
   // batch_id bắt buộc (quyết định 16/10/2026): mọi câu thuộc một lô; câu seed/cũ thuộc các lô seed (source = IMPORTED, status = DONE).
-  // content_hash và package_id nullable có chủ đích: chưa có hash ở dữ liệu cũ; package_id chỉ có sau khi A gửi gói (câu A loại không vào gói).
+  // content_hash nullable có chủ đích: chưa có hash ở dữ liệu cũ.
   // content_hash = băm chuẩn hóa (nội dung + đáp án + giải thích) cho lọc trùng T1; chỉ mục băm ở custom_migrations.sql.
   contentHash   String?    @map("content_hash") @db.VarChar(64)
   batchId       String     @map("batch_id") @db.Uuid
-  packageId     String?    @map("package_id") @db.Uuid
+  // Quyết định 03/11/2026 (bỏ ItemPackage): giao việc và duyệt theo từng câu, không còn gói.
+  // reviewer_id (GV A) / confirmer_id (GV B) là cột khóa ngoại (Restrict) để DB chặn xóa GV đang có việc; null khi câu chưa được giao.
+  // Sơ đồ UML vẽ cả hai trên Item.
+  reviewerId    String?    @map("reviewer_id") @db.Uuid
+  confirmerId   String?    @map("confirmer_id") @db.Uuid
+  // first_review = FirstReviewDetail { dueAt, action, reviewedAt, comment, originalSnapshot }; second_review = SecondReviewDetail { dueAt, action, confirmedAt, comment }.
+  // originalSnapshot (bản gốc trước khi GV A sửa lần đầu) nằm trong first_review, không còn cột riêng. Ghi một lần.
+  firstReview   Json?      @map("first_review")
+  secondReview  Json?      @map("second_review")
+  // Cờ kỹ thuật cho job nhắc hạn (BullMQ); cột riêng để job không ghi đè JSON kết quả duyệt. Không vẽ trên sơ đồ.
+  firstReminderSent  Boolean @default(false) @map("first_reminder_sent")
+  secondReminderSent Boolean @default(false) @map("second_reminder_sent")
   createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   approvedBy       User?                 @relation("ItemApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   batch            ItemBatch             @relation(fields: [batchId], references: [id], onDelete: Restrict)
-  package          ItemPackage?          @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  reviewer         User?                 @relation("ItemReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
+  confirmer        User?                 @relation("ItemConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
   explanation      Explanation?
   responses        SessionResponse[]
-  reviewAssignment ItemReviewAssignment?
   embedding        ItemEmbedding?
   checkResults     ItemCheckResult[]     @relation("CheckedItem")
   suspectedBy      ItemCheckResult[]     @relation("SuspectedDuplicate")
   reviewEvents     ItemReviewEvent[]
 
   @@index([batchId, status])
-  @@index([packageId])
+  @@index([reviewerId, status])
+  @@index([confirmerId, status])
   @@map("items")
 }
 
@@ -248,70 +248,10 @@ model ItemBatch {
 
   createdBy  User                  @relation("BatchCreator", fields: [createdById], references: [id], onDelete: Restrict)
   items      Item[]
-  assignment ItemBatchAssignment?
-  packages   ItemPackage[]
   events     ItemReviewEvent[]
 
   @@index([status])
   @@map("item_batches")
-}
-
-// Chỉ tồn tại sau khi Admin bấm Giao việc (tránh cột trống trên item_batches). 1-1 với lô.
-// Nhóm A = tập assignee trong item_review_assignments của lô; ràng buộc "GV B không thuộc nhóm A" kiểm ở tầng ứng dụng
-// (CONFIRMER_IN_REVIEW_GROUP, 409), không biểu diễn được bằng FK/CHECK. CHECK review_days/confirm_days >= 1 ở custom_migrations.sql.
-model ItemBatchAssignment {
-  batchId      String   @id @map("batch_id") @db.Uuid
-  confirmerId  String   @map("confirmer_id") @db.Uuid
-  assignedById String   @map("assigned_by") @db.Uuid
-  reviewDays   Int      @map("review_days")
-  confirmDays  Int      @map("confirm_days")
-  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
-
-  batch      ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  confirmer  User      @relation("BatchConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
-  assignedBy User      @relation("BatchAssigner", fields: [assignedById], references: [id], onDelete: Restrict)
-
-  @@map("item_batch_assignments")
-}
-
-// Mỗi câu giao cho đúng 1 GV A (item_id UNIQUE, khai báo bằng @unique).
-model ItemReviewAssignment {
-  id           String   @id @default(uuid()) @db.Uuid
-  itemId       String   @unique @map("item_id") @db.Uuid
-  assigneeId   String   @map("assignee_id") @db.Uuid
-  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
-  dueAt        DateTime @map("due_at") @db.Timestamptz(6)
-  reminderSent Boolean  @default(false) @map("reminder_sent")
-
-  item     Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  assignee User @relation("ReviewAssignee", fields: [assigneeId], references: [id], onDelete: Restrict)
-
-  @@index([assigneeId, dueAt])
-  @@map("item_review_assignments")
-}
-
-// Gói được tạo ngay lúc Admin giao việc (status OPEN, một gói cho mỗi GV A); A bấm Gửi thì OPEN → SENT, B xong thì DONE (quyết định 16/10/2026).
-// Mỗi GV A gửi đúng một gói cho B (UNIQUE batch+reviewer). sentAt/dueAt nullable có chủ đích:
-// gói OPEN chưa gửi nên chưa có ngày gửi; due_at = cuối ngày (sentAt + confirmDays) chỉ tính khi chuyển SENT (Q-3).
-model ItemPackage {
-  id           String        @id @default(uuid()) @db.Uuid
-  batchId      String        @map("batch_id") @db.Uuid
-  reviewerId   String        @map("reviewer_id") @db.Uuid
-  confirmerId  String        @map("confirmer_id") @db.Uuid
-  status       PackageStatus @default(OPEN)
-  sentAt       DateTime?     @map("sent_at") @db.Timestamptz(6)
-  dueAt        DateTime?     @map("due_at") @db.Timestamptz(6)
-  reminderSent Boolean       @default(false) @map("reminder_sent")
-
-  batch     ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
-  reviewer  User      @relation("PackageReviewer", fields: [reviewerId], references: [id], onDelete: Restrict)
-  confirmer User      @relation("PackageConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
-  items     Item[]
-  events    ItemReviewEvent[]
-
-  @@unique([batchId, reviewerId], map: "uq_package_batch_reviewer")
-  @@index([confirmerId, status])
-  @@map("item_packages")
 }
 
 // Embedding tính đúng một lần cho mỗi nội dung (nguyên tắc 4, Mục 4). Mô hình embedding còn chờ chốt (Q-9);
@@ -347,24 +287,21 @@ model ItemCheckResult {
   @@map("item_check_results")
 }
 
-// Truy vết (tùy chọn theo Mục 10; đề xuất giữ). itemId/packageId nullable: CONFIRM_ALL, REASSIGN, EXTEND, FORCE_SEND tác động nhiều câu/gói.
-// packageId là cột thường (không FK) để log sống độc lập với gói.
+// Truy vết (tùy chọn theo Mục 10; đề xuất giữ). itemId nullable: CONFIRM_ALL tác động nhiều câu.
+// Giao việc (ASSIGN) và giao lại (REASSIGN) ghi một dòng cho mỗi câu, actorId = Admin (quyết định 03/11/2026).
 model ItemReviewEvent {
   id        String       @id @default(uuid()) @db.Uuid
   batchId   String       @map("batch_id") @db.Uuid
   itemId    String?      @map("item_id") @db.Uuid
-  packageId String?      @map("package_id") @db.Uuid
   actorId   String       @map("actor_id") @db.Uuid
   action    ReviewAction
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   batch ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
   item  Item?     @relation(fields: [itemId], references: [id], onDelete: SetNull)
-  package ItemPackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
   actor User      @relation("ReviewEventActor", fields: [actorId], references: [id], onDelete: Restrict)
 
   @@index([batchId, createdAt])
-  @@index([packageId])
   @@map("item_review_events")
 }
 
