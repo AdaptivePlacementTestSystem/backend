@@ -47,9 +47,6 @@ ALTER TABLE "item_review_assignments" DROP CONSTRAINT "item_review_assignments_i
 ALTER TABLE "items" DROP CONSTRAINT "items_package_id_fkey";
 
 -- DropIndex
-DROP INDEX "idx_items_content_hash";
-
--- DropIndex
 DROP INDEX "items_package_id_idx";
 
 -- AlterTable
