@@ -38,17 +38,12 @@ ALTER TABLE exam_rounds
   DROP CONSTRAINT IF EXISTS ck_exam_round_duration,
   ADD CONSTRAINT ck_exam_round_duration CHECK (duration_minutes BETWEEN 5 AND 180);
 
--- 4. Ràng buộc bảng phân công duyệt lô item_batch_assignments (schema.prisma line 78)
-ALTER TABLE item_batch_assignments
-  DROP CONSTRAINT IF EXISTS ck_batch_assignment_days,
-  ADD CONSTRAINT ck_batch_assignment_days CHECK (review_days >= 1 AND confirm_days >= 1);
-
--- 5. Ràng buộc 1 phiên thi/kỳ/SV, trừ phiên ABANDONED (DC-08, Mục 6.2b)
+-- 4. Ràng buộc 1 phiên thi/kỳ/SV, trừ phiên ABANDONED (DC-08, Mục 6.2b)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_session_round_student
   ON test_sessions (exam_round_id, student_id)
   WHERE status <> 'ABANDONED';
 
--- 6. Ràng buộc phân quyền và thông tin đăng nhập bảng users
+-- 5. Ràng buộc phân quyền và thông tin đăng nhập bảng users
 -- DC-19: hệ thống đơn trường, không còn institution_id
 ALTER TABLE users DROP CONSTRAINT IF EXISTS chk_users_institution_required;
 
@@ -59,7 +54,7 @@ ALTER TABLE users
         OR (auth_provider = 'LOCAL' AND password_hash IS NOT NULL)
         OR (auth_provider <> 'LOCAL' AND external_id IS NOT NULL));
 
--- 7. Ràng buộc câu trả lời bảng session_responses
+-- 6. Ràng buộc câu trả lời bảng session_responses
 ALTER TABLE session_responses
   DROP CONSTRAINT IF EXISTS chk_response_option,
   ADD CONSTRAINT chk_response_option CHECK (response IN ('A','B','C','D'));

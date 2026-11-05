@@ -34,7 +34,6 @@ export class GetItemUseCase {
       status: item.status,
       batchId: item.batchId,
       source: item.batch.source,
-      packageId: item.packageId,
       topicTag: item.topicTag,
       timesUsed: item.timesUsed,
       explanation: item.explanation?.content ?? null,
