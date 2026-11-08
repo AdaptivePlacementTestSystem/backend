@@ -91,6 +91,16 @@ export const configuration = () => ({
   eduz: {
     apiKey: process.env.EDUZ_API_KEY, // M2M API Key — không phải JWT
   },
+
+  mail: {
+    host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT ?? '465', 10),
+    secure:
+      process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+    from: process.env.SMTP_FROM ?? 'noreply@apt.edu.vn',
+  },
 });
 
 export type AppConfig = ReturnType<typeof configuration>;

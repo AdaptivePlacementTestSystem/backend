@@ -7,6 +7,7 @@ import {
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { JwtProvider } from '../../infrastructure/providers/jwt.provider';
 import { LoginDto, AuthResponseDto } from '../dto/login.dto';
+import { ErrorCode } from '@apt/shared-types';
 import * as argon2 from 'argon2';
 
 @Injectable()
@@ -18,15 +19,21 @@ export class LoginUseCase {
   ) {}
 
   async execute(dto: LoginDto): Promise<AuthResponseDto> {
-    const user = await this.userRepository.findByEmail(dto.email);
+    const user = await this.userRepository.findByEmail(
+      dto.email.trim().toLowerCase(),
+    );
     if (!user || !user.passwordHash) {
-      throw new UnauthorizedException('Thông tin đăng nhập không chính xác');
+      throw new UnauthorizedException({
+        code: ErrorCode.INVALID_CREDENTIALS,
+        message: 'Thông tin đăng nhập không chính xác',
+      });
     }
 
     if (!user.isActive) {
-      throw new ForbiddenException(
-        'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.',
-      );
+      throw new ForbiddenException({
+        code: ErrorCode.ACCOUNT_LOCKED,
+        message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.',
+      });
     }
 
     // #62: mật khẩu băm argon2; lỗi định dạng hash coi như sai mật khẩu
@@ -35,7 +42,10 @@ export class LoginUseCase {
       .catch(() => false);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Thông tin đăng nhập không chính xác');
+      throw new UnauthorizedException({
+        code: ErrorCode.INVALID_CREDENTIALS,
+        message: 'Thông tin đăng nhập không chính xác',
+      });
     }
 
     const token = this.jwtProvider.generateToken({

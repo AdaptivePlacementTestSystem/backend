@@ -55,5 +55,11 @@ export const validationSchema = Joi.object({
   // EduZ M2M
   EDUZ_API_KEY: Joi.string().optional(),
 
-  // Multi-tenant
+  // Mail / SMTP
+  SMTP_HOST: Joi.string().optional(),
+  SMTP_PORT: Joi.number().optional(),
+  SMTP_SECURE: Joi.boolean().optional(),
+  SMTP_USER: Joi.string().optional(),
+  SMTP_PASS: Joi.string().optional(),
+  SMTP_FROM: Joi.string().optional(),
 });

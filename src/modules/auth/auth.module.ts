@@ -5,9 +5,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './presentation/auth.controller';
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { VerifyTokenUseCase } from './application/use-cases/verify-token.use-case';
+import { ChangePasswordUseCase } from './application/use-cases/change-password.use-case';
+import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.use-case';
+import { ResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
 import { PrismaUserRepository } from './infrastructure/persistence/prisma-user.repository';
+import { RedisOtpCacheService } from './infrastructure/cache/redis-otp-cache.service';
 import { JwtProvider } from './infrastructure/providers/jwt.provider';
 import { JwtStrategy } from './infrastructure/providers/jwt.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -22,18 +27,32 @@ import { JwtStrategy } from './infrastructure/providers/jwt.strategy';
         },
       }),
     }),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
     LoginUseCase,
     VerifyTokenUseCase,
+    ChangePasswordUseCase,
+    ForgotPasswordUseCase,
+    ResetPasswordUseCase,
     JwtProvider,
     JwtStrategy,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,
     },
+    {
+      provide: 'IOtpCacheRepository',
+      useClass: RedisOtpCacheService,
+    },
+    RedisOtpCacheService,
   ],
-  exports: [JwtProvider, 'IUserRepository', PassportModule],
+  exports: [
+    JwtProvider,
+    'IUserRepository',
+    'IOtpCacheRepository',
+    PassportModule,
+  ],
 })
 export class AuthModule {}
