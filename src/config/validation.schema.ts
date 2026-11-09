@@ -27,6 +27,15 @@ export const validationSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string().default('1h'),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
 
+  // Rate-limit đăng nhập / quên mật khẩu (DECISIONS_LOG #134, D3)
+  RATE_LIMIT_LOGIN_LIMIT: Joi.number().integer().positive().default(5),
+  RATE_LIMIT_LOGIN_TTL_SECONDS: Joi.number().integer().positive().default(60),
+  RATE_LIMIT_FORGOT_LIMIT: Joi.number().integer().positive().default(3),
+  RATE_LIMIT_FORGOT_TTL_SECONDS: Joi.number()
+    .integer()
+    .positive()
+    .default(3600),
+
   // CAT params — tất cả có default, không bắt buộc
   CAT_THETA_INIT: Joi.number().default(-0.5),
   CAT_PRIOR_MEAN: Joi.number().default(0.0),

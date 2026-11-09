@@ -1,11 +1,13 @@
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import type { IOtpCacheRepository } from '../../domain/repositories/otp-cache.repository.interface';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ErrorCode } from '@apt/shared-types';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
+
+/** Số lần nhập OTP tối đa (kể cả lần đúng) trước khi hủy mã. */
+export const MAX_OTP_ATTEMPTS = 5;
 
 @Injectable()
 export class ResetPasswordUseCase {
@@ -14,76 +16,69 @@ export class ResetPasswordUseCase {
     private readonly userRepository: IUserRepository,
     @Inject('IOtpCacheRepository')
     private readonly otpCacheRepository: IOtpCacheRepository,
-    private readonly prisma: PrismaService,
   ) {}
 
   async execute(dto: ResetPasswordDto): Promise<{ success: boolean }> {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
-    // 1. Lấy thông tin OTP trong Redis (SD_08, BR-14)
+    // 1. Lấy OTP trong Redis (SD_08, BR-14)
     const otpRecord = await this.otpCacheRepository.getOtp(normalizedEmail);
     if (!otpRecord) {
-      throw new BadRequestException({
-        code: ErrorCode.INVALID_RESET_OTP,
-        message: 'Mã xác thực không đúng hoặc đã hết hạn',
-      });
+      throw this.invalidOtp('Mã xác thực không đúng hoặc đã hết hạn');
     }
 
-    // 2. Kiểm tra số lần nhập sai (tối đa 5 lần)
-    if (otpRecord.attempts >= 5) {
+    // 2. Tăng bộ đếm NGUYÊN TỬ trước khi so khớp: request song song không thể
+    //    vượt quá MAX_OTP_ATTEMPTS lần thử.
+    const attempts =
+      await this.otpCacheRepository.incrementAttempts(normalizedEmail);
+    if (attempts > MAX_OTP_ATTEMPTS) {
       await this.otpCacheRepository.deleteOtp(normalizedEmail);
-      throw new BadRequestException({
-        code: ErrorCode.INVALID_RESET_OTP,
-        message: 'Bạn đã nhập sai mã xác thực quá 5 lần. Mã đã bị hủy.',
-      });
+      throw this.invalidOtp(
+        `Bạn đã nhập sai mã xác thực quá ${MAX_OTP_ATTEMPTS} lần. Mã đã bị hủy.`,
+      );
     }
 
-    // 3. So khớp hash của mã OTP
-    const inputHash = crypto
-      .createHash('sha256')
-      .update(dto.otp.trim())
-      .digest('hex');
-    if (inputHash !== otpRecord.hash) {
-      const currentAttempts =
-        await this.otpCacheRepository.incrementAttempts(normalizedEmail);
-      if (currentAttempts >= 5) {
+    // 3. So khớp hash trong thời gian không đổi
+    if (!this.hashMatches(dto.otp.trim(), otpRecord.hash)) {
+      if (attempts >= MAX_OTP_ATTEMPTS) {
         await this.otpCacheRepository.deleteOtp(normalizedEmail);
-        throw new BadRequestException({
-          code: ErrorCode.INVALID_RESET_OTP,
-          message: 'Bạn đã nhập sai mã xác thực quá 5 lần. Mã đã bị hủy.',
-        });
+        throw this.invalidOtp(
+          `Bạn đã nhập sai mã xác thực quá ${MAX_OTP_ATTEMPTS} lần. Mã đã bị hủy.`,
+        );
       }
-      throw new BadRequestException({
-        code: ErrorCode.INVALID_RESET_OTP,
-        message: 'Mã xác thực không chính xác',
-      });
+      throw this.invalidOtp('Mã xác thực không chính xác');
     }
 
-    // 4. Tìm tài khoản người dùng
+    // 4. Tài khoản phải tồn tại và còn hoạt động (không tiết lộ lý do cụ thể)
     const user = await this.userRepository.findByEmail(normalizedEmail);
-    if (!user) {
-      throw new BadRequestException({
-        code: ErrorCode.INVALID_RESET_OTP,
-        message: 'Tài khoản không tồn tại',
-      });
+    if (!user || !user.isActive) {
+      await this.otpCacheRepository.deleteOtp(normalizedEmail);
+      throw this.invalidOtp('Mã xác thực không đúng hoặc đã hết hạn');
     }
 
-    // 5. Băm mật khẩu mới bằng argon2 (#62)
+    // 5. Băm argon2 (#62), lưu qua repository (mustChangePassword = false)
     const passwordHash = await argon2.hash(dto.newPassword);
+    await this.userRepository.updatePassword(user.id, passwordHash);
 
-    // 6. Cập nhật người dùng trong DB (mustChangePassword = false, passwordChangedAt = now)
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordHash,
-        mustChangePassword: false,
-        passwordChangedAt: new Date(),
-      },
-    });
-
-    // 7. Xóa OTP sau khi sử dụng thành công (dùng 1 lần)
+    // 6. OTP dùng một lần
     await this.otpCacheRepository.deleteOtp(normalizedEmail);
 
     return { success: true };
+  }
+
+  private hashMatches(otp: string, storedHash: string): boolean {
+    const inputHash = crypto.createHash('sha256').update(otp).digest();
+    const stored = Buffer.from(storedHash, 'hex');
+    return (
+      stored.length === inputHash.length &&
+      crypto.timingSafeEqual(inputHash, stored)
+    );
+  }
+
+  private invalidOtp(message: string): BadRequestException {
+    return new BadRequestException({
+      code: ErrorCode.INVALID_RESET_OTP,
+      message,
+    });
   }
 }

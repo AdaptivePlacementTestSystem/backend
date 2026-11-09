@@ -1,10 +1,5 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { StrongPassword } from './password-policy';
 
 export class ResetPasswordDto {
   @IsEmail({}, { message: 'Email không đúng định dạng' })
@@ -16,8 +11,6 @@ export class ResetPasswordDto {
   @IsNotEmpty({ message: 'Mã OTP không được để trống' })
   otp: string;
 
-  @IsString({ message: 'Mật khẩu mới phải là chuỗi ký tự' })
-  @MinLength(8, { message: 'Mật khẩu mới phải có ít nhất 8 ký tự' })
-  @IsNotEmpty({ message: 'Mật khẩu mới không được để trống' })
+  @StrongPassword()
   newPassword: string;
 }

@@ -21,31 +21,29 @@ export class ForgotPasswordUseCase {
   async execute(dto: ForgotPasswordDto): Promise<{ success: boolean }> {
     const normalizedEmail = dto.email.trim().toLowerCase();
 
-    // Tìm user theo email
-    const user = await this.userRepository.findByEmail(normalizedEmail);
+    // BR-14, SD_08: luôn phản hồi giống nhau (202) dù email có tồn tại hay không,
+    // và dù Redis/SMTP có lỗi (D5, DECISIONS_LOG #134) — chỉ ghi log.
+    try {
+      const user = await this.userRepository.findByEmail(normalizedEmail);
 
-    // BR-14, SD_08: Phản hồi luôn 202 (không làm lộ email tồn tại trong hệ thống)
-    if (user && user.isActive) {
-      // 1. Sinh OTP 6 chữ số ngẫu nhiên an toàn (crypto.randomInt)
-      const otp = crypto.randomInt(100000, 1000000).toString();
-
-      // 2. Băm OTP bằng SHA-256 để lưu Redis
-      const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
-
-      // 3. Lưu vào Redis, TTL 10 phút (600s), attempts = 0
-      await this.otpCacheRepository.saveOtp(normalizedEmail, otpHash, 600);
-
-      // 4. Gửi email chứa OTP cho người dùng
-      try {
+      if (user && user.isActive) {
+        // 1. OTP 6 chữ số ngẫu nhiên an toàn
+        const otp = crypto.randomInt(100000, 1000000).toString();
+        // 2. Chỉ lưu SHA-256 của OTP trong Redis
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+        // 3. TTL 10 phút, attempts = 0
+        await this.otpCacheRepository.saveOtp(normalizedEmail, otpHash, 600);
+        // 4. Gửi mail ngay trong request (D6); lỗi gửi mail được ném và bắt ở dưới
         await this.mailPort.sendPasswordResetOtp(user.email, otp);
-      } catch (err) {
-        this.logger.error(
-          `Lỗi khi gửi email OTP tới ${user.email}: ${(err as Error).message}`,
+      } else {
+        this.logger.log(
+          'Yêu cầu quên mật khẩu cho email không tồn tại hoặc tài khoản bị khóa',
         );
       }
-    } else {
-      this.logger.log(
-        `Yêu cầu quên mật khẩu cho email không tồn tại hoặc tài khoản bị khóa: ${normalizedEmail}`,
+    } catch (err) {
+      this.logger.error(
+        `Lỗi xử lý quên mật khẩu: ${(err as Error).message}`,
+        (err as Error).stack,
       );
     }
 

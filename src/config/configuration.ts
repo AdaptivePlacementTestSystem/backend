@@ -22,6 +22,20 @@ export const configuration = () => ({
     ttlSeconds: parseInt(process.env.REDIS_TTL_SECONDS ?? '7200', 10),
   },
 
+  // Rate-limit đăng nhập / quên mật khẩu (DECISIONS_LOG #134, D3)
+  rateLimit: {
+    loginLimit: parseInt(process.env.RATE_LIMIT_LOGIN_LIMIT ?? '5', 10),
+    loginTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_LOGIN_TTL_SECONDS ?? '60',
+      10,
+    ),
+    forgotLimit: parseInt(process.env.RATE_LIMIT_FORGOT_LIMIT ?? '3', 10),
+    forgotTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_FORGOT_TTL_SECONDS ?? '3600',
+      10,
+    ),
+  },
+
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN ?? '1h',

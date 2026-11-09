@@ -7,6 +7,9 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
+import { AuthThrottlerGuard } from '../infrastructure/throttling/auth-throttler.guard';
+import { AllowWhenMustChangePassword } from '../../../shared/decorators/allow-when-must-change-password.decorator';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
 import { ChangePasswordUseCase } from '../application/use-cases/change-password.use-case';
 import { ForgotPasswordUseCase } from '../application/use-cases/forgot-password.use-case';
@@ -36,6 +39,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @UseGuards(AuthThrottlerGuard)
+  @SkipThrottle({ forgot: true })
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.loginUseCase.execute(dto);
@@ -43,6 +48,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @AllowWhenMustChangePassword()
   async getProfile(@CurrentUser() user: JwtPayload) {
     const fullUser = await this.prisma.user.findUnique({
       where: { id: user.sub },
@@ -64,6 +70,7 @@ export class AuthController {
 
   @Post('change-password')
   @UseGuards(JwtAuthGuard)
+  @AllowWhenMustChangePassword()
   @HttpCode(HttpStatus.OK)
   async changePassword(
     @CurrentUser() user: JwtPayload,
@@ -73,6 +80,8 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @UseGuards(AuthThrottlerGuard)
+  @SkipThrottle({ login: true })
   @HttpCode(HttpStatus.ACCEPTED)
   async forgotPassword(
     @Body() dto: ForgotPasswordDto,

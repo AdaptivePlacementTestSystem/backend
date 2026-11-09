@@ -1,102 +1,81 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ChangePasswordUseCase } from './change-password.use-case';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import * as argon2 from 'argon2';
+import { ChangePasswordUseCase } from './change-password.use-case';
 
 describe('ChangePasswordUseCase', () => {
   let useCase: ChangePasswordUseCase;
-  let mockUserRepository: any;
-  let mockPrisma: any;
-  let mockJwtProvider: any;
+  let userRepository: any;
+  let jwtProvider: any;
 
   beforeEach(() => {
-    mockUserRepository = {
+    userRepository = {
       findById: vi.fn(),
+      updatePassword: vi.fn().mockResolvedValue(undefined),
     };
-    mockPrisma = {
-      user: {
-        update: vi.fn(),
-      },
-    };
-    mockJwtProvider = {
-      generateToken: vi.fn().mockReturnValue('mock-new-token'),
-    };
-    useCase = new ChangePasswordUseCase(
-      mockUserRepository,
-      mockPrisma,
-      mockJwtProvider,
-    );
+    jwtProvider = { generateToken: vi.fn().mockReturnValue('mock-new-token') };
+    useCase = new ChangePasswordUseCase(userRepository, jwtProvider);
   });
 
-  it('nên quăng UnauthorizedException nếu không tìm thấy user', async () => {
-    mockUserRepository.findById.mockResolvedValue(null);
+  const userWith = async (password: string) => ({
+    id: 'user-1',
+    email: 'test@example.com',
+    role: UserRole.STUDENT,
+    passwordHash: await argon2.hash(password),
+  });
+
+  it('quăng UnauthorizedException nếu không tìm thấy user', async () => {
+    userRepository.findById.mockResolvedValue(null);
 
     await expect(
       useCase.execute('user-1', {
-        currentPassword: 'OldPassword123',
-        newPassword: 'NewPassword123',
+        currentPassword: 'Old@Password1',
+        newPassword: 'New@Password1',
       }),
     ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('nên quăng BadRequestException nếu mật khẩu hiện tại không đúng', async () => {
-    const hash = await argon2.hash('OldPassword123');
-    mockUserRepository.findById.mockResolvedValue({
-      id: 'user-1',
-      passwordHash: hash,
-      email: 'test@example.com',
-      role: UserRole.STUDENT,
-    });
+  it('quăng BadRequestException nếu mật khẩu hiện tại không đúng', async () => {
+    userRepository.findById.mockResolvedValue(await userWith('Old@Password1'));
 
     await expect(
       useCase.execute('user-1', {
-        currentPassword: 'WrongPassword',
-        newPassword: 'NewPassword123',
+        currentPassword: 'Wrong@Password1',
+        newPassword: 'New@Password1',
       }),
     ).rejects.toThrow(BadRequestException);
+    expect(userRepository.updatePassword).not.toHaveBeenCalled();
   });
 
-  it('nên quăng BadRequestException nếu mật khẩu mới trùng mật khẩu cũ', async () => {
-    const hash = await argon2.hash('SamePassword123');
-    mockUserRepository.findById.mockResolvedValue({
-      id: 'user-1',
-      passwordHash: hash,
-      email: 'test@example.com',
-      role: UserRole.STUDENT,
-    });
+  it('quăng BadRequestException nếu mật khẩu mới trùng mật khẩu cũ', async () => {
+    userRepository.findById.mockResolvedValue(await userWith('Old@Password1'));
 
     await expect(
       useCase.execute('user-1', {
-        currentPassword: 'SamePassword123',
-        newPassword: 'SamePassword123',
+        currentPassword: 'Old@Password1',
+        newPassword: 'Old@Password1',
       }),
     ).rejects.toThrow(BadRequestException);
+    expect(userRepository.updatePassword).not.toHaveBeenCalled();
   });
 
-  it('nên đổi mật khẩu thành công và cấp lại token mới', async () => {
-    const hash = await argon2.hash('OldPassword123');
-    mockUserRepository.findById.mockResolvedValue({
-      id: 'user-1',
-      passwordHash: hash,
-      email: 'test@example.com',
-      role: UserRole.STUDENT,
-    });
-    mockPrisma.user.update.mockResolvedValue({});
+  it('đổi thành công: lưu hash argon2 qua repository và cấp token mới', async () => {
+    userRepository.findById.mockResolvedValue(await userWith('Old@Password1'));
 
     const res = await useCase.execute('user-1', {
-      currentPassword: 'OldPassword123',
-      newPassword: 'NewPassword123',
+      currentPassword: 'Old@Password1',
+      newPassword: 'New@Password1',
     });
 
     expect(res).toEqual({ accessToken: 'mock-new-token' });
-    expect(mockPrisma.user.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'user-1' },
-        data: expect.objectContaining({
-          mustChangePassword: false,
-        }),
-      }),
-    );
+    const [userId, hash] = userRepository.updatePassword.mock.calls[0];
+    expect(userId).toBe('user-1');
+    expect(await argon2.verify(hash, 'New@Password1')).toBe(true);
+    expect(jwtProvider.generateToken).toHaveBeenCalledWith({
+      sub: 'user-1',
+      email: 'test@example.com',
+      role: UserRole.STUDENT,
+    });
   });
 });

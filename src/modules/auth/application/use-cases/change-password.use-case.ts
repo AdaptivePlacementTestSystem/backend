@@ -5,7 +5,6 @@ import {
   Inject,
 } from '@nestjs/common';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { JwtProvider } from '../../infrastructure/providers/jwt.provider';
 import {
   ChangePasswordDto,
@@ -19,7 +18,6 @@ export class ChangePasswordUseCase {
   constructor(
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
-    private readonly prisma: PrismaService,
     private readonly jwtProvider: JwtProvider,
   ) {}
 
@@ -58,17 +56,10 @@ export class ChangePasswordUseCase {
     // 3. Băm mật khẩu mới bằng argon2 (#62)
     const newPasswordHash = await argon2.hash(dto.newPassword);
 
-    // 4. Cập nhật vào DB
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordHash: newPasswordHash,
-        mustChangePassword: false,
-        passwordChangedAt: new Date(),
-      },
-    });
+    // 4. Lưu qua repository (mustChangePassword = false, passwordChangedAt = now)
+    await this.userRepository.updatePassword(user.id, newPasswordHash);
 
-    // 5. Cấp lại accessToken với mustChangePassword = false
+    // 5. Cấp token mới: các token cũ (iat < passwordChangedAt) bị JwtStrategy từ chối
     const token = this.jwtProvider.generateToken({
       sub: user.id,
       email: user.email,
