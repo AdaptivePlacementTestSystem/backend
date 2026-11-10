@@ -3,6 +3,11 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { LoginUseCase } from './login.use-case';
 
+vi.mock('argon2', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('argon2')>();
+  return { ...mod, verify: vi.fn(mod.verify) };
+});
+
 describe('LoginUseCase', () => {
   let useCase: LoginUseCase;
   let userRepository: any;
@@ -50,7 +55,24 @@ describe('LoginUseCase', () => {
     expect(noUser.getResponse()).toEqual(wrongPw.getResponse());
   });
 
-  it('tài khoản bị khóa: 403', async () => {
+  it('email không tồn tại vẫn chạy argon2.verify (không lộ qua thời gian phản hồi)', async () => {
+    vi.mocked(argon2.verify).mockClear();
+    userRepository.findByEmail.mockResolvedValueOnce(null);
+
+    await expect(
+      useCase.execute({ email: 'x@y.com', password: 'whatever' }),
+    ).rejects.toThrow(UnauthorizedException);
+    expect(argon2.verify).toHaveBeenCalledTimes(1);
+  });
+
+  it('tài khoản bị khóa + mật khẩu sai: vẫn 401 (không lộ tài khoản đang bị khóa)', async () => {
+    user.isActive = false;
+    await expect(
+      useCase.execute({ email: 'a@b.com', password: 'wrong' }),
+    ).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('tài khoản bị khóa + mật khẩu đúng: 403', async () => {
     user.isActive = false;
     await expect(
       useCase.execute({ email: 'a@b.com', password: 'Right@Pass1' }),

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { forgotPasswordTracker, loginTracker } from './throttle-trackers';
+import {
+  forgotPasswordTracker,
+  ipTracker,
+  loginTracker,
+} from './throttle-trackers';
 
 describe('throttle trackers', () => {
   it('login: khóa theo IP + email đã chuẩn hóa', () => {
@@ -32,5 +36,12 @@ describe('throttle trackers', () => {
       '9.9.9.9',
     );
     expect(loginTracker({ ip: '9.9.9.9' })).toBe('9.9.9.9:');
+  });
+
+  it('reset: khóa chỉ theo IP, không phụ thuộc email', () => {
+    expect(ipTracker({ ip: '5.6.7.8', body: { email: 'a@b.com' } })).toBe(
+      '5.6.7.8',
+    );
+    expect(ipTracker({})).toBe('unknown');
   });
 });

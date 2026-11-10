@@ -20,8 +20,10 @@ import { RedisThrottlerStorage } from './infrastructure/throttling/redis-throttl
 import { AuthThrottlerGuard } from './infrastructure/throttling/auth-throttler.guard';
 import {
   forgotPasswordTracker,
+  ipTracker,
   loginTracker,
 } from './infrastructure/throttling/throttle-trackers';
+import { LoginFailureLimiter } from './infrastructure/throttling/login-failure-limiter';
 
 @Module({
   imports: [
@@ -55,6 +57,12 @@ import {
             limit: config.getOrThrow<number>('rateLimit.forgotLimit'),
             getTracker: forgotPasswordTracker,
           },
+          {
+            name: 'reset',
+            ttl: config.getOrThrow<number>('rateLimit.resetTtlSeconds') * 1000,
+            limit: config.getOrThrow<number>('rateLimit.resetLimit'),
+            getTracker: ipTracker,
+          },
         ],
         storage: new RedisThrottlerStorage(
           new Redis({
@@ -77,6 +85,7 @@ import {
     JwtProvider,
     JwtStrategy,
     AuthThrottlerGuard,
+    LoginFailureLimiter,
     {
       provide: 'IUserRepository',
       useClass: PrismaUserRepository,

@@ -34,7 +34,24 @@ export const configuration = () => ({
       process.env.RATE_LIMIT_FORGOT_TTL_SECONDS ?? '3600',
       10,
     ),
+    resetLimit: parseInt(process.env.RATE_LIMIT_RESET_LIMIT ?? '20', 10),
+    resetTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_RESET_TTL_SECONDS ?? '60',
+      10,
+    ),
+    // Chỉ đếm đăng nhập thất bại theo IP (không chặn nhầm phòng thi dùng chung IP)
+    loginIpFailureLimit: parseInt(
+      process.env.RATE_LIMIT_LOGIN_IP_FAILURE_LIMIT ?? '100',
+      10,
+    ),
+    loginIpFailureTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_LOGIN_IP_FAILURE_TTL_SECONDS ?? '600',
+      10,
+    ),
   },
+
+  // Số tầng reverse proxy tin cậy để lấy đúng IP client (0 = không tin proxy)
+  trustProxyHops: parseInt(process.env.TRUST_PROXY_HOPS ?? '1', 10),
 
   jwt: {
     secret: process.env.JWT_SECRET,
