@@ -6,8 +6,11 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
+import { LoginFailureLimiter } from '../infrastructure/throttling/login-failure-limiter';
 import { AuthThrottlerGuard } from '../infrastructure/throttling/auth-throttler.guard';
 import { AllowWhenMustChangePassword } from '../../../shared/decorators/allow-when-must-change-password.decorator';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
@@ -36,14 +39,21 @@ export class AuthController {
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly prisma: PrismaService,
+    private readonly loginFailureLimiter: LoginFailureLimiter,
   ) {}
 
   @Post('login')
   @UseGuards(AuthThrottlerGuard)
-  @SkipThrottle({ forgot: true })
+  @SkipThrottle({ forgot: true, reset: true })
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
-    return this.loginUseCase.execute(dto);
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+  ): Promise<AuthResponseDto> {
+    // Giới hạn theo IP chỉ đếm lần thất bại (DECISIONS_LOG #135)
+    return this.loginFailureLimiter.run(req.ip ?? 'unknown', () =>
+      this.loginUseCase.execute(dto),
+    );
   }
 
   @Get('me')
@@ -81,7 +91,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @UseGuards(AuthThrottlerGuard)
-  @SkipThrottle({ login: true })
+  @SkipThrottle({ login: true, reset: true })
   @HttpCode(HttpStatus.ACCEPTED)
   async forgotPassword(
     @Body() dto: ForgotPasswordDto,
@@ -90,6 +100,8 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @UseGuards(AuthThrottlerGuard)
+  @SkipThrottle({ login: true, forgot: true })
   @HttpCode(HttpStatus.NO_CONTENT)
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
     await this.resetPasswordUseCase.execute(dto);

@@ -36,6 +36,19 @@ export const validationSchema = Joi.object({
     .positive()
     .default(3600),
 
+  RATE_LIMIT_RESET_LIMIT: Joi.number().integer().positive().default(20),
+  RATE_LIMIT_RESET_TTL_SECONDS: Joi.number().integer().positive().default(60),
+  RATE_LIMIT_LOGIN_IP_FAILURE_LIMIT: Joi.number()
+    .integer()
+    .positive()
+    .default(100),
+  RATE_LIMIT_LOGIN_IP_FAILURE_TTL_SECONDS: Joi.number()
+    .integer()
+    .positive()
+    .default(600),
+  // Số tầng reverse proxy tin cậy (Nginx = 1); 0 = không tin X-Forwarded-For
+  TRUST_PROXY_HOPS: Joi.number().integer().min(0).default(1),
+
   // CAT params — tất cả có default, không bắt buộc
   CAT_THETA_INIT: Joi.number().default(-0.5),
   CAT_PRIOR_MEAN: Joi.number().default(0.0),
