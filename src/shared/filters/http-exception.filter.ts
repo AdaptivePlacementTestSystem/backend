@@ -13,6 +13,7 @@ interface ErrorResponse {
   message: string | string[];
   error: string;
   code?: string;
+  details?: unknown;
   timestamp: string;
   path: string;
 }
@@ -42,11 +43,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? (exceptionResponse as { code?: string }).code
         : undefined;
 
+    // Dữ liệu bổ sung có cấu trúc (ví dụ trường bị trùng: { field: 'email' }).
+    const details =
+      typeof exceptionResponse === 'object' && 'details' in exceptionResponse
+        ? (exceptionResponse as { details?: unknown }).details
+        : undefined;
+
     const errorBody: ErrorResponse = {
       statusCode: status,
       message,
       error: exception.name,
       ...(code ? { code } : {}),
+      ...(details !== undefined ? { details } : {}),
       timestamp: new Date().toISOString(),
       path: request.url,
     };
