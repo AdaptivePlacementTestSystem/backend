@@ -147,7 +147,7 @@ export class PrismaUserRepository implements IUserRepository {
     kind: AccountKind,
   ): Promise<AccountRecord | null> {
     const raw = await this.prisma.user.findFirst({
-      where: { id, role: kind as any },
+      where: { id, role: this.rolesOf(kind) as any },
       include: { studentProfile: true, teacherProfile: true },
     });
     return raw ? this.toAccountRecord(raw, kind) : null;
@@ -159,7 +159,7 @@ export class PrismaUserRepository implements IUserRepository {
       query.kind === 'STUDENT' ? 'studentProfile' : 'teacherProfile';
     const codeField = query.kind === 'STUDENT' ? 'studentCode' : 'teacherCode';
     const where: any = {
-      role: query.kind,
+      role: this.rolesOf(query.kind),
       ...(q
         ? {
             OR: [
@@ -235,6 +235,14 @@ export class PrismaUserRepository implements IUserRepository {
       where: { id },
       data: { role: role as any },
     });
+  }
+
+  /**
+   * Vai trò thuộc mỗi loại tài khoản: danh sách giảng viên gồm cả Admin (Admin vốn là giảng viên
+   * được nâng quyền; cần hiện trong tab Giảng viên để thu hồi, SRS L0).
+   */
+  private rolesOf(kind: AccountKind): { in: string[] } {
+    return { in: kind === 'STUDENT' ? ['STUDENT'] : ['TEACHER', 'ADMIN'] };
   }
 
   private toAccountRecord(raw: any, kind: AccountKind): AccountRecord {

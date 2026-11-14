@@ -1,5 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 import { ErrorCode } from '@apt/shared-types';
+import type { UserRole } from '../../auth/domain/enums/user-role.enum';
 import type { AccountRecord } from '../../auth/domain/repositories/account.types';
 import type { DuplicateField } from '../../auth/domain/errors/duplicate-account.error';
 
@@ -8,6 +9,8 @@ export interface AccountView {
   id: string;
   fullName: string;
   email: string;
+  /** STUDENT, TEACHER hoặc ADMIN (Admin hiện trong danh sách giảng viên để thu hồi quyền). */
+  role: UserRole;
   studentCode?: string;
   teacherCode?: string;
   isActive: boolean;
@@ -22,6 +25,7 @@ export function toAccountView(record: AccountRecord): AccountView {
     id: user.id,
     fullName: user.fullName,
     email: user.email,
+    role: user.role,
     ...(profile.kind === 'STUDENT'
       ? { studentCode: profile.studentCode }
       : { teacherCode: profile.teacherCode }),

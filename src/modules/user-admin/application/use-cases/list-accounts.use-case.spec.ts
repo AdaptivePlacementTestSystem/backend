@@ -71,6 +71,7 @@ describe('ListAccountsUseCase', () => {
     expect(result.items[0]).toMatchObject({
       id: 'u-1',
       email: 'a@e.com',
+      role: 'STUDENT',
       studentCode: '20110001',
       isActive: true,
       mustChangePassword: true,
