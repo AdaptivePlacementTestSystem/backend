@@ -59,6 +59,20 @@ export interface IUserRepository {
    */
   findAccountByUserId(id: string): Promise<AccountRecord | null>;
 
+  /** Tập email (chữ thường) đã có trong hệ thống trong danh sách cho trước (kiểm trùng khi import). */
+  findTakenEmails(emails: string[]): Promise<Set<string>>;
+
+  /** Tập MSSV (SV) hoặc mã GV (GV) đã có trong danh sách cho trước. */
+  findTakenCodes(kind: AccountKind, codes: string[]): Promise<Set<string>>;
+
+  /**
+   * Tạo nhiều tài khoản và hồ sơ trong MỘT transaction (BR-04: tất cả hoặc không có gì).
+   * @throws DuplicateAccountError khi vi phạm ràng buộc duy nhất (đua ghi); không tạo tài khoản nào.
+   */
+  createAccounts(
+    items: ReadonlyArray<{ user: UserEntity; profile: AccountProfile }>,
+  ): Promise<void>;
+
   /** Khóa/mở khóa: ghi `isActive`; `JwtStrategy` đọc DB mỗi request nên có hiệu lực ngay. */
   setActive(id: string, isActive: boolean): Promise<void>;
 

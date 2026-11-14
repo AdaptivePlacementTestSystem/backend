@@ -131,6 +131,23 @@ export const configuration = () => ({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM ?? 'noreply@apt.edu.vn',
+    // Hàng đợi gửi email trong tiến trình (độ song song và số lần thử mỗi thư)
+    queueConcurrency: parseInt(process.env.MAIL_QUEUE_CONCURRENCY ?? '3', 10),
+    queueMaxAttempts: parseInt(process.env.MAIL_QUEUE_MAX_ATTEMPTS ?? '3', 10),
+    queueBackoffMs: parseInt(process.env.MAIL_QUEUE_BACKOFF_MS ?? '1000', 10),
+  },
+
+  // Import tài khoản SV/GV bằng file .xlsx (S19, SRS 9b.3 L1; MD-08: ≤ 2 MB, ≤ 1000 dòng)
+  accountImport: {
+    maxFileBytes: parseInt(
+      process.env.IMPORT_MAX_FILE_BYTES ?? String(2 * 1024 * 1024),
+      10,
+    ),
+    maxRows: parseInt(process.env.IMPORT_MAX_ROWS ?? '1000', 10),
+    gridTtlSeconds: parseInt(process.env.IMPORT_GRID_TTL_SECONDS ?? '1800', 10),
+    jobTtlSeconds: parseInt(process.env.IMPORT_JOB_TTL_SECONDS ?? '3600', 10),
+    // Số tài khoản băm argon2 song song khi Lưu (thread pool mặc định của libuv là 4)
+    hashConcurrency: parseInt(process.env.IMPORT_HASH_CONCURRENCY ?? '4', 10),
   },
 });
 

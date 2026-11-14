@@ -28,5 +28,7 @@ import { CryptoTemporaryPasswordGenerator } from './infrastructure/crypto-tempor
       useClass: CryptoTemporaryPasswordGenerator,
     },
   ],
+  // Dùng chung cho import tài khoản hàng loạt (user-import)
+  exports: [TEMPORARY_PASSWORD_GENERATOR],
 })
 export class UserAdminModule {}

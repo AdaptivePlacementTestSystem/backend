@@ -226,6 +226,74 @@ export class PrismaUserRepository implements IUserRepository {
     );
   }
 
+  async findTakenEmails(emails: string[]): Promise<Set<string>> {
+    if (emails.length === 0) return new Set();
+    const rows = await this.prisma.user.findMany({
+      where: { email: { in: emails } },
+      select: { email: true },
+    });
+    return new Set(rows.map((row) => row.email.toLowerCase()));
+  }
+
+  async findTakenCodes(
+    kind: AccountKind,
+    codes: string[],
+  ): Promise<Set<string>> {
+    if (codes.length === 0) return new Set();
+    if (kind === 'STUDENT') {
+      const rows = await this.prisma.studentProfile.findMany({
+        where: { studentCode: { in: codes } },
+        select: { studentCode: true },
+      });
+      return new Set(rows.map((row) => row.studentCode));
+    }
+    const rows = await this.prisma.teacherProfile.findMany({
+      where: { teacherCode: { in: codes } },
+      select: { teacherCode: true },
+    });
+    return new Set(rows.map((row) => row.teacherCode));
+  }
+
+  async createAccounts(
+    items: ReadonlyArray<{ user: UserEntity; profile: AccountProfile }>,
+  ): Promise<void> {
+    if (items.length === 0) return;
+    try {
+      // $transaction([...]) chạy các lệnh tạo lồng nhau trong cùng một transaction: một lỗi thì hoàn tác tất cả.
+      await this.prisma.$transaction(
+        items.map(({ user, profile }) =>
+          this.prisma.user.create({
+            data: {
+              id: user.id,
+              email: user.email,
+              fullName: user.fullName,
+              role: user.role as any,
+              passwordHash: user.passwordHash,
+              authProvider: user.authProvider as any,
+              externalId: user.externalId,
+              mustChangePassword: user.mustChangePassword,
+              isActive: user.isActive,
+              passwordChangedAt: user.passwordChangedAt,
+              ...(profile.kind === 'STUDENT'
+                ? {
+                    studentProfile: {
+                      create: { studentCode: profile.studentCode },
+                    },
+                  }
+                : {
+                    teacherProfile: {
+                      create: { teacherCode: profile.teacherCode },
+                    },
+                  }),
+            },
+          }),
+        ),
+      );
+    } catch (error) {
+      throw this.mapUniqueViolation(error, items[0].profile.kind) ?? error;
+    }
+  }
+
   async setActive(id: string, isActive: boolean): Promise<void> {
     await this.prisma.user.update({ where: { id }, data: { isActive } });
   }
