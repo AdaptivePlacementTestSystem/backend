@@ -40,6 +40,7 @@ import {
   JwtPayload,
 } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
+import { SessionStatus } from '../domain/entities/test-session.entity';
 
 export class SubmitResponseBodyDto {
   @IsString()
@@ -98,7 +99,25 @@ export class TestSessionController {
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    await this.assertSessionOwnership(sessionId, user);
+    const session = await this.assertSessionOwnership(sessionId, user);
+
+    if (session.status !== SessionStatus.IN_PROGRESS) {
+      return {
+        kind: 'finished',
+        reason: session.stoppingReason ?? 'SE_THRESHOLD',
+        sessionId: session.id,
+      };
+    }
+
+    const sessionMeta = {
+      id: session.id,
+      itemCount: session.responses?.length ?? 0,
+      maxItems: 25,
+      expiresAt: session.expiresAt
+        ? session.expiresAt.toISOString()
+        : new Date(Date.now() + 45 * 60 * 1000).toISOString(),
+      serverTime: new Date().toISOString(),
+    };
 
     const cacheState = await this.cacheService.getState(sessionId);
 
@@ -112,7 +131,11 @@ export class TestSessionController {
         cacheState.currentItemId,
       );
       if (existingItem) {
-        return this.formatItemForStudent(existingItem);
+        return {
+          kind: 'item',
+          session: sessionMeta,
+          item: this.formatItemForStudent(existingItem),
+        };
       }
     }
 
@@ -134,7 +157,11 @@ export class TestSessionController {
     // 3. Chọn ngẫu nhiên đều 1 câu từ Top-5
     const selectedItem = this.catEngineService.selectNextItem(candidates);
     if (!selectedItem) {
-      return { message: 'Không còn câu hỏi phù hợp trong ngân hàng đề' };
+      return {
+        kind: 'finished',
+        reason: 'ITEM_BANK_BOUNDARY',
+        sessionId: session.id,
+      };
     }
 
     // 4. Cập nhật state machine sang WAITING_FOR_ANSWER
@@ -148,7 +175,11 @@ export class TestSessionController {
       lastUpdated: new Date().toISOString(),
     });
 
-    return this.formatItemForStudent(selectedItem);
+    return {
+      kind: 'item',
+      session: sessionMeta,
+      item: this.formatItemForStudent(selectedItem),
+    };
   }
 
   @Post(':id/responses')
@@ -170,6 +201,7 @@ export class TestSessionController {
 
     // Quyết định #59 & PX.14: Không trả isCorrect, thetaAfter, seAfter trong lúc làm bài
     return {
+      accepted: true,
       shouldStop: result.shouldStop,
       stoppingReason: result.stoppingReason,
     };
@@ -201,16 +233,16 @@ export class TestSessionController {
   }
 
   private async assertSessionOwnership(sessionId: string, user: JwtPayload) {
-    if (user.role === UserRole.ADMIN) return;
     const session = await this.sessionRepository.findById(sessionId);
     if (!session) {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
-    if (session.studentId !== user.sub) {
+    if (user.role !== UserRole.ADMIN && session.studentId !== user.sub) {
       throw new ForbiddenException(
         'Bạn không có quyền thao tác trên phiên làm bài này',
       );
     }
+    return session;
   }
 
   /**

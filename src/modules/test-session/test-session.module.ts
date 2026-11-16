@@ -9,6 +9,7 @@ import { ComputeResultUseCase } from './application/use-cases/compute-result.use
 import { GetActiveSessionUseCase } from './application/use-cases/get-active-session.use-case';
 import { GetSessionResultUseCase } from './application/use-cases/get-session-result.use-case';
 import { GetSessionReviewUseCase } from './application/use-cases/get-session-review.use-case';
+import { GetCurrentRoundSessionUseCase } from './application/use-cases/get-current-round-session.use-case';
 import { PrismaTestSessionRepository } from './infrastructure/persistence/prisma-test-session.repository';
 import { RedisSessionCacheService } from './infrastructure/cache/redis-session-cache.service';
 
@@ -23,9 +24,10 @@ import { RedisSessionCacheService } from './infrastructure/cache/redis-session-c
     GetActiveSessionUseCase,
     GetSessionResultUseCase,
     GetSessionReviewUseCase,
+    GetCurrentRoundSessionUseCase,
     PrismaTestSessionRepository,
     RedisSessionCacheService,
   ],
-  exports: [PrismaTestSessionRepository],
+  exports: [PrismaTestSessionRepository, GetCurrentRoundSessionUseCase],
 })
 export class TestSessionModule {}
