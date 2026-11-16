@@ -6,6 +6,8 @@ import {
   StoppingReason,
 } from '../../domain/entities/test-session.entity';
 
+import { SessionCleanupService } from '../services/session-cleanup.service';
+
 describe('ResumeSessionUseCase', () => {
   let useCase: ResumeSessionUseCase;
   let sessionRepository: any;
@@ -14,6 +16,7 @@ describe('ResumeSessionUseCase', () => {
   let configService: any;
   let computeResultUseCase: any;
   let itemRepository: any;
+  let sessionCleanupService: SessionCleanupService;
 
   beforeEach(() => {
     sessionRepository = {
@@ -43,12 +46,17 @@ describe('ResumeSessionUseCase', () => {
       findById: vi.fn(),
     };
 
+    sessionCleanupService = new SessionCleanupService(
+      prisma,
+      configService,
+      cacheService,
+      computeResultUseCase,
+    );
+
     useCase = new ResumeSessionUseCase(
       sessionRepository,
       cacheService,
-      prisma,
-      configService,
-      computeResultUseCase,
+      sessionCleanupService,
       itemRepository,
     );
   });

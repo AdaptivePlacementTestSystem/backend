@@ -61,18 +61,24 @@ export class GetSessionResultUseCase {
       where: { testSessionId: sessionId },
     });
 
+    if (!profile) {
+      throw new NotFoundException(
+        'Không tìm thấy hồ sơ năng lực (LanguageProfile) của phiên thi này',
+      );
+    }
+
     const durationSeconds = session.completedAt
       ? Math.round(
           (session.completedAt.getTime() - session.startedAt.getTime()) / 1000,
         )
       : 0;
 
-    const thetaFinal = session.thetaFinal ?? profile?.theta ?? 0;
-    const seFinal = session.seFinal ?? profile?.standardError ?? 0.35;
+    const thetaFinal = session.thetaFinal ?? profile.theta ?? 0;
+    const seFinal = session.seFinal ?? profile.standardError ?? 0.35;
     const ci95Lower = parseFloat((thetaFinal - 1.96 * seFinal).toFixed(4));
     const ci95Upper = parseFloat((thetaFinal + 1.96 * seFinal).toFixed(4));
 
-    const rawSkillProfiles = Array.isArray(profile?.skillProfiles)
+    const rawSkillProfiles = Array.isArray(profile.skillProfiles)
       ? (profile.skillProfiles as any[])
       : [];
     const skillProfiles = rawSkillProfiles.map((s) => ({
@@ -84,7 +90,7 @@ export class GetSessionResultUseCase {
       accuracyRate: s.accuracyRate,
     }));
 
-    const rawErrorPatterns = Array.isArray(profile?.errorPatterns)
+    const rawErrorPatterns = Array.isArray(profile.errorPatterns)
       ? (profile.errorPatterns as any[])
       : [];
     const errorPatterns = rawErrorPatterns.map((e, index) => {
@@ -125,10 +131,10 @@ export class GetSessionResultUseCase {
       status: session.status,
       thetaFinal: session.thetaFinal,
       seFinal: session.seFinal,
-      cefrLevel: profile?.cefrLevel ?? 'B1',
-      confidenceLevel: profile?.cefrConfidence ?? 'HIGH',
-      boundaryEffect: profile?.boundaryEffect ?? false,
-      confidenceInterval95: profile?.confidenceInterval95 ?? [
+      cefrLevel: profile.cefrLevel,
+      confidenceLevel: profile.cefrConfidence,
+      boundaryEffect: profile.boundaryEffect,
+      confidenceInterval95: profile.confidenceInterval95 ?? [
         ci95Lower,
         ci95Upper,
       ],
@@ -139,7 +145,7 @@ export class GetSessionResultUseCase {
       stoppingReason: session.stoppingReason,
       skillProfiles,
       errorPatterns,
-      aiRecommendations: profile?.aiRecommendations ?? [],
+      aiRecommendations: (profile.aiRecommendations as string[]) ?? [],
     };
   }
 }

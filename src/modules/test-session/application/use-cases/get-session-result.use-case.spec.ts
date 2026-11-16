@@ -59,6 +59,19 @@ describe('GetSessionResultUseCase', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('quăng NotFoundException nếu phiên COMPLETED nhưng không tìm thấy LanguageProfile', async () => {
+    prisma.testSession.findUnique.mockResolvedValue({
+      id: 'session-1',
+      studentId: 'student-1',
+      status: SessionStatus.COMPLETED,
+    });
+    prisma.languageProfile.findUnique.mockResolvedValue(null);
+
+    await expect(
+      useCase.execute('session-1', 'student-1', UserRole.STUDENT),
+    ).rejects.toThrow(NotFoundException);
+  });
+
   it('trả về đầy đủ kết quả, thước đo và phân tích kỹ năng cho màn S05', async () => {
     const startedAt = new Date('2026-11-11T08:00:00Z');
     const completedAt = new Date('2026-11-11T08:35:00Z');

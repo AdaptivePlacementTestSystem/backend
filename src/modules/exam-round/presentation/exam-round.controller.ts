@@ -27,6 +27,7 @@ export class ExamRoundController {
   }
 
   @Get(':id')
+  @Roles(UserRole.STUDENT, UserRole.TEACHER, UserRole.ADMIN)
   async getExamRoundDetail(
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,

@@ -78,6 +78,12 @@ describe('TestSessionController - IDOR & Authorization Security Tests', () => {
     getActiveSessionUseCase = { execute: vi.fn() };
     catEngineService = { selectNextItem: vi.fn() };
     cacheService = { getState: vi.fn(), setState: vi.fn() };
+    const computeResultUseCase = { execute: vi.fn() };
+    const sessionCleanupService = {
+      cleanupIfExpired: vi.fn().mockResolvedValue({ isExpired: false }),
+    };
+    const configService = { get: vi.fn().mockReturnValue(25) };
+    const itemRepository = { findById: vi.fn(), findForCAT: vi.fn() };
 
     controller = new TestSessionController(
       startSessionUseCase,
@@ -86,9 +92,13 @@ describe('TestSessionController - IDOR & Authorization Security Tests', () => {
       getActiveSessionUseCase,
       getSessionResultUseCase,
       getSessionReviewUseCase,
+      computeResultUseCase as any,
+      sessionCleanupService as any,
+      configService as any,
       sessionRepository,
       catEngineService,
       cacheService,
+      itemRepository as any,
     );
   });
 

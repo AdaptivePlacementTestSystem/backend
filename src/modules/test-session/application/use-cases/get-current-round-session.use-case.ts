@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { RedisSessionCacheService } from '../../infrastructure/cache/redis-session-cache.service';
-import { ComputeResultUseCase } from './compute-result.use-case';
+import { SessionCleanupService } from '../services/session-cleanup.service';
 import type { IItemRepository } from '../../../item-bank/domain/repositories/item.repository.interface';
 import {
   SessionStatus,
@@ -40,7 +40,7 @@ export class GetCurrentRoundSessionUseCase {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly cacheService: RedisSessionCacheService,
-    private readonly computeResultUseCase: ComputeResultUseCase,
+    private readonly sessionCleanupService: SessionCleanupService,
     @Inject('IItemRepository')
     private readonly itemRepository: IItemRepository,
   ) {}
@@ -112,46 +112,18 @@ export class GetCurrentRoundSessionUseCase {
       };
     }
 
-    // 4. Phiên IN_PROGRESS -> Kiểm tra Lazy Cleanup K5
-    const graceSeconds =
-      this.configService.get<number>('cat.sessionGraceSeconds') ?? 60;
-    const minItems =
-      this.configService.get<number>('cat.boundaryMinItems') ?? 8;
+    // 4. Phiên IN_PROGRESS -> Kiểm tra Lazy Cleanup K5 qua SessionCleanupService
     const maxItems = this.configService.get<number>('cat.maxItems') ?? 25;
+    const cleanupResult =
+      await this.sessionCleanupService.cleanupIfExpired(session);
 
-    if (
-      session.expiresAt &&
-      Date.now() > session.expiresAt.getTime() + graceSeconds * 1000
-    ) {
-      if (session.responses.length >= minItems) {
-        const lastResponse = session.responses[session.responses.length - 1];
-        const thetaFinal = lastResponse?.thetaAfter ?? -0.5;
-        const seFinal = lastResponse?.seAfter ?? 0.35;
-        await this.computeResultUseCase.execute(
-          session.id,
-          thetaFinal,
-          seFinal,
-          StoppingReason.TIMEOUT,
-        );
-      } else {
-        await this.prisma.testSession.update({
-          where: { id: session.id },
-          data: {
-            status: SessionStatus.ABANDONED as any,
-            stoppingReason: StoppingReason.TIMEOUT as any,
-            completedAt: new Date(),
-          },
-        });
-      }
-      await this.cacheService.deleteState(session.id);
-
+    if (cleanupResult.isExpired) {
       return {
-        status:
-          session.responses.length >= minItems ? 'COMPLETED' : 'ABANDONED',
+        status: cleanupResult.status as any,
         sessionId: session.id,
         examRoundId: session.examRoundId,
         isExpired: true,
-        stoppingReason: StoppingReason.TIMEOUT,
+        stoppingReason: cleanupResult.stoppingReason ?? StoppingReason.TIMEOUT,
       };
     }
 
