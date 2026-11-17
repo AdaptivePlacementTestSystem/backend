@@ -49,6 +49,16 @@ export const validationSchema = Joi.object({
   // Số tầng reverse proxy tin cậy (Nginx = 1); 0 = không tin X-Forwarded-For
   TRUST_PROXY_HOPS: Joi.number().integer().min(0).default(1),
 
+  // Import tài khoản bằng file và hàng đợi email (đều có default)
+  IMPORT_MAX_FILE_BYTES: Joi.number().integer().positive().default(2097152),
+  IMPORT_MAX_ROWS: Joi.number().integer().positive().default(1000),
+  IMPORT_GRID_TTL_SECONDS: Joi.number().integer().positive().default(1800),
+  IMPORT_JOB_TTL_SECONDS: Joi.number().integer().positive().default(3600),
+  IMPORT_HASH_CONCURRENCY: Joi.number().integer().positive().default(4),
+  MAIL_QUEUE_CONCURRENCY: Joi.number().integer().positive().default(3),
+  MAIL_QUEUE_MAX_ATTEMPTS: Joi.number().integer().positive().default(3),
+  MAIL_QUEUE_BACKOFF_MS: Joi.number().integer().min(0).default(1000),
+
   // CAT params — tất cả có default, không bắt buộc
   CAT_THETA_INIT: Joi.number().default(-0.5),
   CAT_PRIOR_MEAN: Joi.number().default(0.0),
