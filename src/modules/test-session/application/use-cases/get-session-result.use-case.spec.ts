@@ -84,7 +84,7 @@ describe('GetSessionResultUseCase', () => {
       seFinal: 0.32,
       startedAt,
       completedAt,
-      stoppingReason: StoppingReason.SE_REACHED,
+      stoppingReason: StoppingReason.SE_THRESHOLD,
       responses: [{}, {}, {}],
     });
 

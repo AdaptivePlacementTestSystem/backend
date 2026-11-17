@@ -12,7 +12,6 @@ import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import {
   TestSessionEntity,
   SessionStatus,
-  StoppingReason,
 } from '../../domain/entities/test-session.entity';
 import { SessionCleanupService } from '../services/session-cleanup.service';
 import { randomUUID } from 'crypto';
@@ -90,11 +89,6 @@ export class StartSessionUseCase {
         round.closesAt.getTime(),
       ),
     );
-
-    const graceSeconds =
-      this.configService.get<number>('cat.sessionGraceSeconds') ?? 60;
-    const minItems =
-      this.configService.get<number>('cat.boundaryMinItems') ?? 8;
 
     // Kiểm tra phiên thi IN_PROGRESS của sinh viên
     const activeSession = await this.prisma.testSession.findFirst({

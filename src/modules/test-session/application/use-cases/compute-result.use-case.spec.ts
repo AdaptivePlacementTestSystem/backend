@@ -30,7 +30,7 @@ describe('ComputeResultUseCase', () => {
   it('quăng NotFoundException nếu không tìm thấy phiên', async () => {
     prisma.testSession.findUnique.mockResolvedValue(null);
     await expect(
-      useCase.execute('invalid', 0.5, 0.3, StoppingReason.SE_REACHED),
+      useCase.execute('invalid', 0.5, 0.3, StoppingReason.SE_THRESHOLD),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -64,13 +64,13 @@ describe('ComputeResultUseCase', () => {
 
     prisma.testSession.findUnique.mockResolvedValue(mockSession);
 
-    await useCase.execute('session-123', 0.85, 0.31, StoppingReason.SE_REACHED);
+    await useCase.execute('session-123', 0.85, 0.31, StoppingReason.SE_THRESHOLD);
 
     expect(sessionRepository.complete).toHaveBeenCalledWith(
       'session-123',
       0.85,
       0.31,
-      StoppingReason.SE_REACHED,
+      StoppingReason.SE_THRESHOLD,
     );
 
     expect(prisma.languageProfile.create).toHaveBeenCalledWith(

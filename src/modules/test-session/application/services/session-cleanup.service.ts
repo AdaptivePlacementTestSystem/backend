@@ -29,7 +29,7 @@ export class SessionCleanupService {
 
   async cleanupIfExpired(session: {
     id: string;
-    status: SessionStatus;
+    status: SessionStatus | string;
     expiresAt: Date | null;
     responses: Array<{ thetaAfter?: number | null; seAfter?: number | null }>;
   }): Promise<CleanupResult> {

@@ -66,7 +66,7 @@ describe('SessionCleanupService', () => {
   });
 
   it('khi quá hạn và đã làm >= 8 câu (đủ boundaryMinItems): tính kết quả COMPLETED với TIMEOUT', async () => {
-    const responses = Array.from({ length: 9 }, (_, i) => ({
+    const responses = Array.from({ length: 9 }, () => ({
       thetaAfter: 0.25,
       seAfter: 0.33,
     }));
@@ -91,7 +91,7 @@ describe('SessionCleanupService', () => {
   });
 
   it('khi quá hạn và đã làm < 8 câu: cập nhật ABANDONED với TIMEOUT và xóa cache', async () => {
-    const responses = Array.from({ length: 3 }, (_, i) => ({
+    const responses = Array.from({ length: 3 }, () => ({
       thetaAfter: -0.1,
       seAfter: 0.65,
     }));

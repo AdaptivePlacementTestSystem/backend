@@ -107,7 +107,7 @@ describe('GetCurrentRoundSessionUseCase', () => {
       studentId: 'student-1',
       status: SessionStatus.COMPLETED,
       completedAt: new Date(),
-      stoppingReason: StoppingReason.SE_REACHED,
+      stoppingReason: StoppingReason.SE_THRESHOLD,
     });
 
     const result = await useCase.execute('round-1', 'student-1');
