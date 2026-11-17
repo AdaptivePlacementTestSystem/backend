@@ -64,7 +64,12 @@ describe('ComputeResultUseCase', () => {
 
     prisma.testSession.findUnique.mockResolvedValue(mockSession);
 
-    await useCase.execute('session-123', 0.85, 0.31, StoppingReason.SE_THRESHOLD);
+    await useCase.execute(
+      'session-123',
+      0.85,
+      0.31,
+      StoppingReason.SE_THRESHOLD,
+    );
 
     expect(sessionRepository.complete).toHaveBeenCalledWith(
       'session-123',

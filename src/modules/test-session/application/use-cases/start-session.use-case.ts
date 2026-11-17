@@ -105,8 +105,9 @@ export class StartSessionUseCase {
     });
 
     if (activeSession) {
-      const cleanupResult =
-        await this.sessionCleanupService.cleanupIfExpired(activeSession as any);
+      const cleanupResult = await this.sessionCleanupService.cleanupIfExpired(
+        activeSession as any,
+      );
       if (!cleanupResult.isExpired) {
         // Phiên còn hạn -> Ném 409 Conflict với code SESSION_IN_PROGRESS (SRS v3.0)
         throw new ConflictException({

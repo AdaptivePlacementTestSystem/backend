@@ -38,7 +38,8 @@ export class ResumeSessionUseCase {
         currentItem: null,
         state: {
           state: cleanupResult.status,
-          stoppingReason: cleanupResult.stoppingReason ?? StoppingReason.TIMEOUT,
+          stoppingReason:
+            cleanupResult.stoppingReason ?? StoppingReason.TIMEOUT,
         },
         isExpired: true,
       };
