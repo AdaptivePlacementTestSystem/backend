@@ -4,6 +4,8 @@ export interface JwtPayload {
   sub: string; // users.id (UUID)
   role: string; // UserRole
   email: string;
+  /** Trạng thái tại thời điểm xác thực (đọc từ DB), không nằm trong token. */
+  mustChangePassword?: boolean;
 }
 
 /**

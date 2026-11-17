@@ -22,6 +22,37 @@ export const configuration = () => ({
     ttlSeconds: parseInt(process.env.REDIS_TTL_SECONDS ?? '7200', 10),
   },
 
+  // Rate-limit đăng nhập / quên mật khẩu (DECISIONS_LOG #134, D3)
+  rateLimit: {
+    loginLimit: parseInt(process.env.RATE_LIMIT_LOGIN_LIMIT ?? '5', 10),
+    loginTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_LOGIN_TTL_SECONDS ?? '60',
+      10,
+    ),
+    forgotLimit: parseInt(process.env.RATE_LIMIT_FORGOT_LIMIT ?? '3', 10),
+    forgotTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_FORGOT_TTL_SECONDS ?? '3600',
+      10,
+    ),
+    resetLimit: parseInt(process.env.RATE_LIMIT_RESET_LIMIT ?? '20', 10),
+    resetTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_RESET_TTL_SECONDS ?? '60',
+      10,
+    ),
+    // Chỉ đếm đăng nhập thất bại theo IP (không chặn nhầm phòng thi dùng chung IP)
+    loginIpFailureLimit: parseInt(
+      process.env.RATE_LIMIT_LOGIN_IP_FAILURE_LIMIT ?? '100',
+      10,
+    ),
+    loginIpFailureTtlSeconds: parseInt(
+      process.env.RATE_LIMIT_LOGIN_IP_FAILURE_TTL_SECONDS ?? '600',
+      10,
+    ),
+  },
+
+  // Số tầng reverse proxy tin cậy để lấy đúng IP client (0 = không tin proxy)
+  trustProxyHops: parseInt(process.env.TRUST_PROXY_HOPS ?? '1', 10),
+
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
@@ -90,6 +121,16 @@ export const configuration = () => ({
 
   eduz: {
     apiKey: process.env.EDUZ_API_KEY, // M2M API Key — không phải JWT
+  },
+
+  mail: {
+    host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT ?? '465', 10),
+    secure:
+      process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+    from: process.env.SMTP_FROM ?? 'noreply@apt.edu.vn',
   },
 });
 

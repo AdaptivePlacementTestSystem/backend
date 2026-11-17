@@ -8,4 +8,13 @@ export interface IUserRepository {
     externalId: string,
   ): Promise<UserEntity | null>;
   save(user: UserEntity): Promise<UserEntity>;
+  /**
+   * Cập nhật mật khẩu (đã băm) và đặt `passwordChangedAt = now`.
+   * `mustChangePassword` mặc định false (đổi/đặt lại thành công).
+   */
+  updatePassword(
+    userId: string,
+    passwordHash: string,
+    options?: { mustChangePassword?: boolean },
+  ): Promise<void>;
 }

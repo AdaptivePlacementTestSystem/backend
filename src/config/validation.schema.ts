@@ -27,6 +27,28 @@ export const validationSchema = Joi.object({
   JWT_EXPIRES_IN: Joi.string().default('1h'),
   JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
 
+  // Rate-limit đăng nhập / quên mật khẩu (DECISIONS_LOG #134, D3)
+  RATE_LIMIT_LOGIN_LIMIT: Joi.number().integer().positive().default(5),
+  RATE_LIMIT_LOGIN_TTL_SECONDS: Joi.number().integer().positive().default(60),
+  RATE_LIMIT_FORGOT_LIMIT: Joi.number().integer().positive().default(3),
+  RATE_LIMIT_FORGOT_TTL_SECONDS: Joi.number()
+    .integer()
+    .positive()
+    .default(3600),
+
+  RATE_LIMIT_RESET_LIMIT: Joi.number().integer().positive().default(20),
+  RATE_LIMIT_RESET_TTL_SECONDS: Joi.number().integer().positive().default(60),
+  RATE_LIMIT_LOGIN_IP_FAILURE_LIMIT: Joi.number()
+    .integer()
+    .positive()
+    .default(100),
+  RATE_LIMIT_LOGIN_IP_FAILURE_TTL_SECONDS: Joi.number()
+    .integer()
+    .positive()
+    .default(600),
+  // Số tầng reverse proxy tin cậy (Nginx = 1); 0 = không tin X-Forwarded-For
+  TRUST_PROXY_HOPS: Joi.number().integer().min(0).default(1),
+
   // CAT params — tất cả có default, không bắt buộc
   CAT_THETA_INIT: Joi.number().default(-0.5),
   CAT_PRIOR_MEAN: Joi.number().default(0.0),
@@ -55,5 +77,11 @@ export const validationSchema = Joi.object({
   // EduZ M2M
   EDUZ_API_KEY: Joi.string().optional(),
 
-  // Multi-tenant
+  // Mail / SMTP
+  SMTP_HOST: Joi.string().optional(),
+  SMTP_PORT: Joi.number().optional(),
+  SMTP_SECURE: Joi.boolean().optional(),
+  SMTP_USER: Joi.string().optional(),
+  SMTP_PASS: Joi.string().optional(),
+  SMTP_FROM: Joi.string().optional(),
 });
