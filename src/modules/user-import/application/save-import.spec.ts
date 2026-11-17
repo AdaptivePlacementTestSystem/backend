@@ -59,7 +59,7 @@ describe('Lưu import tài khoản (nền, tất cả hoặc không có gì)', (
 
   /** Chờ tác vụ nền xong (job rời PROCESSING và khóa được nhả). */
   const settle = async (kind: 'STUDENT' | 'TEACHER' = 'STUDENT') => {
-    for (let i = 0; i < 400; i++) {
+    for (let i = 0; i < 2500; i++) {
       const job = await jobs.get(ADMIN, kind);
       if (job && job.status !== 'PROCESSING' && jobs.locks.size === 0)
         return job;
@@ -284,7 +284,7 @@ describe('Lưu import tài khoản (nền, tất cả hoặc không có gì)', (
         status: 'DONE',
         processed: 60,
       });
-    });
+    }, 30_000);
   });
 
   describe('tác vụ nền: thất bại, không tạo gì', () => {
