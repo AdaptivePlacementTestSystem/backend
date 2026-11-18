@@ -1,5 +1,6 @@
 import { Controller, Get, Param, UseGuards, Req } from '@nestjs/common';
 import { GetProfileUseCase } from '../application/use-cases/get-profile.use-case';
+import { GetStudentHistoryUseCase } from '../application/use-cases/get-student-history.use-case';
 import { ExportForEduZUseCase } from '../application/use-cases/export-for-eduz.use-case';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { ProfileAccessGuard } from './guards/profile-access.guard';
@@ -9,6 +10,7 @@ import { EduZApiKeyGuard } from './guards/eduz-api-key.guard';
 export class LanguageProfileController {
   constructor(
     private readonly getProfileUseCase: GetProfileUseCase,
+    private readonly getStudentHistoryUseCase: GetStudentHistoryUseCase,
     private readonly exportForEduZUseCase: ExportForEduZUseCase,
   ) {}
 
@@ -21,6 +23,16 @@ export class LanguageProfileController {
   async getProfile(@Req() req: any) {
     const target = req.targetStudent;
     return this.getProfileUseCase.execute(target.userId);
+  }
+
+  /**
+   * Lịch sử làm bài thi của sinh viên (UCSV06 / S07)
+   */
+  @Get(':studentCode/history')
+  @UseGuards(JwtAuthGuard, ProfileAccessGuard)
+  async getHistory(@Req() req: any) {
+    const target = req.targetStudent;
+    return this.getStudentHistoryUseCase.execute(target.userId);
   }
 
   /**

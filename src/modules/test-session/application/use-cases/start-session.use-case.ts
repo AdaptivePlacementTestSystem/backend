@@ -12,9 +12,8 @@ import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import {
   TestSessionEntity,
   SessionStatus,
-  StoppingReason,
 } from '../../domain/entities/test-session.entity';
-import { ComputeResultUseCase } from './compute-result.use-case';
+import { SessionCleanupService } from '../services/session-cleanup.service';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -24,7 +23,7 @@ export class StartSessionUseCase {
     private readonly cacheService: RedisSessionCacheService,
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-    private readonly computeResultUseCase: ComputeResultUseCase,
+    private readonly sessionCleanupService: SessionCleanupService,
   ) {}
 
   async execute(
@@ -91,11 +90,6 @@ export class StartSessionUseCase {
       ),
     );
 
-    const graceSeconds =
-      this.configService.get<number>('cat.sessionGraceSeconds') ?? 60;
-    const minItems =
-      this.configService.get<number>('cat.boundaryMinItems') ?? 8;
-
     // Kiểm tra phiên thi IN_PROGRESS của sinh viên
     const activeSession = await this.prisma.testSession.findFirst({
       where: {
@@ -111,33 +105,10 @@ export class StartSessionUseCase {
     });
 
     if (activeSession) {
-      const isExpired =
-        Date.now() > activeSession.expiresAt.getTime() + graceSeconds * 1000;
-      if (isExpired) {
-        // Phiên quá hạn -> Lazy Cleanup trong transaction
-        if (activeSession.responses.length >= minItems) {
-          const lastResponse =
-            activeSession.responses[activeSession.responses.length - 1];
-          const thetaFinal = lastResponse?.thetaAfter ?? -0.5;
-          const seFinal = lastResponse?.seAfter ?? 0.35;
-          await this.computeResultUseCase.execute(
-            activeSession.id,
-            thetaFinal,
-            seFinal,
-            StoppingReason.TIMEOUT as any,
-          );
-        } else {
-          await this.prisma.testSession.update({
-            where: { id: activeSession.id },
-            data: {
-              status: SessionStatus.ABANDONED as any,
-              stoppingReason: StoppingReason.TIMEOUT as any,
-              completedAt: new Date(),
-            },
-          });
-        }
-        await this.cacheService.deleteState(activeSession.id);
-      } else {
+      const cleanupResult = await this.sessionCleanupService.cleanupIfExpired(
+        activeSession as any,
+      );
+      if (!cleanupResult.isExpired) {
         // Phiên còn hạn -> Ném 409 Conflict với code SESSION_IN_PROGRESS (SRS v3.0)
         throw new ConflictException({
           code: ErrorCode.SESSION_IN_PROGRESS,

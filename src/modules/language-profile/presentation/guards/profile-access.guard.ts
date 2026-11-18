@@ -26,6 +26,11 @@ export class ProfileAccessGuard implements CanActivate {
       throw new ForbiddenException('Chưa xác thực danh tính');
     }
 
+    if (studentCode === 'me') {
+      request.targetStudent = { userId: user.sub };
+      return true;
+    }
+
     const target = await this.targetLookup.findStudentByCode(studentCode);
     if (!target) {
       throw new NotFoundException(

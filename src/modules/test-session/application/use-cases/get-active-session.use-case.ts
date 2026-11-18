@@ -10,6 +10,7 @@ import {
 
 export interface ActiveSessionDto {
   activeSessionId: string;
+  examRoundId: string;
   startedAt: Date;
   itemCount: number;
   maxItems: number;
@@ -80,6 +81,7 @@ export class GetActiveSessionUseCase {
 
     return {
       activeSessionId: activeSession.id,
+      examRoundId: activeSession.examRoundId,
       startedAt: activeSession.startedAt,
       itemCount: activeSession.responses.length,
       maxItems,

@@ -28,6 +28,9 @@ import { ResumeSessionUseCase } from '../application/use-cases/resume-session.us
 import { GetActiveSessionUseCase } from '../application/use-cases/get-active-session.use-case';
 import { GetSessionResultUseCase } from '../application/use-cases/get-session-result.use-case';
 import { GetSessionReviewUseCase } from '../application/use-cases/get-session-review.use-case';
+import { ComputeResultUseCase } from '../application/use-cases/compute-result.use-case';
+import { SessionCleanupService } from '../application/services/session-cleanup.service';
+import { ConfigService } from '@nestjs/config';
 import { CatEngineService } from '../../cat-engine/application/services/cat-engine.service';
 import { RedisSessionCacheService } from '../infrastructure/cache/redis-session-cache.service';
 import { PrismaTestSessionRepository } from '../infrastructure/persistence/prisma-test-session.repository';
@@ -40,6 +43,10 @@ import {
   JwtPayload,
 } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
+import {
+  SessionStatus,
+  StoppingReason,
+} from '../domain/entities/test-session.entity';
 
 export class SubmitResponseBodyDto {
   @IsString()
@@ -70,6 +77,9 @@ export class TestSessionController {
     private readonly getActiveSessionUseCase: GetActiveSessionUseCase,
     private readonly getSessionResultUseCase: GetSessionResultUseCase,
     private readonly getSessionReviewUseCase: GetSessionReviewUseCase,
+    private readonly computeResultUseCase: ComputeResultUseCase,
+    private readonly sessionCleanupService: SessionCleanupService,
+    private readonly configService: ConfigService,
     private readonly sessionRepository: PrismaTestSessionRepository,
     private readonly catEngineService: CatEngineService,
     private readonly cacheService: RedisSessionCacheService,
@@ -98,7 +108,37 @@ export class TestSessionController {
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    await this.assertSessionOwnership(sessionId, user);
+    const session = await this.assertSessionOwnership(sessionId, user);
+
+    // 1. Kiểm tra nếu phiên đã kết thúc trước đó
+    if (session.status !== SessionStatus.IN_PROGRESS) {
+      return {
+        kind: 'finished',
+        reason: session.stoppingReason ?? 'SE_THRESHOLD',
+        sessionId: session.id,
+      };
+    }
+
+    // 2. Kiểm tra quá hạn thời gian làm bài (Lazy Cleanup K5 / DC-20)
+    const cleanupResult =
+      await this.sessionCleanupService.cleanupIfExpired(session);
+    if (cleanupResult.isExpired) {
+      return {
+        kind: 'finished',
+        reason: cleanupResult.stoppingReason ?? 'TIMEOUT',
+        sessionId: session.id,
+      };
+    }
+
+    // 3. Lấy metadata phiên thi từ ConfigService (không hardcode)
+    const maxItems = this.configService.get<number>('cat.maxItems') ?? 25;
+    const sessionMeta = {
+      id: session.id,
+      itemCount: session.responses?.length ?? 0,
+      maxItems,
+      expiresAt: session.expiresAt.toISOString(),
+      serverTime: new Date().toISOString(),
+    };
 
     const cacheState = await this.cacheService.getState(sessionId);
 
@@ -112,16 +152,20 @@ export class TestSessionController {
         cacheState.currentItemId,
       );
       if (existingItem) {
-        return this.formatItemForStudent(existingItem);
+        return {
+          kind: 'item',
+          session: sessionMeta,
+          item: this.formatItemForStudent(existingItem),
+        };
       }
     }
 
-    // 1. Chọn kỹ năng tiếp theo (Round-robin)
+    // 4. Chọn kỹ năng tiếp theo (Round-robin)
     const nextSkill = this.catEngineService.pickNextSkill(
       cacheState?.lastSkillPicked ?? null,
     );
 
-    // 2. Lấy danh sách Top-5 ứng viên gần theta nhất
+    // 5. Lấy danh sách Top-5 ứng viên gần theta nhất
     const usedIds = cacheState?.itemsAdministered ?? [];
     const currentTheta = cacheState?.theta ?? -0.5;
     const candidates = await this.itemRepository.findForCAT(
@@ -131,13 +175,28 @@ export class TestSessionController {
       5,
     );
 
-    // 3. Chọn ngẫu nhiên đều 1 câu từ Top-5
+    // 6. Chọn ngẫu nhiên đều 1 câu từ Top-5
     const selectedItem = this.catEngineService.selectNextItem(candidates);
     if (!selectedItem) {
-      return { message: 'Không còn câu hỏi phù hợp trong ngân hàng đề' };
+      // Hết câu hỏi phù hợp trong ngân hàng đề -> hoàn tất phiên thi với ITEM_BANK_BOUNDARY
+      const currentThetaFinal = cacheState?.theta ?? -0.5;
+      const currentSeFinal = cacheState?.se ?? 1.0;
+      await this.computeResultUseCase.execute(
+        session.id,
+        currentThetaFinal,
+        currentSeFinal,
+        StoppingReason.ITEM_BANK_BOUNDARY as any,
+      );
+      await this.cacheService.deleteState(session.id);
+
+      return {
+        kind: 'finished',
+        reason: 'ITEM_BANK_BOUNDARY',
+        sessionId: session.id,
+      };
     }
 
-    // 4. Cập nhật state machine sang WAITING_FOR_ANSWER
+    // 7. Cập nhật state machine sang WAITING_FOR_ANSWER
     await this.cacheService.setState(sessionId, {
       state: 'WAITING_FOR_ANSWER',
       currentItemId: selectedItem.id,
@@ -148,7 +207,11 @@ export class TestSessionController {
       lastUpdated: new Date().toISOString(),
     });
 
-    return this.formatItemForStudent(selectedItem);
+    return {
+      kind: 'item',
+      session: sessionMeta,
+      item: this.formatItemForStudent(selectedItem),
+    };
   }
 
   @Post(':id/responses')
@@ -170,6 +233,7 @@ export class TestSessionController {
 
     // Quyết định #59 & PX.14: Không trả isCorrect, thetaAfter, seAfter trong lúc làm bài
     return {
+      accepted: true,
       shouldStop: result.shouldStop,
       stoppingReason: result.stoppingReason,
     };
@@ -201,16 +265,16 @@ export class TestSessionController {
   }
 
   private async assertSessionOwnership(sessionId: string, user: JwtPayload) {
-    if (user.role === UserRole.ADMIN) return;
     const session = await this.sessionRepository.findById(sessionId);
     if (!session) {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
-    if (session.studentId !== user.sub) {
+    if (user.role !== UserRole.ADMIN && session.studentId !== user.sub) {
       throw new ForbiddenException(
         'Bạn không có quyền thao tác trên phiên làm bài này',
       );
     }
+    return session;
   }
 
   /**
