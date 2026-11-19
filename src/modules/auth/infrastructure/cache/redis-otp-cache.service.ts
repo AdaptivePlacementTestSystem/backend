@@ -30,7 +30,10 @@ export class RedisOtpCacheService
       port,
       lazyConnect: true,
       maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      retryStrategy: () => null,
     });
+    this.redis.on('error', () => {});
 
     this.redis.connect().catch((err) => {
       this.logger.warn(

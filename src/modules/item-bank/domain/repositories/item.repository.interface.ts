@@ -1,17 +1,19 @@
 import { ItemEntity } from '../entities/item.entity';
-import { Skill } from '../enums/skill.enum';
-import { ItemStatus } from '../enums/item-status.enum';
+import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
 
 export interface ItemFilterOptions {
   status?: ItemStatus;
   skill?: Skill;
+  cefrTarget?: CEFRLevel;
+  source?: ItemBatchSource;
+  q?: string;
   limit?: number;
   offset?: number;
 }
 
 export interface IItemRepository {
   findById(id: string): Promise<ItemEntity | null>;
-  findAll(options?: ItemFilterOptions): Promise<ItemEntity[]>;
+  findAll(options?: ItemFilterOptions): Promise<{ items: ItemEntity[]; total: number }>;
   incrementTimesUsed(id: string): Promise<void>;
 
   /**

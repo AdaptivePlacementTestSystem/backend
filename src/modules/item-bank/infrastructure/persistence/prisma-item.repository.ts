@@ -5,7 +5,7 @@ import {
   ItemFilterOptions,
 } from '../../domain/repositories/item.repository.interface';
 import { ItemEntity, OptionMap } from '../../domain/entities/item.entity';
-import { Skill, CEFRLevel, ItemStatus } from '@apt/shared-types';
+import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
 
 @Injectable()
 export class PrismaItemRepository implements IItemRepository {
@@ -16,19 +16,41 @@ export class PrismaItemRepository implements IItemRepository {
     return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(options?: ItemFilterOptions): Promise<ItemEntity[]> {
+  async findAll(options?: ItemFilterOptions): Promise<{ items: ItemEntity[]; total: number }> {
     const where: any = {};
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
+    if (options?.cefrTarget) where.cefrTarget = options.cefrTarget;
+    if (options?.source) where.batch = { source: options.source };
+    if (options?.q) {
+      where.OR = [
+        { content: { contains: options.q, mode: 'insensitive' } },
+        { topicTag: { contains: options.q, mode: 'insensitive' } },
+      ];
+    }
 
-    const items = await this.prisma.item.findMany({
-      where,
-      take: options?.limit,
-      skip: options?.offset,
-      orderBy: { createdAt: 'desc' },
-    });
+    const take = options?.limit ?? 50;
+    const skip = options?.offset ?? 0;
 
-    return items.map((i: any) => this.toDomain(i));
+    const [items, total] = await Promise.all([
+      this.prisma.item.findMany({
+        where,
+        include: {
+          batch: {
+            select: { source: true },
+          },
+        },
+        take,
+        skip,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.item.count({ where }),
+    ]);
+
+    return {
+      items: items.map((i: any) => this.toDomain(i)),
+      total,
+    };
   }
 
   async incrementTimesUsed(id: string): Promise<void> {
@@ -113,6 +135,7 @@ export class PrismaItemRepository implements IItemRepository {
       raw.calibrated,
       raw.createdAt,
       raw.updatedAt,
+      raw.batch?.source ?? ItemBatchSource.IMPORTED,
     );
   }
 }

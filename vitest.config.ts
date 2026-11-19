@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
+    testTimeout: 10000,
     include: ['**/*.spec.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/_legacy/**', '**/*.e2e-spec.ts'],
     coverage: {

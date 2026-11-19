@@ -64,13 +64,19 @@ import { LoginFailureLimiter } from './infrastructure/throttling/login-failure-l
             getTracker: ipTracker,
           },
         ],
-        storage: new RedisThrottlerStorage(
-          new Redis({
+        storage: (() => {
+          const client = new Redis({
             host: config.get<string>('redis.host') ?? 'localhost',
             port: config.get<number>('redis.port') ?? 6379,
             maxRetriesPerRequest: 1,
-          }),
-        ),
+            enableOfflineQueue: false,
+            retryStrategy: () => null,
+            lazyConnect: true,
+          });
+          client.on('error', () => {});
+          client.connect().catch(() => {});
+          return new RedisThrottlerStorage(client);
+        })(),
       }),
     }),
     MailModule,

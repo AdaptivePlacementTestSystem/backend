@@ -11,8 +11,8 @@ const pipe = new ValidationPipe({
   forbidNonWhitelisted: true,
 });
 
-describe('ReportingController: GET /reports/overview', () => {
-  it('chỉ ADMIN xem được tổng quan; báo cáo lớp vẫn mở cho TEACHER và ADMIN', () => {
+describe('ReportingController', () => {
+  it('chỉ ADMIN xem được tổng quan; báo cáo lớp, lỗi và xuất CSV mở cho TEACHER và ADMIN', () => {
     const proto = ReportingController.prototype;
     expect(Reflect.getMetadata(ROLES_KEY, proto.getOverview)).toEqual([
       UserRole.ADMIN,
@@ -21,11 +21,20 @@ describe('ReportingController: GET /reports/overview', () => {
       UserRole.TEACHER,
       UserRole.ADMIN,
     ]);
+    expect(Reflect.getMetadata(ROLES_KEY, proto.getErrorPatterns)).toEqual([
+      UserRole.TEACHER,
+      UserRole.ADMIN,
+    ]);
+    expect(Reflect.getMetadata(ROLES_KEY, proto.exportCsv)).toEqual([
+      UserRole.TEACHER,
+      UserRole.ADMIN,
+    ]);
   });
 
-  it('chuyển examRoundId sang use-case', async () => {
+  it('chuyển examRoundId sang use-case overview', async () => {
     const overview = { execute: vi.fn().mockResolvedValue({}) };
     const controller = new ReportingController(
+      {} as any,
       {} as any,
       {} as any,
       overview as any,
@@ -36,6 +45,19 @@ describe('ReportingController: GET /reports/overview', () => {
 
     expect(overview.execute).toHaveBeenNthCalledWith(1, 'r-1');
     expect(overview.execute).toHaveBeenNthCalledWith(2, undefined);
+  });
+
+  it('gọi getErrorPatterns chuyển đúng examRoundId', async () => {
+    const errorPatterns = { execute: vi.fn().mockResolvedValue([]) };
+    const controller = new ReportingController(
+      {} as any,
+      errorPatterns as any,
+      {} as any,
+      {} as any,
+    );
+
+    await controller.getErrorPatterns('r-1');
+    expect(errorPatterns.execute).toHaveBeenCalledWith('r-1');
   });
 
   it('examRoundId phải là UUID, không nhận tham số lạ', async () => {
