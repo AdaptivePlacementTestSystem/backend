@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+﻿import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
@@ -7,6 +7,8 @@ import {
   JwtPayload,
 } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
+import { AdminExamRoundsUseCase } from '../application/use-cases/admin-exam-rounds.use-case';
+import { CreateExamRoundDto } from '../application/dto/create-exam-round.dto';
 import { GetStudentExamRoundsUseCase } from '../application/use-cases/get-student-exam-rounds.use-case';
 import { GetExamRoundDetailUseCase } from '../application/use-cases/get-exam-round-detail.use-case';
 import { GetCurrentRoundSessionUseCase } from '../../test-session/application/use-cases/get-current-round-session.use-case';
@@ -80,10 +82,23 @@ class StudentExamRoundResponseDto {
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ExamRoundController {
   constructor(
+    private readonly adminExamRoundsUseCase: AdminExamRoundsUseCase,
     private readonly getStudentExamRoundsUseCase: GetStudentExamRoundsUseCase,
     private readonly getExamRoundDetailUseCase: GetExamRoundDetailUseCase,
     private readonly getCurrentRoundSessionUseCase: GetCurrentRoundSessionUseCase,
   ) {}
+
+  @Get()
+  @Roles(UserRole.ADMIN)
+  list() {
+    return this.adminExamRoundsUseCase.list();
+  }
+
+  @Post()
+  @Roles(UserRole.ADMIN)
+  create(@Body() dto: CreateExamRoundDto, @CurrentUser() user: JwtPayload) {
+    return this.adminExamRoundsUseCase.create(dto, user.sub);
+  }
 
   @Get('mine')
   @ApiBearerAuth()
