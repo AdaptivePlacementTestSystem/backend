@@ -13,8 +13,7 @@ import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
-import { Skill } from '../domain/enums/skill.enum';
-import { ItemStatus } from '../domain/enums/item-status.enum';
+import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
 
 /**
  * Ngân hàng câu hỏi — CHỈ XEM (DC-32, #106). Các endpoint POST/PUT/DELETE/clone/approve/reject
@@ -30,8 +29,26 @@ export class ItemBankController {
   async listItems(
     @Query('status') status?: ItemStatus,
     @Query('skill') skill?: Skill,
+    @Query('cefr') cefr?: CEFRLevel,
+    @Query('source') source?: ItemBatchSource,
+    @Query('q') q?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.itemService.listItems({ status, skill });
+    const pageNum = Math.max(1, parseInt(page || '1', 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit || '10', 10) || 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    const result = await this.itemService.listItems({
+      status,
+      skill,
+      cefrTarget: cefr,
+      source,
+      q: q?.trim() || undefined,
+      limit: limitNum,
+      offset,
+    });
+    return { data: result.items, total: result.total };
   }
 
   @Post('generate-explanation')
