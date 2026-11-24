@@ -11,6 +11,13 @@ import {
 import type { Request } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
 import { LoginFailureLimiter } from '../infrastructure/throttling/login-failure-limiter';
+import {
+  ApiOkResponse,
+  ApiAcceptedResponse,
+  ApiNoContentResponse,
+  ApiBearerAuth,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { AuthThrottlerGuard } from '../infrastructure/throttling/auth-throttler.guard';
 import { AllowWhenMustChangePassword } from '../../../shared/decorators/allow-when-must-change-password.decorator';
 import { LoginUseCase } from '../application/use-cases/login.use-case';
@@ -31,6 +38,20 @@ import {
   JwtPayload,
 } from '../../../shared/decorators/current-user.decorator';
 
+class AuthProfileResponseDto {
+  @ApiProperty() id: string;
+  @ApiProperty() email: string;
+  @ApiProperty() fullName: string;
+  @ApiProperty() role: string;
+  @ApiProperty({ nullable: true, type: String }) studentCode: string | null;
+  @ApiProperty({ nullable: true, type: String }) teacherCode: string | null;
+  @ApiProperty() mustChangePassword: boolean;
+}
+
+class ForgotPasswordResponseDto {
+  @ApiProperty() success: boolean;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -43,6 +64,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @ApiOkResponse({ type: AuthResponseDto })
   @UseGuards(AuthThrottlerGuard)
   @SkipThrottle({ forgot: true, reset: true })
   @HttpCode(HttpStatus.OK)
@@ -57,6 +79,8 @@ export class AuthController {
   }
 
   @Get('me')
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: AuthProfileResponseDto })
   @UseGuards(JwtAuthGuard)
   @AllowWhenMustChangePassword()
   async getProfile(@CurrentUser() user: JwtPayload) {
@@ -79,6 +103,8 @@ export class AuthController {
   }
 
   @Post('change-password')
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: ChangePasswordResponseDto })
   @UseGuards(JwtAuthGuard)
   @AllowWhenMustChangePassword()
   @HttpCode(HttpStatus.OK)
@@ -90,6 +116,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @ApiAcceptedResponse({ type: ForgotPasswordResponseDto })
   @UseGuards(AuthThrottlerGuard)
   @SkipThrottle({ login: true, reset: true })
   @HttpCode(HttpStatus.ACCEPTED)
@@ -100,6 +127,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @ApiNoContentResponse()
   @UseGuards(AuthThrottlerGuard)
   @SkipThrottle({ login: true, forgot: true })
   @HttpCode(HttpStatus.NO_CONTENT)

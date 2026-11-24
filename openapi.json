@@ -1,0 +1,5843 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/users/{id}/lock": {
+      "post": {
+        "operationId": "AccountActionsController_lock",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AccountActions"
+        ]
+      }
+    },
+    "/api/v1/users/{id}/unlock": {
+      "post": {
+        "operationId": "AccountActionsController_unlock",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AccountActions"
+        ]
+      }
+    },
+    "/api/v1/users/{id}/resend-temporary-password": {
+      "post": {
+        "operationId": "AccountActionsController_resend",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AccountActions"
+        ]
+      }
+    },
+    "/api/v1/users/{id}/role": {
+      "patch": {
+        "operationId": "AccountActionsController_changeRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AccountActions"
+        ]
+      }
+    },
+    "/api/v1/explanations/items/{itemId}": {
+      "get": {
+        "operationId": "AiExplainerController_getExplanation",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemExplanationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AiExplainer"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthProfileResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgotPasswordResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/mine": {
+      "get": {
+        "operationId": "ExamRoundController_getMyExamRounds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentExamRoundResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}": {
+      "get": {
+        "operationId": "ExamRoundController_getExamRoundDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamRoundDetailResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}/session/current": {
+      "get": {
+        "operationId": "ExamRoundController_getCurrentSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentRoundSessionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "operationId": "HealthController_getReady",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/items": {
+      "get": {
+        "operationId": "ItemBankController_listItems",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "DRAFT",
+                "FIRST_APPROVED",
+                "SECOND_APPROVED",
+                "FINAL_APPROVED",
+                "REJECTED",
+                "AI_REJECTED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "skill",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "VOCABULARY",
+                "GRAMMAR"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ItemBank"
+        ]
+      }
+    },
+    "/api/v1/items/generate-explanation": {
+      "post": {
+        "operationId": "ItemBankController_generateExplanation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateExplanationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplanationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ItemBank"
+        ]
+      }
+    },
+    "/api/v1/items/{id}": {
+      "get": {
+        "operationId": "ItemBankController_getItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetailResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ItemBank"
+        ]
+      }
+    },
+    "/api/v1/placement-profiles/{studentCode}": {
+      "get": {
+        "operationId": "LanguageProfileController_getProfile",
+        "parameters": [
+          {
+            "name": "studentCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageProfileResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "LanguageProfile"
+        ]
+      }
+    },
+    "/api/v1/placement-profiles/{studentCode}/history": {
+      "get": {
+        "operationId": "LanguageProfileController_getHistory",
+        "parameters": [
+          {
+            "name": "studentCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentHistoryResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "LanguageProfile"
+        ]
+      }
+    },
+    "/api/v1/placement-profiles/{studentCode}/eduz-export": {
+      "get": {
+        "operationId": "LanguageProfileController_exportForEduZ",
+        "parameters": [
+          {
+            "name": "studentCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EduZProfileResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "eduzApiKey": []
+          }
+        ],
+        "tags": [
+          "LanguageProfile"
+        ]
+      }
+    },
+    "/api/v1/reports/overview": {
+      "get": {
+        "operationId": "ReportingController_getOverview",
+        "parameters": [
+          {
+            "name": "examRoundId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemOverviewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/api/v1/reports/class-distribution": {
+      "get": {
+        "operationId": "ReportingController_getDistribution[0]",
+        "parameters": [
+          {
+            "name": "examRoundId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/api/v1/reports/distribution": {
+      "get": {
+        "operationId": "ReportingController_getDistribution[1]",
+        "parameters": [
+          {
+            "name": "examRoundId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/api/v1/reports/export-csv": {
+      "get": {
+        "operationId": "ReportingController_exportCsv",
+        "parameters": [
+          {
+            "name": "examRoundId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "operationId": "TestSessionController_startSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSessionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartSessionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/active": {
+      "get": {
+        "operationId": "TestSessionController_getActiveSession",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Khi không có phiên, backend trả status 200 với body rỗng.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ActiveSessionDto"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/next-item": {
+      "get": {
+        "operationId": "TestSessionController_getNextItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/NextItemDto"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FinishedSessionDto"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/responses": {
+      "post": {
+        "operationId": "TestSessionController_submitResponse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitResponseBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitSessionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/resume": {
+      "get": {
+        "operationId": "TestSessionController_resumeSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeSessionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/result": {
+      "get": {
+        "operationId": "TestSessionController_getResult",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/sessions/{id}/review": {
+      "get": {
+        "operationId": "TestSessionController_getReview",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewEntryDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "TestSession"
+        ]
+      }
+    },
+    "/api/v1/students": {
+      "get": {
+        "operationId": "UserAdminController_listStudents",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      },
+      "post": {
+        "operationId": "UserAdminController_createStudent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      }
+    },
+    "/api/v1/students/{id}": {
+      "patch": {
+        "operationId": "UserAdminController_updateStudent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      }
+    },
+    "/api/v1/teachers": {
+      "get": {
+        "operationId": "UserAdminController_listTeachers",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountPageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      },
+      "post": {
+        "operationId": "UserAdminController_createTeacher",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeacherDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      }
+    },
+    "/api/v1/teachers/{id}": {
+      "patch": {
+        "operationId": "UserAdminController_updateTeacher",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserAdmin"
+        ]
+      }
+    },
+    "/api/v1/users/import/upload": {
+      "post": {
+        "operationId": "UserImportController_uploadFile",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    },
+    "/api/v1/users/import/grid": {
+      "get": {
+        "operationId": "UserImportController_grid",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportGridResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      },
+      "delete": {
+        "operationId": "UserImportController_deleteGrid",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    },
+    "/api/v1/users/import/grid/{rowKey}": {
+      "delete": {
+        "operationId": "UserImportController_deleteRow",
+        "parameters": [
+          {
+            "name": "rowKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportGridResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    },
+    "/api/v1/users/import/save": {
+      "post": {
+        "operationId": "UserImportController_saveGrid",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSaveResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    },
+    "/api/v1/users/import/save-status": {
+      "get": {
+        "operationId": "UserImportController_status",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ImportJobResponseDto"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NoImportJobResponseDto"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    },
+    "/api/v1/users/import/template": {
+      "get": {
+        "operationId": "UserImportController_downloadTemplate",
+        "parameters": [
+          {
+            "name": "kind",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "STUDENT",
+                "TEACHER"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "UserImport"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Adaptive Placement Test API — Auth and Test Session",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "eduzApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Eduz-API-Key"
+      }
+    },
+    "schemas": {
+      "AccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "STUDENT",
+              "TEACHER",
+              "ADMIN"
+            ]
+          },
+          "studentCode": {
+            "type": "string"
+          },
+          "teacherCode": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "mustChangePassword": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "email",
+          "role",
+          "isActive",
+          "mustChangePassword",
+          "createdAt"
+        ]
+      },
+      "ChangeRoleDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "TEACHER"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "ItemExplanationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "itemId",
+          "content",
+          "generatedAt"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "mustChangePassword": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "fullName",
+          "role"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "user"
+        ]
+      },
+      "AuthProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "studentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "teacherCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "mustChangePassword": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "fullName",
+          "role",
+          "studentCode",
+          "teacherCode",
+          "mustChangePassword"
+        ]
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "ChangePasswordResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ForgotPasswordResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "otp": {
+            "type": "string",
+            "pattern": "^\\d{6}$"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "otp",
+          "newPassword"
+        ]
+      },
+      "StudentExamRoundResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "opensAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "effectiveStatus": {
+            "type": "string"
+          },
+          "sessionStatus": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABANDONED"
+            ]
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "scoreCefr": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "opensAt",
+          "closesAt",
+          "durationMinutes",
+          "status",
+          "effectiveStatus",
+          "sessionStatus",
+          "scoreCefr"
+        ]
+      },
+      "ExamRoundDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "opensAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "effectiveStatus": {
+            "type": "string"
+          },
+          "sessionStatus": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABANDONED"
+            ]
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "activeSessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "opensAt",
+          "closesAt",
+          "durationMinutes",
+          "status",
+          "effectiveStatus"
+        ]
+      },
+      "CurrentRoundItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "skill": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "options",
+          "skill"
+        ]
+      },
+      "CurrentRoundSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABANDONED"
+            ]
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "examRoundId": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "itemCount": {
+            "type": "number"
+          },
+          "maxItems": {
+            "type": "number"
+          },
+          "currentItem": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentRoundItemDto"
+              }
+            ]
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "stoppingReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "isExpired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "uptime": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "uptime",
+          "timestamp"
+        ]
+      },
+      "ReadinessChecksDto": {
+        "type": "object",
+        "properties": {
+          "database": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          },
+          "redis": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ]
+          }
+        },
+        "required": [
+          "database",
+          "redis"
+        ]
+      },
+      "ReadinessResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ]
+          },
+          "checks": {
+            "$ref": "#/components/schemas/ReadinessChecksDto"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "checks",
+          "timestamp"
+        ]
+      },
+      "ItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "cefrTarget": {
+            "type": "string"
+          },
+          "irtB": {
+            "type": "number"
+          },
+          "irtA": {
+            "type": "number"
+          },
+          "irtC": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "packageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "contentHash": {
+            "type": "string",
+            "nullable": true
+          },
+          "topicTag": {
+            "type": "string",
+            "nullable": true
+          },
+          "approvedById": {
+            "type": "string",
+            "nullable": true
+          },
+          "approvedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "timesUsed": {
+            "type": "number"
+          },
+          "calibrated": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "options",
+          "correctAnswer",
+          "skill",
+          "cefrTarget",
+          "irtB",
+          "irtA",
+          "irtC",
+          "status",
+          "batchId",
+          "packageId",
+          "contentHash",
+          "topicTag",
+          "approvedById",
+          "approvedAt",
+          "timesUsed",
+          "calibrated",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GenerateExplanationDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content",
+          "options",
+          "correctAnswer",
+          "skill"
+        ]
+      },
+      "ExplanationResponseDto": {
+        "type": "object",
+        "properties": {
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "explanation"
+        ]
+      },
+      "ItemDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "cefrTarget": {
+            "type": "string"
+          },
+          "irtB": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "topicTag": {
+            "type": "string",
+            "nullable": true
+          },
+          "timesUsed": {
+            "type": "number"
+          },
+          "explanation": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "options",
+          "correctAnswer",
+          "skill",
+          "cefrTarget",
+          "irtB",
+          "status",
+          "batchId",
+          "source",
+          "topicTag",
+          "timesUsed",
+          "explanation",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AbilityResponseDto": {
+        "type": "object",
+        "properties": {
+          "theta": {
+            "type": "number"
+          },
+          "standardError": {
+            "type": "number"
+          },
+          "confidenceInterval95": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "theta",
+          "standardError",
+          "confidenceInterval95"
+        ]
+      },
+      "LanguageProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "testSessionId": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "abilityEstimate": {
+            "$ref": "#/components/schemas/AbilityResponseDto"
+          },
+          "cefrLevel": {
+            "type": "string"
+          },
+          "cefrConfidence": {
+            "type": "string"
+          },
+          "boundaryEffect": {
+            "type": "boolean"
+          },
+          "skillProfiles": {
+            "type": "array",
+            "items": {}
+          },
+          "errorPatterns": {
+            "type": "array",
+            "items": {}
+          },
+          "testMetadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "aiRecommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "schemaVersion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "studentId",
+          "testSessionId",
+          "completedAt",
+          "abilityEstimate",
+          "cefrLevel",
+          "cefrConfidence",
+          "boundaryEffect",
+          "skillProfiles",
+          "errorPatterns",
+          "testMetadata",
+          "aiRecommendations",
+          "schemaVersion"
+        ]
+      },
+      "StudentHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "examRoundId": {
+            "type": "string"
+          },
+          "examRoundTitle": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "itemsAdministered": {
+            "type": "number"
+          },
+          "cefrLevel": {
+            "type": "string",
+            "nullable": true
+          },
+          "theta": {
+            "type": "number",
+            "nullable": true
+          },
+          "standardError": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string"
+          },
+          "stoppingReason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sessionId",
+          "examRoundId",
+          "examRoundTitle",
+          "startedAt",
+          "completedAt",
+          "itemsAdministered",
+          "cefrLevel",
+          "theta",
+          "standardError",
+          "status",
+          "stoppingReason"
+        ]
+      },
+      "EduZOverallDto": {
+        "type": "object",
+        "properties": {
+          "theta": {
+            "type": "number"
+          },
+          "standard_error": {
+            "type": "number"
+          },
+          "confidence_interval_95": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "cefr_level": {
+            "type": "string"
+          },
+          "cefr_confidence": {
+            "type": "string"
+          },
+          "boundary_effect": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "theta",
+          "standard_error",
+          "confidence_interval_95",
+          "cefr_level",
+          "cefr_confidence",
+          "boundary_effect"
+        ]
+      },
+      "EduZProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "student_id": {
+            "type": "string"
+          },
+          "test_session_id": {
+            "type": "string"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "overall": {
+            "$ref": "#/components/schemas/EduZOverallDto"
+          },
+          "skills": {
+            "type": "array",
+            "items": {}
+          },
+          "error_patterns": {
+            "type": "array",
+            "items": {}
+          },
+          "ai_recommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "schema_version",
+          "student_id",
+          "test_session_id",
+          "completed_at",
+          "overall",
+          "skills",
+          "error_patterns",
+          "ai_recommendations",
+          "metadata"
+        ]
+      },
+      "OpenRoundSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "opensAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closesAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "durationMinutes": {
+            "type": "number"
+          },
+          "participantCount": {
+            "type": "number"
+          },
+          "notStarted": {
+            "type": "number"
+          },
+          "inProgress": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "opensAt",
+          "closesAt",
+          "durationMinutes",
+          "participantCount",
+          "notStarted",
+          "inProgress",
+          "completed"
+        ]
+      },
+      "SystemOverviewDto": {
+        "type": "object",
+        "properties": {
+          "examRoundId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentsCompleted": {
+            "type": "number"
+          },
+          "finalApprovedItems": {
+            "type": "number"
+          },
+          "batchesNeedingAction": {
+            "type": "number"
+          },
+          "openExamRounds": {
+            "type": "number"
+          },
+          "cefrDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "itemStatusCounts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "openRounds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OpenRoundSummaryDto"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "examRoundId",
+          "studentsCompleted",
+          "finalApprovedItems",
+          "batchesNeedingAction",
+          "openExamRounds",
+          "cefrDistribution",
+          "itemStatusCounts",
+          "openRounds",
+          "generatedAt"
+        ]
+      },
+      "DistributionReportDto": {
+        "type": "object",
+        "properties": {
+          "examRoundId": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "cefrDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "averageTheta": {
+            "type": "number"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "examRoundId",
+          "totalStudents",
+          "cefrDistribution",
+          "averageTheta",
+          "generatedAt"
+        ]
+      },
+      "SessionMetaDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "itemCount": {
+            "type": "number"
+          },
+          "maxItems": {
+            "type": "number"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "itemCount",
+          "maxItems",
+          "expiresAt",
+          "serverTime"
+        ]
+      },
+      "ExamItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "skill": {
+            "type": "string"
+          },
+          "cefrTarget": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "options",
+          "skill",
+          "cefrTarget"
+        ]
+      },
+      "NextItemDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "item"
+            ]
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionMetaDto"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ExamItemDto"
+          }
+        },
+        "required": [
+          "kind",
+          "session",
+          "item"
+        ]
+      },
+      "FinishedSessionDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "finished"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reason",
+          "sessionId"
+        ]
+      },
+      "ActiveSessionDto": {
+        "type": "object",
+        "properties": {
+          "activeSessionId": {
+            "type": "string"
+          },
+          "examRoundId": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "itemCount": {
+            "type": "number"
+          },
+          "maxItems": {
+            "type": "number"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serverTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "activeSessionId",
+          "examRoundId",
+          "startedAt",
+          "itemCount",
+          "maxItems",
+          "expiresAt",
+          "serverTime"
+        ]
+      },
+      "StartSessionBodyDto": {
+        "type": "object",
+        "properties": {
+          "examRoundId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "examRoundId"
+        ]
+      },
+      "StartSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sessionId",
+          "expiresAt"
+        ]
+      },
+      "SubmitResponseBodyDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "responseTimeMs": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "itemId",
+          "response"
+        ]
+      },
+      "SubmitSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "shouldStop": {
+            "type": "boolean"
+          },
+          "stoppingReason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accepted",
+          "shouldStop"
+        ]
+      },
+      "ResumeSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "examRoundId": {
+            "type": "string"
+          },
+          "currentItem": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExamItemDto"
+              }
+            ]
+          },
+          "state": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "isExpired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "currentItem",
+          "state"
+        ]
+      },
+      "SkillProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "type": "string"
+          },
+          "itemsAdministered": {
+            "type": "number"
+          },
+          "correctCount": {
+            "type": "number"
+          },
+          "scorePercent": {
+            "type": "number"
+          },
+          "accuracyRate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "skill",
+          "itemsAdministered",
+          "correctCount"
+        ]
+      },
+      "ErrorPatternResponseDto": {
+        "type": "object",
+        "properties": {
+          "topicTag": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "itemsAttempted": {
+            "type": "number"
+          },
+          "correctCount": {
+            "type": "number"
+          },
+          "accuracyRate": {
+            "type": "number"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "topicTag",
+          "skill",
+          "itemsAttempted",
+          "correctCount",
+          "accuracyRate",
+          "severity"
+        ]
+      },
+      "SessionResultDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "thetaFinal": {
+            "type": "number",
+            "nullable": true
+          },
+          "seFinal": {
+            "type": "number",
+            "nullable": true
+          },
+          "cefrLevel": {
+            "type": "string"
+          },
+          "confidenceLevel": {
+            "type": "string"
+          },
+          "boundaryEffect": {
+            "type": "boolean"
+          },
+          "confidenceInterval95": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "totalItems": {
+            "type": "number"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "durationSeconds": {
+            "type": "number"
+          },
+          "stoppingReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "skillProfiles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillProfileResponseDto"
+            }
+          },
+          "errorPatterns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorPatternResponseDto"
+            }
+          },
+          "aiRecommendations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "sessionId",
+          "status",
+          "thetaFinal",
+          "seFinal",
+          "cefrLevel",
+          "confidenceLevel",
+          "boundaryEffect",
+          "confidenceInterval95",
+          "totalItems",
+          "startedAt",
+          "completedAt",
+          "durationSeconds",
+          "stoppingReason",
+          "skillProfiles",
+          "errorPatterns",
+          "aiRecommendations"
+        ]
+      },
+      "ReviewEntryDto": {
+        "type": "object",
+        "properties": {
+          "questionNumber": {
+            "type": "number"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "selectedAnswer": {
+            "type": "string"
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "cefrTarget": {
+            "type": "string"
+          },
+          "irtB": {
+            "type": "number"
+          },
+          "explanation": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "questionNumber",
+          "itemId",
+          "content",
+          "options",
+          "selectedAnswer",
+          "correctAnswer",
+          "isCorrect",
+          "skill",
+          "cefrTarget",
+          "irtB",
+          "explanation"
+        ]
+      },
+      "AccountPageResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ]
+      },
+      "CreateStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentCode": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "fullName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "studentCode",
+          "fullName",
+          "email"
+        ]
+      },
+      "UpdateAccountDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          }
+        }
+      },
+      "CreateTeacherDto": {
+        "type": "object",
+        "properties": {
+          "teacherCode": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "fullName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "teacherCode",
+          "fullName",
+          "email"
+        ]
+      },
+      "ExistingImportRowDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number"
+          },
+          "field": {
+            "type": "string",
+            "enum": [
+              "email",
+              "code"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "row",
+          "field",
+          "value"
+        ]
+      },
+      "ImportJobErrorDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "CONFLICT",
+              "UNKNOWN"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExistingImportRowDto"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ImportJobResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PROCESSING",
+              "DONE",
+              "FAILED"
+            ]
+          },
+          "total": {
+            "type": "number"
+          },
+          "processed": {
+            "type": "number"
+          },
+          "created": {
+            "type": "number"
+          },
+          "queued": {
+            "type": "number"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ImportJobErrorDto"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "status",
+          "total",
+          "processed",
+          "startedAt"
+        ]
+      },
+      "NoImportJobResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NONE"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ImportRowResponseDto": {
+        "type": "object",
+        "properties": {
+          "rowKey": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rowKey",
+          "code",
+          "fullName",
+          "email"
+        ]
+      },
+      "RejectedImportRowDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "MISSING_FIELD",
+              "INVALID_EMAIL",
+              "DUPLICATE_IN_FILE"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "row",
+          "code",
+          "reason"
+        ]
+      },
+      "ImportUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "grid": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRowResponseDto"
+            }
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RejectedImportRowDto"
+            }
+          },
+          "existing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExistingImportRowDto"
+            }
+          },
+          "added": {
+            "type": "number"
+          },
+          "ignoredDuplicates": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "grid",
+          "rejected",
+          "existing",
+          "added",
+          "ignoredDuplicates"
+        ]
+      },
+      "ImportGridResponseDto": {
+        "type": "object",
+        "properties": {
+          "grid": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRowResponseDto"
+            }
+          }
+        },
+        "required": [
+          "grid"
+        ]
+      },
+      "ImportSaveResponseDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total"
+        ]
+      },
+      "HttpErrorResponse": {
+        "type": "object",
+        "required": [
+          "statusCode",
+          "message",
+          "error",
+          "timestamp",
+          "path"
+        ],
+        "properties": {
+          "statusCode": {
+            "type": "integer"
+          },
+          "message": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "details": {},
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

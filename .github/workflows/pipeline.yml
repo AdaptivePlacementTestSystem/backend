@@ -51,6 +51,29 @@ jobs:
       - run: npm run format:check
       - run: npm run test:cov
       - run: npm run build
+      - name: Verify committed OpenAPI contract
+        run: |
+          test -f openapi.json
+          test -f openapi-inventory.json
+          cp openapi.json /tmp/apt-openapi.json
+          cp openapi-inventory.json /tmp/apt-openapi-inventory.json
+          node dist/openapi/generate.js
+          cmp /tmp/apt-openapi.json openapi.json
+          cmp /tmp/apt-openapi-inventory.json openapi-inventory.json
+          node scripts/check-openapi-coverage.cjs
+          node --test scripts/check-openapi-coverage.test.cjs
+          node scripts/test-openapi-contract.cjs
+          node --test scripts/check-openapi-breaking.test.cjs
+      - name: Check for breaking API changes
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          if git show "origin/${BASE_BRANCH}:openapi.json" > /tmp/apt-base-openapi.json 2>/dev/null; then
+            node scripts/check-openapi-breaking.cjs /tmp/apt-base-openapi.json openapi.json
+          else
+            echo '::warning::Base branch has no OpenAPI baseline; breaking-change check skipped.'
+          fi
       - name: Báo cáo coverage
         if: always()
         uses: actions/upload-artifact@v4

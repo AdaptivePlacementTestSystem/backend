@@ -47,27 +47,156 @@ import {
   SessionStatus,
   StoppingReason,
 } from '../domain/entities/test-session.entity';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiExtraModels,
+} from '@nestjs/swagger';
 
 export class SubmitResponseBodyDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   itemId: string;
 
+  @ApiProperty({ enum: ['A', 'B', 'C', 'D'] })
   @IsString()
   @IsIn(['A', 'B', 'C', 'D'], { message: 'Đáp án phải là A, B, C hoặc D' })
   response: 'A' | 'B' | 'C' | 'D';
 
+  @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
   responseTimeMs?: number;
 }
 
 export class StartSessionBodyDto {
+  @ApiProperty({ format: 'uuid' })
   @IsUUID()
   examRoundId: string;
 }
 
+class StartSessionResponseDto {
+  @ApiProperty() sessionId: string;
+  @ApiProperty({ format: 'date-time' }) expiresAt: string;
+}
+
+class SubmitSessionResponseDto {
+  @ApiProperty({ enum: [true] }) accepted: boolean;
+  @ApiProperty() shouldStop: boolean;
+  @ApiPropertyOptional() stoppingReason?: string;
+}
+
+class SessionMetaDto {
+  @ApiProperty() id: string;
+  @ApiProperty() itemCount: number;
+  @ApiProperty() maxItems: number;
+  @ApiProperty({ format: 'date-time' }) expiresAt: string;
+  @ApiProperty({ format: 'date-time' }) serverTime: string;
+}
+
+class ExamItemDto {
+  @ApiProperty() id: string;
+  @ApiProperty() content: string;
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
+  options: Record<string, string>;
+  @ApiProperty() skill: string;
+  @ApiProperty() cefrTarget: string;
+}
+
+class NextItemDto {
+  @ApiProperty({ enum: ['item'] }) kind: string;
+  @ApiProperty({ type: SessionMetaDto }) session: SessionMetaDto;
+  @ApiProperty({ type: ExamItemDto }) item: ExamItemDto;
+}
+
+class FinishedSessionDto {
+  @ApiProperty({ enum: ['finished'] }) kind: string;
+  @ApiProperty() reason: string;
+  @ApiProperty() sessionId: string;
+}
+
+class ActiveSessionDto {
+  @ApiProperty() activeSessionId: string;
+  @ApiProperty() examRoundId: string;
+  @ApiProperty({ format: 'date-time' }) startedAt: string;
+  @ApiProperty() itemCount: number;
+  @ApiProperty() maxItems: number;
+  @ApiProperty({ format: 'date-time' }) expiresAt: string;
+  @ApiProperty({ format: 'date-time' }) serverTime: string;
+}
+
+class ResumeSessionResponseDto {
+  @ApiPropertyOptional() examRoundId?: string;
+  @ApiProperty({ type: ExamItemDto, nullable: true })
+  currentItem: ExamItemDto | null;
+  @ApiProperty({ type: 'object', additionalProperties: true }) state: Record<
+    string,
+    unknown
+  >;
+  @ApiPropertyOptional() isExpired?: boolean;
+}
+
+class ReviewEntryDto {
+  @ApiProperty() questionNumber: number;
+  @ApiProperty() itemId: string;
+  @ApiProperty() content: string;
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
+  options: Record<string, string>;
+  @ApiProperty() selectedAnswer: string;
+  @ApiProperty() correctAnswer: string;
+  @ApiProperty() isCorrect: boolean;
+  @ApiProperty() skill: string;
+  @ApiProperty() cefrTarget: string;
+  @ApiProperty() irtB: number;
+  @ApiProperty({ type: String, nullable: true }) explanation: string | null;
+}
+
+class SkillProfileResponseDto {
+  @ApiProperty() skill: string;
+  @ApiProperty() itemsAdministered: number;
+  @ApiProperty() correctCount: number;
+  @ApiPropertyOptional({ type: Number }) scorePercent?: number;
+  @ApiPropertyOptional({ type: Number }) accuracyRate?: number;
+}
+
+class ErrorPatternResponseDto {
+  @ApiProperty() topicTag: string;
+  @ApiProperty() skill: string;
+  @ApiProperty() itemsAttempted: number;
+  @ApiProperty() correctCount: number;
+  @ApiProperty() accuracyRate: number;
+  @ApiProperty() severity: string;
+}
+
+class SessionResultDto {
+  @ApiProperty() sessionId: string;
+  @ApiProperty() status: string;
+  @ApiProperty({ type: Number, nullable: true }) thetaFinal: number | null;
+  @ApiProperty({ type: Number, nullable: true }) seFinal: number | null;
+  @ApiProperty() cefrLevel: string;
+  @ApiProperty() confidenceLevel: string;
+  @ApiProperty() boundaryEffect: boolean;
+  @ApiProperty({ type: [Number] }) confidenceInterval95: number[];
+  @ApiProperty() totalItems: number;
+  @ApiProperty({ format: 'date-time' }) startedAt: string;
+  @ApiProperty({ type: String, nullable: true, format: 'date-time' })
+  completedAt: string | null;
+  @ApiProperty() durationSeconds: number;
+  @ApiProperty({ type: String, nullable: true }) stoppingReason: string | null;
+  @ApiProperty({ type: [SkillProfileResponseDto] })
+  skillProfiles: SkillProfileResponseDto[];
+  @ApiProperty({ type: [ErrorPatternResponseDto] })
+  errorPatterns: ErrorPatternResponseDto[];
+  @ApiProperty({ type: [String] }) aiRecommendations: string[];
+}
+
 @Controller('sessions')
+@ApiBearerAuth()
+@ApiExtraModels(NextItemDto, FinishedSessionDto, ActiveSessionDto)
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TestSessionController {
   constructor(
@@ -88,6 +217,7 @@ export class TestSessionController {
   ) {}
 
   @Post()
+  @ApiCreatedResponse({ type: StartSessionResponseDto })
   @HttpCode(HttpStatus.CREATED)
   @Roles(UserRole.STUDENT, UserRole.ADMIN)
   async startSession(
@@ -98,12 +228,26 @@ export class TestSessionController {
   }
 
   @Get('active')
+  @ApiOkResponse({
+    description: 'Khi không có phiên, backend trả status 200 với body rỗng.',
+    schema: {
+      allOf: [{ $ref: '#/components/schemas/ActiveSessionDto' }],
+    },
+  })
   @Roles(UserRole.STUDENT, UserRole.ADMIN)
   async getActiveSession(@CurrentUser() user: JwtPayload) {
     return this.getActiveSessionUseCase.execute(user.sub);
   }
 
   @Get(':id/next-item')
+  @ApiOkResponse({
+    schema: {
+      oneOf: [
+        { $ref: '#/components/schemas/NextItemDto' },
+        { $ref: '#/components/schemas/FinishedSessionDto' },
+      ],
+    },
+  })
   async getNextItem(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
@@ -215,6 +359,7 @@ export class TestSessionController {
   }
 
   @Post(':id/responses')
+  @ApiOkResponse({ type: SubmitSessionResponseDto })
   @HttpCode(HttpStatus.OK)
   async submitResponse(
     @Param('id') sessionId: string,
@@ -240,15 +385,23 @@ export class TestSessionController {
   }
 
   @Get(':id/resume')
+  @ApiOkResponse({ type: ResumeSessionResponseDto })
   async resumeSession(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
   ) {
     await this.assertSessionOwnership(sessionId, user);
-    return this.resumeSessionUseCase.execute(sessionId);
+    const result = await this.resumeSessionUseCase.execute(sessionId);
+    return {
+      ...result,
+      currentItem: result.currentItem
+        ? this.formatItemForStudent(result.currentItem)
+        : null,
+    };
   }
 
   @Get(':id/result')
+  @ApiOkResponse({ type: SessionResultDto })
   async getResult(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
@@ -257,6 +410,7 @@ export class TestSessionController {
   }
 
   @Get(':id/review')
+  @ApiOkResponse({ type: ReviewEntryDto, isArray: true })
   async getReview(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,

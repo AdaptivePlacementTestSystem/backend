@@ -8,8 +8,14 @@ import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { Response } from 'express';
+import { ApiBearerAuth, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  DistributionReportDto,
+  SystemOverviewDto,
+} from './report-response.dto';
 
 @Controller('reports')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ReportingController {
   constructor(
@@ -20,18 +26,26 @@ export class ReportingController {
 
   /** Tổng quan hệ thống cho Admin (F-29, S36); chỉ ADMIN, GV không xem được. */
   @Get('overview')
+  @ApiOkResponse({ type: SystemOverviewDto })
   @Roles(UserRole.ADMIN)
   async getOverview(@Query() query: OverviewQueryDto) {
     return this.getSystemOverviewUseCase.execute(query.examRoundId);
   }
 
   @Get(['class-distribution', 'distribution'])
+  @ApiQuery({ name: 'examRoundId', required: false, type: String })
+  @ApiOkResponse({ type: DistributionReportDto })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getDistribution(@Query('examRoundId') examRoundId?: string) {
     return this.generateClassReportUseCase.execute(examRoundId);
   }
 
   @Get('export-csv')
+  @ApiQuery({ name: 'examRoundId', required: false, type: String })
+  @ApiOkResponse({
+    content: { 'text/csv': { schema: { type: 'string', format: 'binary' } } },
+    headers: { 'Content-Disposition': { schema: { type: 'string' } } },
+  })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async exportCsv(
     @Query('examRoundId') examRoundId: string | undefined,

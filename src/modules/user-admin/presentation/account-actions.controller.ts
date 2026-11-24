@@ -22,12 +22,15 @@ import { ChangeRoleDto } from '../application/dto/change-role.dto';
 import { SetAccountActiveUseCase } from '../application/use-cases/set-account-active.use-case';
 import { ResendTemporaryPasswordUseCase } from '../application/use-cases/resend-temporary-password.use-case';
 import { ChangeAccountRoleUseCase } from '../application/use-cases/change-account-role.use-case';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { AccountResponseDto } from './account-response.dto';
 
 /**
  * Thao tác trên tài khoản dùng chung cho SV và GV (UCADM09, S24) — chỉ ADMIN.
  * Route theo SRS mục X (đã gộp về `/users/:id/...`, chốt 14/11/2026).
  */
 @Controller('users')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class AccountActionsController {
@@ -38,6 +41,7 @@ export class AccountActionsController {
   ) {}
 
   @Post(':id/lock')
+  @ApiOkResponse({ type: AccountResponseDto })
   @HttpCode(HttpStatus.OK)
   lock(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -51,6 +55,7 @@ export class AccountActionsController {
   }
 
   @Post(':id/unlock')
+  @ApiOkResponse({ type: AccountResponseDto })
   @HttpCode(HttpStatus.OK)
   unlock(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -64,12 +69,14 @@ export class AccountActionsController {
   }
 
   @Post(':id/resend-temporary-password')
+  @ApiOkResponse({ type: AccountResponseDto })
   @HttpCode(HttpStatus.OK)
   resend(@Param('id', new ParseUUIDPipe()) id: string): Promise<AccountView> {
     return this.resendTemporaryPassword.execute(id);
   }
 
   @Patch(':id/role')
+  @ApiOkResponse({ type: AccountResponseDto })
   changeRole(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: ChangeRoleDto,
