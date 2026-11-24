@@ -1,5 +1,6 @@
 import { Controller, Get, UseGuards, Res, Query } from '@nestjs/common';
 import { GenerateClassReportUseCase } from '../application/use-cases/generate-class-report.use-case';
+import { GetClassErrorPatternsUseCase } from '../application/use-cases/get-class-error-patterns.use-case';
 import { ExportCsvUseCase } from '../application/use-cases/export-csv.use-case';
 import { GetSystemOverviewUseCase } from '../application/use-cases/get-system-overview.use-case';
 import { OverviewQueryDto } from '../application/dto/overview-query.dto';
@@ -14,6 +15,7 @@ import { Response } from 'express';
 export class ReportingController {
   constructor(
     private readonly generateClassReportUseCase: GenerateClassReportUseCase,
+    private readonly getClassErrorPatternsUseCase: GetClassErrorPatternsUseCase,
     private readonly exportCsvUseCase: ExportCsvUseCase,
     private readonly getSystemOverviewUseCase: GetSystemOverviewUseCase,
   ) {}
@@ -25,25 +27,38 @@ export class ReportingController {
     return this.getSystemOverviewUseCase.execute(query.examRoundId);
   }
 
+  /** Phân phối CEFR toàn lớp, có thể lọc theo kỳ thi (UCGV07, BR-13, S12). */
   @Get(['class-distribution', 'distribution'])
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getDistribution(@Query('examRoundId') examRoundId?: string) {
     return this.generateClassReportUseCase.execute(examRoundId);
   }
 
+  /** Chủ đề sai phổ biến toàn lớp, có thể lọc theo kỳ thi (UCGV07, S12). */
+  @Get('error-patterns')
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async getErrorPatterns(@Query('examRoundId') examRoundId?: string) {
+    return this.getClassErrorPatternsUseCase.execute(examRoundId);
+  }
+
+  /** Xuất báo cáo lớp học ra tệp CSV (UCGV08, S12). */
   @Get('export-csv')
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async exportCsv(
     @Query('examRoundId') examRoundId: string | undefined,
+    @Query('type') type: 'profiles' | 'distribution' | undefined,
     @Res() res: Response,
   ) {
-    const csvContent = await this.exportCsvUseCase.execute(examRoundId);
+    const { filename, content } = await this.exportCsvUseCase.execute(
+      examRoundId,
+      type,
+    );
 
-    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename="placement-test-report.csv"',
+      `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
     );
-    return res.send(csvContent);
+    return res.send(content);
   }
 }

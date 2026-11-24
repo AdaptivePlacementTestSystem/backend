@@ -10,6 +10,7 @@ import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { GetStudentExamRoundsUseCase } from '../application/use-cases/get-student-exam-rounds.use-case';
 import { GetExamRoundDetailUseCase } from '../application/use-cases/get-exam-round-detail.use-case';
 import { GetCurrentRoundSessionUseCase } from '../../test-session/application/use-cases/get-current-round-session.use-case';
+import { ListExamRoundsUseCase } from '../application/use-cases/list-exam-rounds.use-case';
 
 @Controller('exam-rounds')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -18,7 +19,14 @@ export class ExamRoundController {
     private readonly getStudentExamRoundsUseCase: GetStudentExamRoundsUseCase,
     private readonly getExamRoundDetailUseCase: GetExamRoundDetailUseCase,
     private readonly getCurrentRoundSessionUseCase: GetCurrentRoundSessionUseCase,
+    private readonly listExamRoundsUseCase: ListExamRoundsUseCase,
   ) {}
+
+  @Get()
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async listExamRounds() {
+    return this.listExamRoundsUseCase.execute();
+  }
 
   @Get('mine')
   @Roles(UserRole.STUDENT, UserRole.ADMIN)

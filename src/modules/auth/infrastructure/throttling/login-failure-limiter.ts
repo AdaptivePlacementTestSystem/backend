@@ -32,7 +32,10 @@ export class LoginFailureLimiter implements OnModuleInit, OnModuleDestroy {
       port: this.configService.get<number>('redis.port') ?? 6379,
       lazyConnect: true,
       maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      retryStrategy: () => null,
     });
+    this.redis.on('error', () => {});
     this.redis.connect().catch((err: Error) => {
       this.logger.warn(
         `LoginFailureLimiter: không kết nối được Redis: ${err.message}`,
