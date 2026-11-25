@@ -60,7 +60,43 @@ describe('GetProfileUseCase', () => {
     expect(result.student.fullName).toBe('Nguyễn Văn A');
     expect(result.latest?.cefrLevel).toBe('B1');
     expect(result.latest?.ability.theta).toBe(0.25);
+    expect(result.latest?.meta.totalItems).toBe(24);
+    expect(result.latest?.meta.itemsAdministered).toBe(24);
     expect(result.history).toHaveLength(1);
+  });
+
+  it('đọc đúng itemsAdministered và không mặc định 25 khi thiếu totalItems', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-3',
+      fullName: 'Lê Văn C',
+      email: 'c@truong.edu.vn',
+      studentProfile: { studentCode: 'SV20260003' },
+    });
+
+    prisma.languageProfile.findFirst.mockResolvedValue({
+      id: 'prof-3',
+      studentId: 'user-3',
+      testSessionId: 'sess-3',
+      completedAt: new Date('2026-11-16T10:00:00Z'),
+      cefrLevel: 'A2',
+      cefrConfidence: 'HIGH',
+      boundaryEffect: false,
+      theta: -0.5,
+      standardError: 0.35,
+      confidenceInterval95: [-1.2, 0.2],
+      skillProfiles: [],
+      errorPatterns: [],
+      aiRecommendations: [],
+      testMetadata: { itemsAdministered: 17, stoppingReason: 'MAX_ITEMS' },
+      testSession: null,
+    });
+    historyUseCase.execute.mockResolvedValue([]);
+
+    const result = await useCase.execute('user-3');
+
+    expect(result.latest?.meta.totalItems).toBe(17);
+    expect(result.latest?.meta.itemsAdministered).toBe(17);
+    expect(result.latest?.meta.stoppingReason).toBe('MAX_ITEMS');
   });
 
   it('sinh viên chưa thi lần nào: trả về student, latest=null và history rỗng', async () => {

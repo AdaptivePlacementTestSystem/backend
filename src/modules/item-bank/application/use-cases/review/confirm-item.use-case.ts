@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
-import { ItemStatus, ReviewAction, ItemBatchStatus } from '@apt/shared-types';
+import { ItemStatus, ReviewAction, ItemBatchStatus, ErrorCode } from '@apt/shared-types';
 
 @Injectable()
 export class ConfirmItemUseCase {
@@ -42,14 +48,25 @@ export class ConfirmItemUseCase {
     let batchFinalized = false;
 
     await this.prisma.$transaction(async (tx) => {
-      // 1. Cập nhật câu hỏi
-      await tx.item.update({
-        where: { id: itemId },
+      // 1. Cập nhật câu hỏi có kiểm tra điều kiện nguyên tử chống ghi đè đồng thời
+      const updateResult = await tx.item.updateMany({
+        where: {
+          id: itemId,
+          confirmerId: teacherId,
+          status: ItemStatus.FIRST_APPROVED,
+        },
         data: {
           status: nextStatus,
           secondReview: updatedSecondReview,
         },
       });
+
+      if (updateResult.count === 0) {
+        throw new ConflictException({
+          code: ErrorCode.CONFLICT,
+          message: 'Câu hỏi đã được xử lý hoặc bạn không còn được phân công thẩm định câu hỏi này.',
+        });
+      }
 
       // 2. Ghi nhật ký kiểm toán
       await tx.itemReviewEvent.create({

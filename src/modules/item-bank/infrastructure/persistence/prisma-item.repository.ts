@@ -22,11 +22,26 @@ export class PrismaItemRepository implements IItemRepository {
     if (options?.skill) where.skill = options.skill;
     if (options?.cefrTarget) where.cefrTarget = options.cefrTarget;
     if (options?.source) where.batch = { source: options.source };
+
+    const andConditions: any[] = [];
+    if (options?.assignedTeacherId) {
+      andConditions.push({
+        OR: [
+          { reviewerId: options.assignedTeacherId },
+          { confirmerId: options.assignedTeacherId },
+        ],
+      });
+    }
     if (options?.q) {
-      where.OR = [
-        { content: { contains: options.q, mode: 'insensitive' } },
-        { topicTag: { contains: options.q, mode: 'insensitive' } },
-      ];
+      andConditions.push({
+        OR: [
+          { content: { contains: options.q, mode: 'insensitive' } },
+          { topicTag: { contains: options.q, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     const take = options?.limit ?? 50;
@@ -136,6 +151,8 @@ export class PrismaItemRepository implements IItemRepository {
       raw.createdAt,
       raw.updatedAt,
       raw.batch?.source ?? ItemBatchSource.IMPORTED,
+      raw.reviewerId ?? null,
+      raw.confirmerId ?? null,
     );
   }
 }

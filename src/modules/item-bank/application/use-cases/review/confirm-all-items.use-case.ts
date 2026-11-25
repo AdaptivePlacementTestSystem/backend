@@ -40,9 +40,10 @@ export class ConfirmAllItemsUseCase {
 
     const nowIso = new Date().toISOString();
     let batchFinalized = false;
+    let actualConfirmedCount = 0;
 
     await this.prisma.$transaction(async (tx) => {
-      // 1. Cập nhật tất cả các câu chưa quyết định thành SECOND_APPROVED
+      // 1. Cập nhật tất cả các câu chưa quyết định thành SECOND_APPROVED có điều kiện nguyên tử
       for (const item of pendingItems) {
         const secondReview = (item.secondReview as Record<string, any>) || {};
         const updatedSecondReview = {
@@ -52,30 +53,36 @@ export class ConfirmAllItemsUseCase {
           comment: 'Xác nhận hàng loạt theo lô (CONFIRM_ALL)',
         };
 
-        await tx.item.update({
-          where: { id: item.id },
+        const res = await tx.item.updateMany({
+          where: {
+            id: item.id,
+            confirmerId: teacherId,
+            status: ItemStatus.FIRST_APPROVED,
+          },
           data: {
             status: ItemStatus.SECOND_APPROVED,
             secondReview: updatedSecondReview,
           },
         });
+        actualConfirmedCount += res.count;
       }
 
-      // 2. Ghi một dòng log kiểm toán hàng loạt mức Lô (itemId = null)
-      await tx.itemReviewEvent.create({
-        data: {
-          batchId,
-          itemId: null,
-          actorId: teacherId,
-          action: ReviewAction.CONFIRM_ALL,
-        },
-      });
+      // 2. Ghi một dòng log kiểm toán hàng loạt mức Lô (itemId = null) nếu có ít nhất 1 câu được xác nhận
+      if (actualConfirmedCount > 0) {
+        await tx.itemReviewEvent.create({
+          data: {
+            batchId,
+            itemId: null,
+            actorId: teacherId,
+            action: ReviewAction.CONFIRM_ALL,
+          },
+        });
+      }
 
       // 3. Kiểm tra xem lô đã xong toàn bộ chưa
       const remainingUnfinished = await tx.item.count({
         where: {
           batchId,
-          id: { notIn: pendingItems.map((i) => i.id) },
           status: {
             in: [ItemStatus.DRAFT, ItemStatus.FIRST_APPROVED],
           },
@@ -93,7 +100,7 @@ export class ConfirmAllItemsUseCase {
 
     return {
       success: true,
-      confirmedCount: pendingItems.length,
+      confirmedCount: actualConfirmedCount,
       batchFinalized,
     };
   }

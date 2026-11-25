@@ -67,6 +67,31 @@ describe('GetClassErrorPatternsUseCase', () => {
     expect(result[0].topicTag).toBe('past_simple');
   });
 
+  it('tính đúng errorRate khi dữ liệu chứa itemsAttempted và correctCount từ luồng tính kết quả thật', async () => {
+    prisma.languageProfile.findMany.mockResolvedValue([
+      {
+        errorPatterns: [
+          {
+            topicTag: 'conditionals',
+            skill: 'GRAMMAR',
+            itemsAttempted: 10,
+            correctCount: 4,
+            accuracyRate: 0.4,
+            severity: 'MEDIUM',
+          },
+        ],
+      },
+    ]);
+
+    const result = await useCase.execute();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].topicTag).toBe('conditionals');
+    expect(result[0].totalAttempted).toBe(10);
+    expect(result[0].totalIncorrect).toBe(6);
+    expect(result[0].errorRate).toBe(60); // 6 / 10 = 60%, không bị báo sai thành 10%
+  });
+
   it('lọc theo examRoundId: kiểm tra kỳ thi và ném 404 nếu không tìm thấy', async () => {
     prisma.examRound.findUnique.mockResolvedValue(null);
 

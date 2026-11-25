@@ -35,6 +35,8 @@ export class ItemEntity {
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
     public source: ItemBatchSource = ItemBatchSource.IMPORTED,
+    public reviewerId: string | null = null,
+    public confirmerId: string | null = null,
   ) {}
 
   /**

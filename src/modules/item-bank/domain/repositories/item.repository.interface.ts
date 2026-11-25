@@ -7,6 +7,7 @@ export interface ItemFilterOptions {
   cefrTarget?: CEFRLevel;
   source?: ItemBatchSource;
   q?: string;
+  assignedTeacherId?: string;
   limit?: number;
   offset?: number;
 }

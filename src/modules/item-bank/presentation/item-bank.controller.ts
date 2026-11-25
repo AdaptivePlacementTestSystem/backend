@@ -6,18 +6,21 @@ import {
   Body,
   Query,
   UseGuards,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ItemService } from '../application/services/item.service';
 import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
+import { CurrentUser, JwtPayload } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
-import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
+import { Skill, CEFRLevel, ItemStatus, ItemBatchSource, ErrorCode } from '@apt/shared-types';
 
 /**
- * Ngân hàng câu hỏi — CHỈ XEM (DC-32, #106). Các endpoint POST/PUT/DELETE/clone/approve/reject
- * đã bị gỡ; mã cũ giữ ở application/use-cases/_legacy. TODO: GV chỉ thấy câu được giao (UCGV02, BR-21).
+ * Ngân hàng câu hỏi — CHỈ XEM (DC-32, #106).
+ * UCGV02 / BR-16: TEACHER chỉ thấy và truy cập câu được phân công (reviewerId hoặc confirmerId). ADMIN xem toàn bộ.
  */
 @Controller('items')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,6 +30,7 @@ export class ItemBankController {
   @Get()
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async listItems(
+    @CurrentUser() user: JwtPayload,
     @Query('status') status?: ItemStatus,
     @Query('skill') skill?: Skill,
     @Query('cefr') cefr?: CEFRLevel,
@@ -39,12 +43,16 @@ export class ItemBankController {
     const limitNum = Math.max(1, parseInt(limit || '10', 10) || 10);
     const offset = (pageNum - 1) * limitNum;
 
+    // UCGV02 / BR-16: GV chỉ thấy câu được phân công (vai A hoặc B). Admin xem tất cả.
+    const assignedTeacherId = user?.role === UserRole.TEACHER ? user.sub : undefined;
+
     const result = await this.itemService.listItems({
       status,
       skill,
       cefrTarget: cefr,
       source,
       q: q?.trim() || undefined,
+      assignedTeacherId,
       limit: limitNum,
       offset,
     });
@@ -59,7 +67,25 @@ export class ItemBankController {
 
   @Get(':id')
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
-  async getItem(@Param('id') id: string) {
-    return this.itemService.getItem(id);
+  async getItem(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+  ) {
+    const item = await this.itemService.getItem(id);
+    if (!item) {
+      throw new NotFoundException('Không tìm thấy câu hỏi');
+    }
+    // UCGV02 / BR-16: GV chỉ được xem chi tiết câu được phân công cho mình
+    if (
+      user?.role === UserRole.TEACHER &&
+      item.reviewerId !== user.sub &&
+      item.confirmerId !== user.sub
+    ) {
+      throw new ForbiddenException({
+        code: ErrorCode.NOT_ASSIGNED,
+        message: 'Bạn không được phân công câu hỏi này (NOT_ASSIGNED)',
+      });
+    }
+    return item;
   }
 }

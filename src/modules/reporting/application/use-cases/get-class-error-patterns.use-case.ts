@@ -58,10 +58,17 @@ export class GetClassErrorPatternsUseCase {
         const topic = ep.topicTag || ep.topic;
         if (!topic) continue;
         const skill = ep.skill || 'GRAMMAR';
-        const attempted = Number(ep.itemsAttempted || ep.count || 1);
-        const incorrect = Number(
-          ep.itemsIncorrect !== undefined ? ep.itemsIncorrect : ep.count || 1,
+        const attempted = Number(
+          ep.itemsAttempted ?? ep.total ?? ep.count ?? 1,
         );
+        let incorrect = 0;
+        if (ep.itemsIncorrect !== undefined) {
+          incorrect = Number(ep.itemsIncorrect);
+        } else if (ep.correctCount !== undefined) {
+          incorrect = Math.max(0, attempted - Number(ep.correctCount));
+        } else {
+          incorrect = Number(ep.count || 1);
+        }
 
         const key = `${topic}::${skill}`;
         const existing = topicMap.get(key);

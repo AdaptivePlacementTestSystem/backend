@@ -38,6 +38,18 @@ export class GetProfileUseCase {
     let latestResult: Record<string, any> | null = null;
     if (latestProfile) {
       const [lower, upper] = latestProfile.confidenceInterval95;
+      const metaObj = (latestProfile.testMetadata as Record<string, any>) || {};
+      const itemsAdministered =
+        typeof metaObj.itemsAdministered === 'number'
+          ? metaObj.itemsAdministered
+          : typeof metaObj.totalItems === 'number'
+            ? metaObj.totalItems
+            : null;
+      const stoppingReason =
+        latestProfile.testSession?.stoppingReason ??
+        metaObj.stoppingReason ??
+        null;
+
       latestResult = {
         sessionId: latestProfile.testSessionId,
         completedAt: latestProfile.completedAt.toISOString(),
@@ -50,9 +62,9 @@ export class GetProfileUseCase {
           confidenceInterval95: [lower, upper],
         },
         meta: {
-          stoppingReason:
-            latestProfile.testSession?.stoppingReason ?? 'SE_REACHED',
-          totalItems: (latestProfile.testMetadata as any)?.totalItems ?? 25,
+          stoppingReason,
+          totalItems: itemsAdministered,
+          itemsAdministered,
         },
         skillProfiles: latestProfile.skillProfiles,
         errorPatterns: latestProfile.errorPatterns,

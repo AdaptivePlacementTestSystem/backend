@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  ConflictException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ItemStatus, ReviewAction, ItemBatchStatus } from '@apt/shared-types';
 import { GetTeacherReviewTasksUseCase } from './get-teacher-review-tasks.use-case';
 import { GetBatchItemsForReviewUseCase } from './get-batch-items-for-review.use-case';
@@ -18,9 +24,11 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       item: {
         findMany: vi.fn(),
         findUnique: vi.fn(),
-        findFirst: vi.fn(),
+        findUniqueOrThrow: vi.fn(),
+        findFirst: vi.fn().mockResolvedValue(null),
         update: vi.fn(),
-        count: vi.fn(),
+        updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+        count: vi.fn().mockResolvedValue(0),
       },
       itemBatch: {
         findUnique: vi.fn(),
@@ -88,7 +96,7 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       };
 
       prismaMock.item.findUnique.mockResolvedValue(existingItem);
-      prismaMock.item.update.mockResolvedValue({
+      prismaMock.item.findUniqueOrThrow.mockResolvedValue({
         ...existingItem,
         content: 'Updated stem',
         options: { A: '10', B: '20', C: '30', D: '40' },
@@ -145,6 +153,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
         batchId: 'batch-1',
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
+        content: 'Sample stem',
+        options: { A: '1', B: '2', C: '3', D: '4' },
         firstReview: {},
       });
 
@@ -153,9 +163,13 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
 
       expect(result.success).toBe(true);
       expect(result.status).toBe(ItemStatus.FIRST_APPROVED);
-      expect(prismaMock.item.update).toHaveBeenCalledWith(
+      expect(prismaMock.item.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'item-1' },
+          where: expect.objectContaining({
+            id: 'item-1',
+            reviewerId: teacherId,
+            status: ItemStatus.DRAFT,
+          }),
           data: expect.objectContaining({
             status: ItemStatus.FIRST_APPROVED,
           }),
@@ -169,21 +183,67 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       });
     });
 
-    it('từ chối câu hỏi chuyển trạng thái sang REJECTED', async () => {
+    it('chặn duyệt nếu phát hiện trùng lặp sau sửa (BR-27 DUPLICATE_AFTER_EDIT)', async () => {
+      const teacherId = 'teacher-1';
+      prismaMock.item.findUnique.mockResolvedValue({
+        id: 'item-1',
+        reviewerId: teacherId,
+        status: ItemStatus.DRAFT,
+        contentHash: 'hash-dup',
+        content: 'Duplicate stem',
+        options: { A: '1', B: '2', C: '3', D: '4' },
+      });
+      // Giả lập phát hiện câu trùng
+      prismaMock.item.findFirst.mockResolvedValue({ id: 'item-dup' });
+
+      const useCase = new ReviewItemUseCase(prismaMock);
+      await expect(
+        useCase.execute(teacherId, 'item-1', 'APPROVE'),
+      ).rejects.toThrow(UnprocessableEntityException);
+    });
+
+    it('ném lỗi ConflictException khi thao tác đồng thời làm thay đổi trạng thái trước', async () => {
+      const teacherId = 'teacher-1';
+      prismaMock.item.findUnique.mockResolvedValue({
+        id: 'item-1',
+        reviewerId: teacherId,
+        status: ItemStatus.DRAFT,
+        content: 'Stem',
+        options: { A: '1', B: '2', C: '3', D: '4' },
+      });
+      // updateMany trả về count: 0 (bị tranh chấp ghi đè)
+      prismaMock.item.updateMany.mockResolvedValue({ count: 0 });
+
+      const useCase = new ReviewItemUseCase(prismaMock);
+      await expect(
+        useCase.execute(teacherId, 'item-1', 'APPROVE'),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('từ chối câu hỏi chuyển trạng thái sang REJECTED và tự chốt lô nếu là câu cuối cùng (READY_TO_FINALIZE)', async () => {
       const teacherId = 'teacher-1';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
         batchId: 'batch-1',
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
+        content: 'Sample stem',
+        options: { A: '1', B: '2', C: '3', D: '4' },
         firstReview: {},
       });
+      // Câu cuối cùng bị A từ chối: count = 0
+      prismaMock.item.count.mockResolvedValue(0);
 
       const useCase = new ReviewItemUseCase(prismaMock);
       const result = await useCase.execute(teacherId, 'item-1', 'REJECT');
 
       expect(result.success).toBe(true);
       expect(result.status).toBe(ItemStatus.REJECTED);
+      expect(result.batchFinalized).toBe(true);
+      expect(prismaMock.itemBatch.update).toHaveBeenCalledWith({
+        where: { id: 'batch-1' },
+        data: { status: ItemBatchStatus.READY_TO_FINALIZE },
+      });
       expect(prismaMock.itemReviewEvent.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           action: ReviewAction.REJECT,
