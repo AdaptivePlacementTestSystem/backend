@@ -26,12 +26,22 @@ import {
 import { CreateAccountUseCase } from '../application/use-cases/create-account.use-case';
 import { ListAccountsUseCase } from '../application/use-cases/list-accounts.use-case';
 import { UpdateAccountUseCase } from '../application/use-cases/update-account.use-case';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
+import {
+  AccountPageResponseDto,
+  AccountResponseDto,
+} from './account-response.dto';
 
 /**
  * Quản lý tài khoản SV và GV (UCADM09, S24) — chỉ ADMIN (BR-16).
  * Route theo SRS mục X: `/students`, `/teachers` (danh sách, tạo, sửa).
  */
 @Controller()
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class UserAdminController {
@@ -42,6 +52,7 @@ export class UserAdminController {
   ) {}
 
   @Get('students')
+  @ApiOkResponse({ type: AccountPageResponseDto })
   listStudents(
     @Query() query: ListAccountsQueryDto,
   ): Promise<Paged<AccountView>> {
@@ -54,6 +65,7 @@ export class UserAdminController {
   }
 
   @Post('students')
+  @ApiCreatedResponse({ type: AccountResponseDto })
   @HttpCode(HttpStatus.CREATED)
   createStudent(@Body() dto: CreateStudentDto): Promise<AccountView> {
     return this.createAccount.execute({
@@ -65,6 +77,7 @@ export class UserAdminController {
   }
 
   @Patch('students/:id')
+  @ApiOkResponse({ type: AccountResponseDto })
   updateStudent(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateAccountDto,
@@ -78,6 +91,7 @@ export class UserAdminController {
   }
 
   @Get('teachers')
+  @ApiOkResponse({ type: AccountPageResponseDto })
   listTeachers(
     @Query() query: ListAccountsQueryDto,
   ): Promise<Paged<AccountView>> {
@@ -90,6 +104,7 @@ export class UserAdminController {
   }
 
   @Post('teachers')
+  @ApiCreatedResponse({ type: AccountResponseDto })
   @HttpCode(HttpStatus.CREATED)
   createTeacher(@Body() dto: CreateTeacherDto): Promise<AccountView> {
     return this.createAccount.execute({
@@ -101,6 +116,7 @@ export class UserAdminController {
   }
 
   @Patch('teachers/:id')
+  @ApiOkResponse({ type: AccountResponseDto })
   updateTeacher(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateAccountDto,

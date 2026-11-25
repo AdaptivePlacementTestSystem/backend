@@ -17,17 +17,32 @@ import { Roles } from '../../../shared/decorators/roles.decorator';
 import { CurrentUser, JwtPayload } from '../../../shared/decorators/current-user.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { Skill, CEFRLevel, ItemStatus, ItemBatchSource, ErrorCode } from '@apt/shared-types';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiQuery,
+} from '@nestjs/swagger';
+import {
+  ExplanationResponseDto,
+  ItemDetailResponseDto,
+  ItemResponseDto,
+} from './item-response.dto';
 
 /**
  * Ngân hàng câu hỏi — CHỈ XEM (DC-32, #106).
  * UCGV02 / BR-16: TEACHER chỉ thấy và truy cập câu được phân công (reviewerId hoặc confirmerId). ADMIN xem toàn bộ.
  */
 @Controller('items')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ItemBankController {
   constructor(private readonly itemService: ItemService) {}
 
   @Get()
+  @ApiQuery({ name: 'status', required: false, enum: ItemStatus })
+  @ApiQuery({ name: 'skill', required: false, enum: Skill })
+  @ApiOkResponse({ type: ItemResponseDto, isArray: true })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async listItems(
     @CurrentUser() user: JwtPayload,
@@ -60,12 +75,14 @@ export class ItemBankController {
   }
 
   @Post('generate-explanation')
+  @ApiCreatedResponse({ type: ExplanationResponseDto })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async generateExplanation(@Body() dto: GenerateExplanationDto) {
     return this.itemService.generateExplanation(dto);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: ItemDetailResponseDto })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getItem(
     @CurrentUser() user: JwtPayload,

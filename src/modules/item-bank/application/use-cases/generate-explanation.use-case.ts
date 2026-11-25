@@ -1,19 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { GeminiFlashProvider } from '../../../ai-explainer/infrastructure/providers/gemini-flash.provider';
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class GenerateExplanationDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   content: string;
 
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
   @IsObject()
   options: Record<string, string>;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   correctAnswer: string;
 
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   skill: string;

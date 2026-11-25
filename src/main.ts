@@ -4,6 +4,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
+import { SwaggerModule } from '@nestjs/swagger';
+import { createOpenApiDocument } from './openapi/contract';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -20,6 +22,10 @@ async function bootstrap() {
   // Prefix URL
   const apiPrefix = configService.get<string>('apiPrefix') || 'api/v1';
   app.setGlobalPrefix(apiPrefix);
+
+  if (process.env.NODE_ENV !== 'production') {
+    SwaggerModule.setup('docs', app, createOpenApiDocument(app, apiPrefix));
+  }
 
   // Global Exception Filter
   app.useGlobalFilters(new HttpExceptionFilter());

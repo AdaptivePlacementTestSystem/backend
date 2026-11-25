@@ -26,7 +26,8 @@
     "db:generate": "prisma generate",
     "db:seed": "prisma db seed",
     "db:seed:admin": "tsx prisma/seed-admin.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "openapi:generate": "npm run build && node dist/openapi/generate.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -39,6 +40,7 @@
     "@nestjs/jwt": "^12.0.2",
     "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.1.2",
     "@nestjs/throttler": "^6.7.1",
     "@prisma/client": "^6.4.1",
     "argon2": "^0.44.0",

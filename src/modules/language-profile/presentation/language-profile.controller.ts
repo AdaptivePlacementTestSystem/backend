@@ -5,6 +5,17 @@ import { ExportForEduZUseCase } from '../application/use-cases/export-for-eduz.u
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { ProfileAccessGuard } from './guards/profile-access.guard';
 import { EduZApiKeyGuard } from './guards/eduz-api-key.guard';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiParam,
+  ApiSecurity,
+} from '@nestjs/swagger';
+import {
+  EduZProfileResponseDto,
+  LanguageProfileResponseDto,
+  StudentHistoryResponseDto,
+} from './profile-response.dto';
 
 @Controller('placement-profiles')
 export class LanguageProfileController {
@@ -19,6 +30,9 @@ export class LanguageProfileController {
    * Áp dụng ProfileAccessGuard tra cứu qua MSSV :studentCode (Quyết định A12).
    */
   @Get(':studentCode')
+  @ApiBearerAuth()
+  @ApiParam({ name: 'studentCode', type: String })
+  @ApiOkResponse({ type: LanguageProfileResponseDto })
   @UseGuards(JwtAuthGuard, ProfileAccessGuard)
   async getProfile(@Req() req: any) {
     const target = req.targetStudent;
@@ -29,6 +43,9 @@ export class LanguageProfileController {
    * Lịch sử làm bài thi của sinh viên (UCSV06 / S07)
    */
   @Get(':studentCode/history')
+  @ApiBearerAuth()
+  @ApiParam({ name: 'studentCode', type: String })
+  @ApiOkResponse({ type: StudentHistoryResponseDto, isArray: true })
   @UseGuards(JwtAuthGuard, ProfileAccessGuard)
   async getHistory(@Req() req: any) {
     const target = req.targetStudent;
@@ -39,6 +56,8 @@ export class LanguageProfileController {
    * Endpoint xuất JSON cho EduZ Ecosystem qua M2M API Key
    */
   @Get(':studentCode/eduz-export')
+  @ApiSecurity('eduzApiKey')
+  @ApiOkResponse({ type: EduZProfileResponseDto })
   @UseGuards(EduZApiKeyGuard, ProfileAccessGuard)
   async exportForEduZ(
     @Req() req: any,

@@ -41,6 +41,22 @@ import {
 } from '../application/use-cases/upload-import-file.use-case';
 import { ImportKindQueryDto, ImportRowParamDto } from './import.dto';
 import { UploadSizeFilter } from './upload-size.filter';
+import {
+  ApiAcceptedResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiNoContentResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
+import {
+  ImportGridResponseDto,
+  ImportUploadResponseDto,
+  ImportSaveResponseDto,
+  ImportJobResponseDto,
+  NoImportJobResponseDto,
+} from './import-response.dto';
 
 const XLSX_MIME =
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -50,6 +66,8 @@ const XLSX_MIME =
  * mỗi loại một lưới riêng. Route theo SRS mục X; `save-status` và `template` là đề xuất ngoài SRS.
  */
 @Controller('users/import')
+@ApiBearerAuth()
+@ApiExtraModels(ImportJobResponseDto, NoImportJobResponseDto)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
 export class UserImportController {
@@ -64,6 +82,15 @@ export class UserImportController {
   ) {}
 
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({ type: ImportUploadResponseDto })
   @HttpCode(HttpStatus.OK)
   @UseFilters(UploadSizeFilter)
   @UseInterceptors(FileInterceptor('file'))
@@ -76,6 +103,7 @@ export class UserImportController {
   }
 
   @Get('grid')
+  @ApiOkResponse({ type: ImportGridResponseDto })
   grid(
     @Query() query: ImportKindQueryDto,
     @CurrentUser() admin: JwtPayload,
@@ -84,6 +112,7 @@ export class UserImportController {
   }
 
   @Delete('grid/:rowKey')
+  @ApiOkResponse({ type: ImportGridResponseDto })
   deleteRow(
     @Param() params: ImportRowParamDto,
     @Query() query: ImportKindQueryDto,
@@ -93,6 +122,7 @@ export class UserImportController {
   }
 
   @Delete('grid')
+  @ApiNoContentResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteGrid(
     @Query() query: ImportKindQueryDto,
@@ -102,6 +132,7 @@ export class UserImportController {
   }
 
   @Post('save')
+  @ApiAcceptedResponse({ type: ImportSaveResponseDto })
   @HttpCode(HttpStatus.ACCEPTED)
   saveGrid(
     @Query() query: ImportKindQueryDto,
@@ -111,6 +142,14 @@ export class UserImportController {
   }
 
   @Get('save-status')
+  @ApiOkResponse({
+    schema: {
+      oneOf: [
+        { $ref: '#/components/schemas/ImportJobResponseDto' },
+        { $ref: '#/components/schemas/NoImportJobResponseDto' },
+      ],
+    },
+  })
   status(
     @Query() query: ImportKindQueryDto,
     @CurrentUser() admin: JwtPayload,
@@ -119,6 +158,14 @@ export class UserImportController {
   }
 
   @Get('template')
+  @ApiOkResponse({
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+    headers: { 'Content-Disposition': { schema: { type: 'string' } } },
+  })
   async downloadTemplate(
     @Query() query: ImportKindQueryDto,
     @Res() res: Response,
