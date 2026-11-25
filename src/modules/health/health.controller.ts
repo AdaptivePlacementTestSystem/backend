@@ -3,6 +3,22 @@ import type { Response } from 'express';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { ApiOkResponse, ApiProperty, ApiResponse } from '@nestjs/swagger';
+
+class HealthResponseDto {
+  @ApiProperty({ enum: ['ok'] }) status: string;
+  @ApiProperty() uptime: number;
+  @ApiProperty({ format: 'date-time' }) timestamp: string;
+}
+class ReadinessChecksDto {
+  @ApiProperty({ enum: ['up', 'down'] }) database: string;
+  @ApiProperty({ enum: ['up', 'down'] }) redis: string;
+}
+class ReadinessResponseDto {
+  @ApiProperty({ enum: ['ok', 'degraded'] }) status: string;
+  @ApiProperty({ type: ReadinessChecksDto }) checks: ReadinessChecksDto;
+  @ApiProperty({ format: 'date-time' }) timestamp: string;
+}
 
 @Controller()
 export class HealthController {
@@ -12,6 +28,7 @@ export class HealthController {
   ) {}
 
   @Get('health')
+  @ApiOkResponse({ type: HealthResponseDto })
   getHealth() {
     return {
       status: 'ok',
@@ -21,6 +38,8 @@ export class HealthController {
   }
 
   @Get('ready')
+  @ApiOkResponse({ type: ReadinessResponseDto })
+  @ApiResponse({ status: 503, type: ReadinessResponseDto })
   async getReady(@Res() res: Response) {
     const checks: Record<string, string> = {
       database: 'down',

@@ -1,0 +1,227 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/change-password",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/forgot-password",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/reset-password",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{id}/session/current",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/mine",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/explanations/items/{itemId}",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/health",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/items",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/items/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/items/generate-explanation",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/placement-profiles/{studentCode}",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/placement-profiles/{studentCode}/eduz-export",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/placement-profiles/{studentCode}/history",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/ready",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reports/class-distribution",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reports/distribution",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reports/export-csv",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reports/overview",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/sessions",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/sessions/{id}/next-item",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/sessions/{id}/responses",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/sessions/{id}/result",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/sessions/{id}/resume",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/sessions/{id}/review",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/sessions/active",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/students",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/students",
+    "contract": "documented"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/students/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/teachers",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teachers",
+    "contract": "documented"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/teachers/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/{id}/lock",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/{id}/resend-temporary-password",
+    "contract": "documented"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/users/{id}/role",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/{id}/unlock",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/import/grid/{rowKey}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/import/save",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/import/save-status",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/import/template",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/users/import/upload",
+    "contract": "documented"
+  }
+]
