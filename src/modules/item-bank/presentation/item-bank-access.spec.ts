@@ -6,12 +6,13 @@ import { UserRole } from '../../auth/domain/enums/user-role.enum';
 describe('item bank access', () => {
   it('filters teachers and rejects an item outside their assignments', async () => {
     const service = { listItems: vi.fn(), getItem: vi.fn() };
-    const prisma = {
-      item: { findMany: vi.fn().mockResolvedValue([{ id: 'assigned' }]) },
+    const access = {
+      allowedIds: vi.fn().mockResolvedValue(['assigned']),
+      assertAllowed: vi.fn().mockRejectedValue(new ForbiddenException()),
     };
     const controller = new ItemBankController(
       service as never,
-      prisma as never,
+      access as never,
     );
     const teacher = { sub: 'teacher', role: UserRole.TEACHER } as never;
     await controller.listItems(teacher);

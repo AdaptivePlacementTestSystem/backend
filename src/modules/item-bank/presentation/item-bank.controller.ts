@@ -1,3 +1,8 @@
+﻿import {
+  CurrentUser,
+  type JwtPayload,
+} from '../../../shared/decorators/current-user.decorator';
+import { TeacherItemAccess } from '../application/services/teacher-item-access';
 import {
   Body,
   Controller,
@@ -6,15 +11,9 @@ import {
   Post,
   Query,
   UseGuards,
-  ForbiddenException,
 } from '@nestjs/common';
 import { ItemService } from '../application/services/item.service';
 import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
-import { PrismaService } from '../../../shared/prisma/prisma.service';
-import {
-  CurrentUser,
-  type JwtPayload,
-} from '../../../shared/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
@@ -43,26 +42,8 @@ import {
 export class ItemBankController {
   constructor(
     private readonly itemService: ItemService,
-    private readonly prisma: PrismaService,
+    private readonly access: TeacherItemAccess,
   ) {}
-
-  private async teacherItemIds(userId: string): Promise<string[]> {
-    const items = await this.prisma.item.findMany({
-      where: {
-        OR: [
-          { reviewerId: userId },
-          {
-            confirmerId: userId,
-            status: {
-              in: ['FIRST_APPROVED', 'SECOND_APPROVED', 'FINAL_APPROVED'],
-            },
-          },
-        ],
-      },
-      select: { id: true },
-    });
-    return items.map((item) => item.id);
-  }
 
   @Get()
   @ApiQuery({ name: 'status', required: false, enum: ItemStatus })
@@ -76,7 +57,7 @@ export class ItemBankController {
   ) {
     const visibleIds =
       user.role === UserRole.TEACHER
-        ? await this.teacherItemIds(user.sub)
+        ? await this.access.allowedIds(user.sub)
         : undefined;
     return this.itemService.listItems({ status, skill, visibleIds });
   }
@@ -92,11 +73,8 @@ export class ItemBankController {
   @ApiOkResponse({ type: ItemDetailResponseDto })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getItem(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    if (
-      user.role === UserRole.TEACHER &&
-      !(await this.teacherItemIds(user.sub)).includes(id)
-    )
-      throw new ForbiddenException('Câu hỏi không thuộc phân công');
+    if (user.role === UserRole.TEACHER)
+      await this.access.assertAllowed(user.sub, id);
     return this.itemService.getItem(id);
   }
 }
