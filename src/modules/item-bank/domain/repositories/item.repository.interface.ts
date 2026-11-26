@@ -1,8 +1,9 @@
-import { ItemEntity } from '../entities/item.entity';
+﻿import { ItemEntity } from '../entities/item.entity';
 import { Skill } from '../enums/skill.enum';
 import { ItemStatus } from '../enums/item-status.enum';
 
 export interface ItemFilterOptions {
+  visibleIds?: string[];
   status?: ItemStatus;
   skill?: Skill;
   limit?: number;

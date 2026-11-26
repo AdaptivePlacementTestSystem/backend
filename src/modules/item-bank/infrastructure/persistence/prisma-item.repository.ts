@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import {
   IItemRepository,
@@ -18,6 +18,7 @@ export class PrismaItemRepository implements IItemRepository {
 
   async findAll(options?: ItemFilterOptions): Promise<ItemEntity[]> {
     const where: any = {};
+    if (options?.visibleIds) where.id = { in: options.visibleIds };
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
 

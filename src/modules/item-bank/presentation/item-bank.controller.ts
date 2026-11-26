@@ -1,3 +1,8 @@
+﻿import {
+  CurrentUser,
+  type JwtPayload,
+} from '../../../shared/decorators/current-user.decorator';
+import { TeacherItemAccess } from '../application/services/teacher-item-access';
 import {
   Controller,
   Get,
@@ -18,20 +23,28 @@ import { ItemStatus } from '../domain/enums/item-status.enum';
 
 /**
  * Ngân hàng câu hỏi — CHỈ XEM (DC-32, #106). Các endpoint POST/PUT/DELETE/clone/approve/reject
- * đã bị gỡ; mã cũ giữ ở application/use-cases/_legacy. TODO: GV chỉ thấy câu được giao (UCGV02, BR-21).
+ * đã bị gỡ; mã cũ giữ ở application/use-cases/_legacy.
  */
 @Controller('items')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ItemBankController {
-  constructor(private readonly itemService: ItemService) {}
+  constructor(
+    private readonly itemService: ItemService,
+    private readonly access: TeacherItemAccess,
+  ) {}
 
   @Get()
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async listItems(
+    @CurrentUser() user: JwtPayload,
     @Query('status') status?: ItemStatus,
     @Query('skill') skill?: Skill,
   ) {
-    return this.itemService.listItems({ status, skill });
+    const visibleIds =
+      user.role === UserRole.TEACHER
+        ? await this.access.allowedIds(user.sub)
+        : undefined;
+    return this.itemService.listItems({ status, skill, visibleIds });
   }
 
   @Post('generate-explanation')
@@ -42,7 +55,9 @@ export class ItemBankController {
 
   @Get(':id')
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
-  async getItem(@Param('id') id: string) {
+  async getItem(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    if (user.role === UserRole.TEACHER)
+      await this.access.assertAllowed(user.sub, id);
     return this.itemService.getItem(id);
   }
 }
