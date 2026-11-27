@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
+import { assertJobLease, type JobLease } from '../infrastructure/job-lease';
 import { readT2Thresholds } from '../domain/duplicate-config';
 import {
   classifySimilarity,
@@ -16,7 +17,9 @@ export class CheckNearDuplicatesUseCase {
     batchId: string,
     checkpoint: 'C1' | 'C2' = 'C1',
     thresholds: SimilarityThresholds = readT2Thresholds(),
+    lease?: JobLease,
   ) {
+    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
     const items = await this.prisma.item.findMany({
       where: { batchId, status: 'DRAFT' },
       select: { id: true, content: true, contentHash: true },
@@ -65,6 +68,7 @@ export class CheckNearDuplicatesUseCase {
     }
     const hard = hits.filter((h) => h.level === 'HARD');
     await this.prisma.$transaction(async (tx) => {
+      await assertJobLease(tx, lease);
       if (hard.length)
         await tx.item.updateMany({
           where: { id: { in: hard.map((h) => h.itemId) }, status: 'DRAFT' },

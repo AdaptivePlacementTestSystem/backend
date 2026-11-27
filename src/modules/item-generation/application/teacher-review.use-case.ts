@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { createHash } from 'crypto';
+import { contentFingerprint } from '../domain/content-fingerprint';
 import { validateCandidate } from '../domain/candidate-validation';
 import { readT2Thresholds } from '../domain/duplicate-config';
 
@@ -52,11 +52,7 @@ export class TeacherReviewUseCase {
             `Nội dung không hợp lệ: ${errors.join(', ')}`,
           );
         const content = input.content.trim();
-        const hash = createHash('sha256')
-          .update(
-            content.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase(),
-          )
-          .digest('hex');
+        const hash = contentFingerprint(input);
         const exact = await tx.item.findFirst({
           where: {
             id: { not: itemId },
@@ -132,7 +128,7 @@ export class TeacherReviewUseCase {
       where: {
         OR: [
           { reviewerId: userId, status: 'DRAFT' },
-          { confirmerId: userId, status: 'FIRST_APPROVED' },
+          { batch: { is: { confirmerId: userId } }, status: 'FIRST_APPROVED' },
         ],
         batch: { status: 'IN_REVIEW' },
       },
@@ -142,75 +138,54 @@ export class TeacherReviewUseCase {
           where: { level: 'SOFT' },
           select: { reasonCodes: true, contentHash: true },
         },
-        batch: { select: { name: true } },
+        batch: { select: { name: true, confirmerId: true } },
       },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
-    const pending = await this.prisma.item.findMany({
-      where: {
-        status: 'DRAFT',
-        OR: items
-          .filter((i) => i.confirmerId === userId && i.reviewerId)
-          .map((i) => ({ batchId: i.batchId, reviewerId: i.reviewerId })),
-      },
-      select: { batchId: true, reviewerId: true },
-      distinct: ['batchId', 'reviewerId'],
-    });
-    const blocked = new Set(pending.map((i) => `${i.batchId}:${i.reviewerId}`));
-    return items
-      .filter(
-        (i) =>
-          i.reviewerId === userId ||
-          !blocked.has(`${i.batchId}:${i.reviewerId}`),
-      )
-      .map((i) => ({
-        id: i.id,
-        batchId: i.batchId,
-        batchName: i.batch.name,
-        content: i.content,
-        options: i.options,
-        correctAnswer: i.correctAnswer,
-        explanation: i.explanation?.content ?? null,
-        flags: i.checkResults.filter(
-          (check) => check.contentHash === i.contentHash,
-        ),
-        role: i.reviewerId === userId ? 'A' : 'B',
-        firstReview: i.firstReview,
-        secondReview: i.secondReview,
-      }));
+    return items.map((i) => ({
+      id: i.id,
+      batchId: i.batchId,
+      batchName: i.batch.name,
+      content: i.content,
+      options: i.options,
+      correctAnswer: i.correctAnswer,
+      explanation: i.explanation?.content ?? null,
+      flags: i.checkResults.filter(
+        (check) => check.contentHash === i.contentHash,
+      ),
+      role: i.reviewerId === userId ? 'A' : 'B',
+      firstReview: i.firstReview,
+      secondReview: i.secondReview,
+    }));
   }
 
-  async decide(userId: string, itemId: string, action: Decision) {
+  async decide(
+    userId: string,
+    itemId: string,
+    action: Decision,
+    comment?: string,
+  ) {
     if (!['APPROVE', 'REJECT', 'CONFIRM', 'REMOVE'].includes(action))
       throw new BadRequestException('Quyết định không hợp lệ');
+    if (comment != null && typeof comment !== 'string')
+      throw new BadRequestException('Comment phải là chuỗi');
+    if ((action === 'REJECT' || action === 'REMOVE') && !comment?.trim())
+      throw new BadRequestException('Bắt buộc nhập comment khi loại câu hỏi');
     const roleA = action === 'APPROVE' || action === 'REJECT';
     return this.prisma.$transaction(
       async (tx) => {
         const item = await tx.item.findUnique({
           where: { id: itemId },
-          include: { batch: { select: { status: true } } },
+          include: { batch: { select: { status: true, confirmerId: true } } },
         });
         if (!item) throw new NotFoundException('Không tìm thấy câu hỏi');
-        if ((roleA ? item.reviewerId : item.confirmerId) !== userId)
+        if ((roleA ? item.reviewerId : item.batch.confirmerId) !== userId)
           throw new ForbiddenException('Câu hỏi không thuộc phân công');
         if (
           item.batch.status !== 'IN_REVIEW' ||
           item.status !== (roleA ? 'DRAFT' : 'FIRST_APPROVED')
         )
           throw new ConflictException('Câu hỏi không còn chờ xử lý');
-        if (
-          !roleA &&
-          (await tx.item.count({
-            where: {
-              batchId: item.batchId,
-              reviewerId: item.reviewerId,
-              status: 'DRAFT',
-            },
-          }))
-        )
-          throw new ConflictException(
-            'Giảng viên A chưa xử lý hết câu được giao',
-          );
         const status =
           action === 'APPROVE'
             ? 'FIRST_APPROVED'
@@ -231,11 +206,29 @@ export class TeacherReviewUseCase {
           where: {
             id: itemId,
             status: roleA ? 'DRAFT' : 'FIRST_APPROVED',
-            ...(roleA ? { reviewerId: userId } : { confirmerId: userId }),
+            ...(roleA ? { reviewerId: userId } : {}),
+            batch: {
+              is: {
+                status: 'IN_REVIEW',
+                ...(roleA ? {} : { confirmerId: userId }),
+              },
+            },
           },
           data: {
             status,
-            ...(roleA ? { firstReview: detail } : { secondReview: detail }),
+            ...(roleA
+              ? {
+                  firstReview: {
+                    ...detail,
+                    ...(comment?.trim() ? { comment: comment.trim() } : {}),
+                  },
+                }
+              : {
+                  secondReview: {
+                    ...detail,
+                    ...(comment?.trim() ? { comment: comment.trim() } : {}),
+                  },
+                }),
           },
         });
         if (changed.count !== 1)
@@ -249,11 +242,15 @@ export class TeacherReviewUseCase {
             status: { in: ['DRAFT', 'FIRST_APPROVED'] },
           },
         });
-        if (!open)
+        if (!open) {
+          const approved = await tx.item.count({
+            where: { batchId: item.batchId, status: 'SECOND_APPROVED' },
+          });
           await tx.itemBatch.updateMany({
             where: { id: item.batchId, status: 'IN_REVIEW' },
-            data: { status: 'READY_TO_FINALIZE' },
+            data: { status: approved ? 'READY_TO_FINALIZE' : 'DONE' },
           });
+        }
         return { id: itemId, status };
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -271,30 +268,19 @@ export class TeacherReviewUseCase {
         if (batch.status !== 'IN_REVIEW')
           throw new ConflictException('Lô không còn chờ duyệt');
         const assigned = await tx.item.findMany({
-          where: { batchId, confirmerId: userId, status: 'FIRST_APPROVED' },
-          select: { id: true, reviewerId: true, secondReview: true },
-        });
-        const pending = await tx.item.findMany({
           where: {
             batchId,
-            status: 'DRAFT',
-            reviewerId: {
-              in: assigned.flatMap((i) => (i.reviewerId ? [i.reviewerId] : [])),
-            },
+            batch: { is: { confirmerId: userId, status: 'IN_REVIEW' } },
+            status: 'FIRST_APPROVED',
           },
-          select: { reviewerId: true },
-          distinct: ['reviewerId'],
+          select: { id: true, secondReview: true },
         });
-        const blocked = new Set(pending.map((i) => i.reviewerId));
-        const ready = assigned.filter(
-          (i) => i.reviewerId && !blocked.has(i.reviewerId),
-        );
-        if (!ready.length)
+        if (!assigned.length)
           throw new ConflictException(
             'Không có câu sẵn sàng xác nhận trong lô',
           );
         const confirmedAt = new Date().toISOString();
-        for (const item of ready) {
+        for (const item of assigned) {
           const previous =
             item.secondReview &&
             typeof item.secondReview === 'object' &&
@@ -304,7 +290,8 @@ export class TeacherReviewUseCase {
           const changed = await tx.item.updateMany({
             where: {
               id: item.id,
-              confirmerId: userId,
+              batchId,
+              batch: { is: { confirmerId: userId, status: 'IN_REVIEW' } },
               status: 'FIRST_APPROVED',
             },
             data: {
@@ -314,15 +301,19 @@ export class TeacherReviewUseCase {
           });
           if (changed.count !== 1)
             throw new ConflictException('Danh sách câu đã thay đổi');
-          await tx.itemReviewEvent.create({
-            data: {
-              batchId,
-              itemId: item.id,
-              actorId: userId,
-              action: 'CONFIRM_ALL',
-            },
-          });
         }
+        await tx.itemReviewEvent.create({
+          data: {
+            batchId,
+            itemId: null,
+            actorId: userId,
+            action: 'CONFIRM_ALL',
+            details: {
+              updatedCount: assigned.length,
+              itemIds: assigned.map((entry) => entry.id),
+            },
+          },
+        });
         const open = await tx.item.count({
           where: { batchId, status: { in: ['DRAFT', 'FIRST_APPROVED'] } },
         });
@@ -331,7 +322,7 @@ export class TeacherReviewUseCase {
             where: { id: batchId, status: 'IN_REVIEW' },
             data: { status: 'READY_TO_FINALIZE' },
           });
-        return { confirmed: ready.length };
+        return { confirmed: assigned.length };
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );

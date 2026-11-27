@@ -24,6 +24,7 @@ export class CreateAiBatchController {
       cefrTarget: CEFRLevel;
       topicTag?: string;
       count: number;
+      operationId: string;
     },
   ) {
     return this.create.execute(user.sub, body);

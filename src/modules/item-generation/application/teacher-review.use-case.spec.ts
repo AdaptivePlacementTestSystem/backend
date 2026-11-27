@@ -12,7 +12,7 @@ function setup(status = 'FIRST_APPROVED') {
         status,
         firstReview: { dueAt: 'date' },
         secondReview: { dueAt: 'date' },
-        batch: { status: 'IN_REVIEW' },
+        batch: { status: 'IN_REVIEW', confirmerId: 'c' },
       }),
       count: vi.fn().mockResolvedValue(0),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
@@ -26,7 +26,7 @@ function setup(status = 'FIRST_APPROVED') {
   return { tx, service: new TeacherReviewUseCase(prisma as never) };
 }
 describe('quyết định duyệt A/B', () => {
-  it('ẩn các câu của A chưa xử lý hết khỏi hộp việc B', async () => {
+  it('hiển thị ngay câu đã duyệt trong hộp việc B', async () => {
     const item = {
       id: 'i',
       batchId: 'b',
@@ -36,20 +36,56 @@ describe('quyết định duyệt A/B', () => {
       secondReview: {},
       explanation: null,
       checkResults: [],
-      batch: { name: 'Lô' },
+      batch: { name: 'Lô', confirmerId: 'c' },
     };
     const findMany = vi
       .fn()
       .mockResolvedValueOnce([item])
       .mockResolvedValueOnce([{ batchId: 'b', reviewerId: 'a' }]);
     const service = new TeacherReviewUseCase({ item: { findMany } } as never);
-    expect(await service.list('c')).toEqual([]);
+    expect(await service.list('c')).toEqual([
+      expect.objectContaining({ id: 'i', role: 'B' }),
+    ]);
+    expect(findMany).toHaveBeenCalledOnce();
   });
-  it('chặn B khi A còn câu chưa xử lý', async () => {
+  it('cho phép B xác nhận khi A còn câu chưa xử lý', async () => {
     const { service, tx } = setup();
     tx.item.count.mockResolvedValue(1);
-    await expect(service.decide('c', 'i', 'CONFIRM')).rejects.toThrow();
+    await expect(service.decide('c', 'i', 'CONFIRM')).resolves.toEqual({
+      id: 'i',
+      status: 'SECOND_APPROVED',
+    });
+    expect(tx.itemBatch.updateMany).not.toHaveBeenCalled();
+  });
+  it.each(['REJECT', 'REMOVE'] as const)(
+    'bắt buộc comment khi %s',
+    async (action) => {
+      const { service, tx } = setup(
+        action === 'REJECT' ? 'DRAFT' : 'FIRST_APPROVED',
+      );
+      await expect(
+        service.decide(action === 'REJECT' ? 'a' : 'c', 'i', action, '  '),
+      ).rejects.toThrow();
+      expect(tx.item.updateMany).not.toHaveBeenCalled();
+    },
+  );
+  it('từ chối comment không phải chuỗi', async () => {
+    const { service, tx } = setup('DRAFT');
+    await expect(
+      service.decide('a', 'i', 'REJECT', {} as string),
+    ).rejects.toThrow('Comment phải là chuỗi');
     expect(tx.item.updateMany).not.toHaveBeenCalled();
+  });
+  it('lưu comment loại câu vào kết quả duyệt', async () => {
+    const { service, tx } = setup('DRAFT');
+    await service.decide('a', 'i', 'REJECT', ' lý do ');
+    expect(tx.item.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          firstReview: expect.objectContaining({ comment: 'lý do' }),
+        }),
+      }),
+    );
   });
   it('chặn người không được phân công', async () => {
     const { service, tx } = setup();
@@ -58,6 +94,7 @@ describe('quyết định duyệt A/B', () => {
   });
   it('xác nhận câu khi A đã hoàn tất và ghi sự kiện', async () => {
     const { service, tx } = setup();
+    tx.item.count.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
     await expect(service.decide('c', 'i', 'CONFIRM')).resolves.toEqual({
       id: 'i',
       status: 'SECOND_APPROVED',
@@ -66,6 +103,13 @@ describe('quyết định duyệt A/B', () => {
       data: { batchId: 'b', itemId: 'i', actorId: 'c', action: 'CONFIRM' },
     });
     expect(tx.itemBatch.updateMany).toHaveBeenCalledOnce();
+  });
+  it('đóng lô khi câu cuối bị loại và không còn câu được duyệt', async () => {
+    const { service, tx } = setup('DRAFT');
+    await service.decide('a', 'i', 'REJECT', 'Không phù hợp');
+    expect(tx.itemBatch.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { status: 'DONE' } }),
+    );
   });
   it('chặn ghi sự kiện khi câu đã bị xử lý đồng thời', async () => {
     const { service, tx } = setup('DRAFT');
@@ -166,22 +210,38 @@ describe('xác nhận tất cả trong một lô', () => {
       $transaction: (fn: (tx: unknown) => unknown) => fn(tx),
     } as never);
     await expect(service.confirmAll('c', 'batch')).resolves.toEqual({
-      confirmed: 1,
+      confirmed: 2,
     });
-    expect(tx.item.updateMany).toHaveBeenCalledOnce();
+    expect(tx.item.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          batchId: 'batch',
+          batch: { is: { confirmerId: 'c', status: 'IN_REVIEW' } },
+          status: 'FIRST_APPROVED',
+        },
+      }),
+    );
+    expect(tx.item.updateMany).toHaveBeenCalledTimes(2);
     expect(tx.item.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: 'ready', confirmerId: 'c', status: 'FIRST_APPROVED' },
+        where: {
+          id: 'ready',
+          batchId: 'batch',
+          batch: { is: { confirmerId: 'c', status: 'IN_REVIEW' } },
+          status: 'FIRST_APPROVED',
+        },
       }),
     );
     expect(tx.itemReviewEvent.create).toHaveBeenCalledWith({
       data: {
         batchId: 'batch',
-        itemId: 'ready',
+        itemId: null,
         actorId: 'c',
         action: 'CONFIRM_ALL',
+        details: { updatedCount: 2, itemIds: ['ready', 'blocked'] },
       },
     });
+    expect(tx.itemReviewEvent.create).toHaveBeenCalledOnce();
     expect(tx.itemBatch.updateMany).not.toHaveBeenCalled();
   });
 });

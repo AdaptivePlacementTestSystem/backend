@@ -1,103 +1,75 @@
-﻿import { afterEach, describe, expect, it, vi } from 'vitest';
+import { randomUUID } from 'node:crypto';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CreateAiBatchUseCase } from './create-ai-batch.use-case';
-const input = {
-  skill: 'GRAMMAR' as const,
-  cefrTarget: 'A2' as const,
-  count: 1,
-};
-const candidate = {
-  content: 'She goes home.',
-  options: { A: 'one', B: 'two', C: 'three', D: 'four' },
-  correctAnswer: 'A',
-  explanation: 'Because.',
-  skill: 'GRAMMAR',
-  cefrTarget: 'A2',
-  irtB: 0,
-};
-function setup() {
-  const tx = {
-    item: { create: vi.fn().mockResolvedValue({}) },
-    itemBatch: { update: vi.fn().mockResolvedValue({}) },
+import { ConfigService } from '@nestjs/config';
+
+afterEach(() => vi.unstubAllEnvs());
+describe('queue AI generation', () => {
+  const input = {
+    skill: 'GRAMMAR' as const,
+    cefrTarget: 'A2' as const,
+    count: 2,
+    operationId: randomUUID(),
   };
-  const prisma = {
-    itemBatch: {
-      create: vi.fn().mockResolvedValue({ id: 'batch' }),
-      update: vi.fn().mockResolvedValue({}),
-    },
-    item: { findMany: vi.fn().mockResolvedValue([]) },
-    $transaction: vi.fn((fn: (tx: unknown) => unknown) => fn(tx)),
-  };
-  return {
-    tx,
-    prisma,
-    usecase: new CreateAiBatchUseCase(
-      prisma as never,
-      {
-        execute: vi.fn().mockResolvedValue({
-          status: 'READY_TO_ASSIGN',
-          remaining: 1,
-          exactRejected: 0,
-          nearRejected: 0,
-          nearFlagged: 0,
-          semanticSkipped: 0,
-          semanticFlagged: 0,
-        }),
-      } as never,
-    ),
-  };
-}
-afterEach(() => {
-  vi.unstubAllEnvs();
-  vi.unstubAllGlobals();
-});
-describe('tạo lô AI', () => {
-  it('chặn khi chưa cấu hình gateway trước khi tạo lô', async () => {
-    vi.stubEnv('LITELLM_BASE_URL', '');
-    const { prisma, usecase } = setup();
-    await expect(usecase.execute('admin', input)).rejects.toThrow();
-    expect(prisma.itemBatch.create).not.toHaveBeenCalled();
-  });
-  it('lưu câu ở trạng thái CHECKING rồi chuyển trạng thái theo kết quả C1', async () => {
-    vi.stubEnv('LITELLM_BASE_URL', 'https://gateway.example');
-    vi.stubEnv('LITELLM_API_KEY', 'secret');
-    vi.stubEnv('LITELLM_MODEL', 'model');
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            model: 'model',
-            choices: [
-              {
-                finish_reason: 'stop',
-                message: { content: JSON.stringify([candidate]) },
-              },
-            ],
-          }),
-          { status: 200 },
-        ),
+  function setup(existing: unknown = null) {
+    const tx = {
+      itemBatch: {
+        create: vi
+          .fn()
+          .mockResolvedValue({ id: 'batch', status: 'GENERATING' }),
+      },
+      itemBatchJob: { create: vi.fn() },
+    };
+    const db = {
+      itemBatchJob: { findUnique: vi.fn().mockResolvedValue(existing) },
+      $transaction: vi.fn((fn) => fn(tx)),
+    };
+    return {
+      db,
+      tx,
+      service: new CreateAiBatchUseCase(
+        db as never,
+        new ConfigService({ AI_GENERATION_MAX_ITEMS: 20 }),
       ),
-    );
-    const { tx, usecase } = setup();
-    expect(await usecase.execute('admin', input)).toMatchObject({
-      batchId: 'batch',
-      accepted: 1,
-      status: 'READY_TO_ASSIGN',
-    });
-    expect(tx.item.create).toHaveBeenCalledOnce();
-    expect(tx.itemBatch.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { status: 'CHECKING' } }),
-    );
+    };
+  }
+  it('requires provider configuration before creating a job', async () => {
+    vi.stubEnv('LITELLM_BASE_URL', '');
+    const { db, service } = setup();
+    await expect(service.execute('admin', input)).rejects.toThrow();
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
-  it('đánh dấu thất bại khi AI trả dữ liệu sai', async () => {
+  it('creates batch and job atomically', async () => {
     vi.stubEnv('LITELLM_BASE_URL', 'https://gateway.example');
-    vi.stubEnv('LITELLM_API_KEY', 'secret');
-    vi.stubEnv('LITELLM_MODEL', 'model');
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('down')));
-    const { prisma, usecase } = setup();
-    await expect(usecase.execute('admin', input)).rejects.toThrow();
-    expect(prisma.itemBatch.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { status: 'FAILED' } }),
-    );
+    vi.stubEnv('LITELLM_API_KEY', 'fake');
+    vi.stubEnv('LITELLM_MODEL', 'fake');
+    const { tx, service } = setup();
+    await expect(service.execute('admin', input)).resolves.toEqual({
+      batchId: 'batch',
+      status: 'GENERATING',
+    });
+    expect(tx.itemBatchJob.create).toHaveBeenCalledWith({
+      data: { id: input.operationId, batchId: 'batch', kind: 'GENERATE' },
+    });
+  });
+  it('returns an existing job only for the same actor and parameters', async () => {
+    const batch = {
+      id: 'batch',
+      status: 'GENERATING',
+      createdById: 'admin',
+      source: 'AI_GENERATED',
+      name: null,
+      skill: input.skill,
+      cefrTarget: input.cefrTarget,
+      topicTag: null,
+      requestedCount: input.count,
+    };
+    const { service, db } = setup({ kind: 'GENERATE', batch });
+    await expect(service.execute('admin', input)).resolves.toEqual({
+      batchId: 'batch',
+      status: 'GENERATING',
+    });
+    await expect(service.execute('other', input)).rejects.toThrow();
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
 });

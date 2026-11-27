@@ -1,4 +1,5 @@
 import { LlmClient, LlmResult } from '../domain/llm-client';
+import { openAiCompatibleUrl } from './openai-compatible-url';
 
 export interface LiteLlmConfig {
   baseUrl: string;
@@ -59,7 +60,7 @@ export class LiteLlmClient implements LlmClient {
     const timer = setTimeout(() => abort.abort(), this.config.timeoutMs);
     try {
       const response = await this.transport(
-        `${this.config.baseUrl.replace(/\/$/, '')}/v1/chat/completions`,
+        openAiCompatibleUrl(this.config.baseUrl, 'chat/completions'),
         {
           method: 'POST',
           headers: {

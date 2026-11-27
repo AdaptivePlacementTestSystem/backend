@@ -56,6 +56,7 @@ export const validationSchema = Joi.object({
     .integer()
     .positive()
     .default(20971520),
+  AI_REFERENCE_EXAMPLES: Joi.number().integer().min(3).max(5).default(5),
   IMPORT_GRID_TTL_SECONDS: Joi.number().integer().positive().default(1800),
   IMPORT_JOB_TTL_SECONDS: Joi.number().integer().positive().default(3600),
   IMPORT_HASH_CONCURRENCY: Joi.number().integer().positive().default(4),
@@ -86,6 +87,7 @@ export const validationSchema = Joi.object({
 
   // Gemini
   GEMINI_API_KEY: Joi.string().optional(),
+  AI_GENERATION_MAX_ITEMS: Joi.number().integer().min(1).max(50).default(20),
   GEMINI_MODEL: Joi.string().default('gemini-1.5-flash'),
 
   // EduZ M2M

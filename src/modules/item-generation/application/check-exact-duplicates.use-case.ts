@@ -1,11 +1,18 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
+import { assertJobLease, type JobLease } from '../infrastructure/job-lease';
 /** Lưu kết quả trùng chính xác T1; các tầng khác vẫn phải chạy trước khi giao. */
 @Injectable()
 export class CheckExactDuplicatesUseCase {
   constructor(private readonly prisma: PrismaService) {}
-  async execute(batchId: string, checkpoint: 'C1' | 'C2' = 'C1') {
+  async execute(
+    batchId: string,
+    checkpoint: 'C1' | 'C2' = 'C1',
+    lease?: JobLease,
+  ) {
+    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
     return this.prisma.$transaction(async (tx) => {
+      await assertJobLease(tx, lease);
       const items = await tx.item.findMany({
         where: { batchId, status: 'DRAFT' },
         select: { id: true, contentHash: true },

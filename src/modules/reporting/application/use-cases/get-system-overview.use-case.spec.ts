@@ -140,6 +140,7 @@ describe('GetSystemOverviewUseCase', () => {
     expect([...BATCH_STATUSES_NEEDING_ACTION].sort()).toEqual([
       'FAILED',
       'PARTIAL',
+      'PARTIALLY_IMPORTED',
       'READY_TO_ASSIGN',
       'READY_TO_FINALIZE',
     ]);

@@ -19,11 +19,28 @@ import { FinalCheckBatchUseCase } from './application/final-check-batch.use-case
 import { DecideFlagUseCase } from './application/decide-flag.use-case';
 import { ImportBatchUseCase } from './application/import-batch.use-case';
 import { FinalizeBatchController } from './presentation/finalize-batch.controller';
-import { TeacherReviewController } from './presentation/teacher-review.controller';
+import {
+  TeacherReviewController,
+  TeacherTasksController,
+} from './presentation/teacher-review.controller';
 import { TeacherReviewUseCase } from './application/teacher-review.use-case';
+import { CheckIndependentAnswerUseCase } from './application/check-independent-answer.use-case';
+import { RetryBatchChecksController } from './presentation/retry-batch-checks.controller';
+import { MailModule } from '../mail/mail.module';
+import { ReviewNotificationsService } from './application/review-notifications.service';
+import { ReassignBatchUseCase } from './application/reassign-batch.use-case';
+import { QuestionGridUseCase } from './application/question-grid.use-case';
+import { RedisQuestionGridStore } from './infrastructure/redis-question-grid.store';
+import { ItemBatchJobStore } from './infrastructure/item-batch-job.store';
+import { ItemCheckWorker } from './application/item-check-worker';
+import { ProcessAiBatchUseCase } from './application/process-ai-batch.use-case';
+import { AssignmentPreviewUseCase } from './application/assignment-preview.use-case';
+import { CancelPendingUseCase } from './application/cancel-pending.use-case';
+import { ReassignConfirmerUseCase } from './application/reassign-confirmer.use-case';
+import { ReviewNoticeOutboxWorker } from './application/review-notice-outbox.worker';
 
 @Module({
-  imports: [LlmGatewayModule],
+  imports: [LlmGatewayModule, MailModule],
   controllers: [
     AdminItemBatchesController,
     AssignBatchController,
@@ -31,10 +48,17 @@ import { TeacherReviewUseCase } from './application/teacher-review.use-case';
     ImportQuestionBatchesController,
     FinalizeBatchController,
     TeacherReviewController,
+    TeacherTasksController,
+    RetryBatchChecksController,
   ],
   providers: [
     GetAdminBatchUseCase,
     AssignBatchUseCase,
+    AssignmentPreviewUseCase,
+    CancelPendingUseCase,
+    ReassignConfirmerUseCase,
+    ReviewNoticeOutboxWorker,
+    ReassignBatchUseCase,
     UpdateBatchDeadlinesUseCase,
     CreateAiBatchUseCase,
     CheckExactDuplicatesUseCase,
@@ -42,12 +66,19 @@ import { TeacherReviewUseCase } from './application/teacher-review.use-case';
     CheckSemanticDuplicatesUseCase,
     RunBatchChecksUseCase,
     ParseQuestionSpreadsheetUseCase,
+    QuestionGridUseCase,
+    RedisQuestionGridStore,
+    ItemBatchJobStore,
+    ItemCheckWorker,
+    ProcessAiBatchUseCase,
     SaveQuestionImportUseCase,
     RefreshBatchStatusUseCase,
     FinalCheckBatchUseCase,
     DecideFlagUseCase,
     ImportBatchUseCase,
     TeacherReviewUseCase,
+    CheckIndependentAnswerUseCase,
+    ReviewNotificationsService,
   ],
 })
 export class ItemGenerationModule {}

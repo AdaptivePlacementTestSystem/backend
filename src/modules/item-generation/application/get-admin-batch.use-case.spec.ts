@@ -4,6 +4,29 @@ import { GetAdminBatchUseCase } from './get-admin-batch.use-case';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 
 describe('GetAdminBatchUseCase', () => {
+  it('applies the same filters to rows and count', async () => {
+    const prisma = {
+      itemBatch: {
+        findMany: vi.fn().mockReturnValue('rows'),
+        count: vi.fn().mockReturnValue('count'),
+      },
+      $transaction: vi.fn().mockResolvedValue([[], 0]),
+    };
+    await new GetAdminBatchUseCase(prisma as never).list(2, 20, {
+      status: 'CHECKING',
+      source: 'IMPORTED',
+    });
+    expect(prisma.itemBatch.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { status: 'CHECKING', source: 'IMPORTED' },
+        skip: 20,
+        take: 20,
+      }),
+    );
+    expect(prisma.itemBatch.count).toHaveBeenCalledWith({
+      where: { status: 'CHECKING', source: 'IMPORTED' },
+    });
+  });
   it('lấy danh sách lô với giới hạn và tổng số', async () => {
     const prisma = {
       itemBatch: {
@@ -37,12 +60,14 @@ describe('GetAdminBatchUseCase', () => {
         count: vi.fn().mockReturnValue('count'),
         groupBy: vi.fn().mockReturnValue('group'),
       },
+      itemReviewEvent: { findMany: vi.fn().mockReturnValue('events') },
       $transaction: vi
         .fn()
         .mockResolvedValue([
           [{ id: 'item' }],
           12,
           [{ status: 'DRAFT', _count: { _all: 12 } }],
+          [],
         ]),
     };
     const result = await new GetAdminBatchUseCase(

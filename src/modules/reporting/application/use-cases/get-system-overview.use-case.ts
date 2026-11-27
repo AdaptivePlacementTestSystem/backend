@@ -22,6 +22,7 @@ export const BATCH_STATUSES_NEEDING_ACTION = [
   ItemBatchStatus.READY_TO_FINALIZE,
   ItemBatchStatus.FAILED,
   ItemBatchStatus.PARTIAL,
+  'PARTIALLY_IMPORTED',
 ] as const;
 
 const zeroCounts = <K extends string>(keys: K[]): Record<K, number> =>
