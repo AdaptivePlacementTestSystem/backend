@@ -148,6 +148,7 @@ model User {
   testSessions      TestSession[]
   profiles          LanguageProfile[]
   createdExamRounds ExamRound[]            @relation("ExamRoundCreator")
+  rosterImportEvents RosterImportEvent[]
   examParticipation ExamRoundParticipant[]
 
   @@unique([authProvider, externalId], map: "uq_users_provider_external")
@@ -383,6 +384,7 @@ model ExamRound {
 
   createdBy    User                   @relation("ExamRoundCreator", fields: [createdById], references: [id], onDelete: Restrict)
   participants ExamRoundParticipant[]
+  rosterImportEvents RosterImportEvent[]
   sessions     TestSession[]
 
   @@index([status])
@@ -402,6 +404,21 @@ model ExamRoundParticipant {
   @@id([roundId, studentId])
   @@index([studentId])
   @@map("exam_round_participants")
+}
+
+// Nhật ký Lưu danh sách thi: operationId là khóa idempotency của lưới.
+model RosterImportEvent {
+  operationId String   @id @map("operation_id") @db.Uuid
+  roundId     String   @map("round_id") @db.Uuid
+  adminId     String   @map("admin_id") @db.Uuid
+  addedCount  Int      @map("added_count")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  round ExamRound @relation(fields: [roundId], references: [id], onDelete: Restrict)
+  admin User      @relation(fields: [adminId], references: [id], onDelete: Restrict)
+
+  @@index([roundId, createdAt])
+  @@map("roster_import_events")
 }
 
 // ───────────── Phiên thi ─────────────

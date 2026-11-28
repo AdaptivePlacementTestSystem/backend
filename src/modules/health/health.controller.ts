@@ -58,11 +58,8 @@ export class HealthController {
 
     // Kiểm tra Redis
     try {
-      const redisHost = this.configService.get<string>(
-        'redis.host',
-        'localhost',
-      );
-      const redisPort = this.configService.get<number>('redis.port', 6379);
+      const redisHost = this.configService.getOrThrow<string>('redis.host');
+      const redisPort = this.configService.getOrThrow<number>('redis.port');
       const redis = new Redis({
         host: redisHost,
         port: redisPort,

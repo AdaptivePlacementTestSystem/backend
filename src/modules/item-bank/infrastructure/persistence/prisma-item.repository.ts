@@ -25,6 +25,7 @@ export class PrismaItemRepository implements IItemRepository {
     options?: ItemFilterOptions,
   ): Promise<{ items: ItemEntity[]; total: number }> {
     const where: any = {};
+    if (options?.visibleIds) where.id = { in: options.visibleIds };
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
     if (options?.cefrTarget) where.cefrTarget = options.cefrTarget;

@@ -3,6 +3,8 @@ import { GenerateClassReportUseCase } from '../application/use-cases/generate-cl
 import { GetClassErrorPatternsUseCase } from '../application/use-cases/get-class-error-patterns.use-case';
 import { ExportCsvUseCase } from '../application/use-cases/export-csv.use-case';
 import { GetSystemOverviewUseCase } from '../application/use-cases/get-system-overview.use-case';
+import { GetErrorPatternsUseCase } from '../application/use-cases/get-error-patterns.use-case';
+import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { OverviewQueryDto } from '../application/dto/overview-query.dto';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -25,6 +27,8 @@ export class ReportingController {
     private readonly getClassErrorPatternsUseCase: GetClassErrorPatternsUseCase,
     private readonly exportCsvUseCase: ExportCsvUseCase,
     private readonly getSystemOverviewUseCase: GetSystemOverviewUseCase,
+    private readonly getErrorPatternsUseCase?: GetErrorPatternsUseCase,
+    private readonly prisma?: PrismaService,
   ) {}
 
   /** Tổng quan hệ thống cho Admin (F-29, S36); chỉ ADMIN, GV không xem được. */
@@ -49,8 +53,38 @@ export class ReportingController {
   @ApiQuery({ name: 'examRoundId', required: false, type: String })
   @ApiOkResponse({ type: ClassErrorPatternDto, isArray: true })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
-  async getErrorPatterns(@Query('examRoundId') examRoundId?: string) {
-    return this.getClassErrorPatternsUseCase.execute(examRoundId);
+  async getErrorPatterns(
+    @Query('examRoundId') examRoundId?: string | OverviewQueryDto,
+  ) {
+    const roundId =
+      typeof examRoundId === 'string'
+        ? examRoundId
+        : (examRoundId as OverviewQueryDto)?.examRoundId;
+    return this.getClassErrorPatternsUseCase.execute(roundId);
+  }
+
+  @Get('exam-rounds')
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'name'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+        },
+      },
+    },
+  })
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async getReportExamRounds() {
+    return (
+      this.prisma?.examRound.findMany({
+        select: { id: true, name: true },
+        orderBy: { opensAt: 'desc' },
+      }) ?? []
+    );
   }
 
   /** Xuất báo cáo thống kê ra tệp CSV (UCGV08, S12). */
@@ -71,10 +105,13 @@ export class ReportingController {
     @Query('type') type: 'profiles' | 'distribution' | undefined,
     @Res() res: Response,
   ) {
-    const { filename, content } = await this.exportCsvUseCase.execute(
-      examRoundId,
-      type,
-    );
+    const result = await this.exportCsvUseCase.execute(examRoundId, type);
+
+    const content = typeof result === 'string' ? result : result.content;
+    const filename =
+      typeof result === 'string'
+        ? 'placement-test-report.csv'
+        : result.filename;
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader(

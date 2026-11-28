@@ -30,13 +30,78 @@
     "contract": "documented"
   },
   {
+    "method": "POST",
+    "path": "/api/v1/exam-rounds",
+    "contract": "documented"
+  },
+  {
     "method": "GET",
     "path": "/api/v1/exam-rounds/{id}",
     "contract": "documented"
   },
   {
+    "method": "PATCH",
+    "path": "/api/v1/exam-rounds/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/exam-rounds/{id}/close",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{id}/participants",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/exam-rounds/{id}/participants/{studentId}",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{id}/participants/export",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/exam-rounds/{id}/publish",
+    "contract": "documented"
+  },
+  {
     "method": "GET",
     "path": "/api/v1/exam-rounds/{id}/session/current",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/grid/{studentId}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/save",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/template",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/exam-rounds/{roundId}/participants/import/upload",
     "contract": "documented"
   },
   {
@@ -102,6 +167,11 @@
   {
     "method": "GET",
     "path": "/api/v1/reports/error-patterns",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/reports/exam-rounds",
     "contract": "documented"
   },
   {

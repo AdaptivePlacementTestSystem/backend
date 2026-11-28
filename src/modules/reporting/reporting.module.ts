@@ -4,6 +4,7 @@ import { GenerateClassReportUseCase } from './application/use-cases/generate-cla
 import { GetClassErrorPatternsUseCase } from './application/use-cases/get-class-error-patterns.use-case';
 import { ExportCsvUseCase } from './application/use-cases/export-csv.use-case';
 import { GetSystemOverviewUseCase } from './application/use-cases/get-system-overview.use-case';
+import { GetErrorPatternsUseCase } from './application/use-cases/get-error-patterns.use-case';
 
 @Module({
   controllers: [ReportingController],
@@ -12,6 +13,7 @@ import { GetSystemOverviewUseCase } from './application/use-cases/get-system-ove
     GetClassErrorPatternsUseCase,
     ExportCsvUseCase,
     GetSystemOverviewUseCase,
+    GetErrorPatternsUseCase,
   ],
   exports: [
     GenerateClassReportUseCase,

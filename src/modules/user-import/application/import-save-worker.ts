@@ -136,10 +136,8 @@ export class ImportSaveWorker {
         queued,
         finishedAt: new Date().toISOString(),
       });
-    } catch (error) {
-      this.logger.error(
-        `Lưu import tài khoản thất bại: ${(error as Error).message}`,
-      );
+    } catch {
+      this.logger.error('Lưu import tài khoản thất bại.');
       await this.fail(adminId, kind, base, 'UNKNOWN').catch(() => undefined);
     } finally {
       await this.jobs.release(adminId, kind).catch(() => undefined);

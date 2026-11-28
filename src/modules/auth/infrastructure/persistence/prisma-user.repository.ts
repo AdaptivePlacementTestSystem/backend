@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { IUserRepository } from '../../domain/repositories/user.repository.interface';
+import {
+  IUserRepository,
+  type RoleChangeResult,
+} from '../../domain/repositories/user.repository.interface';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { UserRole } from '../../domain/enums/user-role.enum';
 import { AuthProviderType } from '../../domain/enums/auth-provider-type.enum';
@@ -294,14 +297,59 @@ export class PrismaUserRepository implements IUserRepository {
     }
   }
 
-  async setActive(id: string, isActive: boolean): Promise<void> {
-    await this.prisma.user.update({ where: { id }, data: { isActive } });
+  async setActiveAtomically(
+    actorId: string,
+    targetId: string,
+    isActive: boolean,
+  ): Promise<RoleChangeResult> {
+    return this.prisma.$transaction(async (tx) => {
+      // Cùng khóa với changeRoleAtomically: tránh khóa tài khoản vừa được nâng Admin.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(1095783508, 1)`;
+      const [actor, target] = await Promise.all([
+        tx.user.findUnique({
+          where: { id: actorId },
+          select: { role: true, isActive: true },
+        }),
+        tx.user.findUnique({
+          where: { id: targetId },
+          select: { role: true, isActive: true },
+        }),
+      ]);
+      if (!actor || actor.role !== UserRole.ADMIN || !actor.isActive)
+        return 'FORBIDDEN';
+      if (!target) return 'NOT_FOUND';
+      if (!isActive && (actorId === targetId || target.role === UserRole.ADMIN))
+        return 'FORBIDDEN';
+      if (target.isActive === isActive) return 'UNCHANGED';
+      await tx.user.update({ where: { id: targetId }, data: { isActive } });
+      return 'UPDATED';
+    });
   }
 
-  async updateRole(id: string, role: UserRole): Promise<void> {
-    await this.prisma.user.update({
-      where: { id },
-      data: { role: role as any },
+  async changeRoleAtomically(
+    actorId: string,
+    targetId: string,
+    role: UserRole,
+  ): Promise<RoleChangeResult> {
+    return this.prisma.$transaction(async (tx) => {
+      // Khóa cùng namespace trong DB cho mọi thay đổi role, giữ đến khi transaction kết thúc.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(1095783508, 1)`;
+      const [actor, target] = await Promise.all([
+        tx.user.findUnique({
+          where: { id: actorId },
+          select: { role: true, isActive: true },
+        }),
+        tx.user.findUnique({ where: { id: targetId }, select: { role: true } }),
+      ]);
+      if (!actor || actor.role !== UserRole.ADMIN || !actor.isActive)
+        return 'FORBIDDEN';
+      if (!target) return 'NOT_FOUND';
+      if (target.role !== UserRole.ADMIN && target.role !== UserRole.TEACHER)
+        return 'INVALID_TARGET';
+      if (actorId === targetId && role !== UserRole.ADMIN) return 'FORBIDDEN';
+      if (target.role === role) return 'UNCHANGED';
+      await tx.user.update({ where: { id: targetId }, data: { role } });
+      return 'UPDATED';
     });
   }
 

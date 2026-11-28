@@ -786,7 +786,7 @@
     },
     "/api/v1/exam-rounds": {
       "get": {
-        "operationId": "ExamRoundController_listExamRounds",
+        "operationId": "ExamRoundController_list",
         "parameters": [],
         "responses": {
           "200": {
@@ -796,7 +796,737 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ExamRoundSummaryResponseDto"
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "createdById",
+                      "opensAt",
+                      "closesAt",
+                      "durationMinutes",
+                      "status",
+                      "createdAt",
+                      "updatedAt",
+                      "participantCount",
+                      "effectiveStatus"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "createdById": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "opensAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "closesAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "durationMinutes": {
+                        "type": "integer"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "DRAFT",
+                          "SCHEDULED",
+                          "OPEN",
+                          "CLOSED"
+                        ]
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "participantCount": {
+                        "type": "integer"
+                      },
+                      "effectiveStatus": {
+                        "type": "string",
+                        "enum": [
+                          "DRAFT",
+                          "SCHEDULED",
+                          "OPEN",
+                          "CLOSED"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      },
+      "post": {
+        "operationId": "ExamRoundController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExamRoundDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "createdById",
+                    "opensAt",
+                    "closesAt",
+                    "durationMinutes",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "createdById": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "opensAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "closesAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "durationMinutes": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "OPEN",
+                        "CLOSED"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}": {
+      "patch": {
+        "operationId": "ExamRoundController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "opensAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "closesAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 180
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "createdById",
+                    "opensAt",
+                    "closesAt",
+                    "durationMinutes",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "createdById": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "opensAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "closesAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "durationMinutes": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "OPEN",
+                        "CLOSED"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      },
+      "get": {
+        "operationId": "ExamRoundController_getExamRoundDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamRoundDetailResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}/publish": {
+      "post": {
+        "operationId": "ExamRoundController_publish",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "createdById",
+                    "opensAt",
+                    "closesAt",
+                    "durationMinutes",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "createdById": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "opensAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "closesAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "durationMinutes": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "OPEN",
+                        "CLOSED"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}/close": {
+      "post": {
+        "operationId": "ExamRoundController_close",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "createdById",
+                    "opensAt",
+                    "closesAt",
+                    "durationMinutes",
+                    "status",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "createdById": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "opensAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "closesAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "durationMinutes": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "OPEN",
+                        "CLOSED"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
                   }
                 }
               }
@@ -935,6 +1665,9 @@
         "security": [
           {
             "bearer": []
+          },
+          {
+            "bearer": []
           }
         ],
         "tags": [
@@ -942,12 +1675,264 @@
         ]
       }
     },
-    "/api/v1/exam-rounds/{id}": {
+    "/api/v1/exam-rounds/{id}/participants": {
       "get": {
-        "operationId": "ExamRoundController_getExamRoundDetail",
+        "operationId": "ExamRoundController_listParticipants",
         "parameters": [
           {
             "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "NOT_STARTED",
+                "IN_PROGRESS",
+                "COMPLETED",
+                "ABANDONED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "total",
+                    "page",
+                    "pageSize",
+                    "summary"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "studentId",
+                          "studentCode",
+                          "fullName",
+                          "note",
+                          "status",
+                          "sessionId",
+                          "startedAt",
+                          "completedAt",
+                          "expiresAt",
+                          "overdue",
+                          "thetaFinal",
+                          "cefrLevel"
+                        ],
+                        "properties": {
+                          "studentId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "studentCode": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "fullName": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "NOT_STARTED",
+                              "IN_PROGRESS",
+                              "COMPLETED",
+                              "ABANDONED"
+                            ]
+                          },
+                          "sessionId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "startedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "completedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "expiresAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "overdue": {
+                            "type": "boolean"
+                          },
+                          "thetaFinal": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "cefrLevel": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    },
+                    "summary": {
+                      "type": "object",
+                      "required": [
+                        "notStarted",
+                        "inProgress",
+                        "completed",
+                        "abandoned"
+                      ],
+                      "properties": {
+                        "notStarted": {
+                          "type": "integer"
+                        },
+                        "inProgress": {
+                          "type": "integer"
+                        },
+                        "completed": {
+                          "type": "integer"
+                        },
+                        "abandoned": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}/participants/{studentId}": {
+      "delete": {
+        "operationId": "ExamRoundController_removeParticipant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
             "required": true,
             "in": "path",
             "schema": {
@@ -961,10 +1946,107 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExamRoundDetailResponseDto"
+                  "type": "object",
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ExamRound"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{id}/participants/export": {
+      "get": {
+        "operationId": "ExamRoundController_exportParticipants",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": ""
           },
           "400": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
@@ -1103,6 +2185,9 @@
           }
         },
         "security": [
+          {
+            "bearer": []
+          },
           {
             "bearer": []
           }
@@ -1410,16 +2495,7 @@
     "/api/v1/items/{id}": {
       "get": {
         "operationId": "ItemBankController_getItem",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -2094,6 +3170,98 @@
         ]
       }
     },
+    "/api/v1/reports/exam-rounds": {
+      "get": {
+        "operationId": "ReportingController_getReportExamRounds",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
     "/api/v1/reports/export-csv": {
       "get": {
         "operationId": "ReportingController_exportCsv",
@@ -2196,6 +3364,701 @@
         ],
         "tags": [
           "Reporting"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{roundId}/participants/import/upload": {
+      "post": {
+        "operationId": "RosterGridController_upload",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "grid",
+                    "operationId",
+                    "rejected",
+                    "added",
+                    "ignoredDuplicates"
+                  ],
+                  "properties": {
+                    "grid": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "studentId",
+                          "studentCode",
+                          "note"
+                        ],
+                        "properties": {
+                          "studentId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "studentCode": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "row",
+                          "studentCode",
+                          "reason"
+                        ],
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "studentCode": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "added": {
+                      "type": "integer"
+                    },
+                    "ignoredDuplicates": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{roundId}/participants/import/save": {
+      "post": {
+        "operationId": "RosterGridController_save",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operationId"
+                ],
+                "properties": {
+                  "operationId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "operationId",
+                    "added"
+                  ],
+                  "properties": {
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "added": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{roundId}/participants/import/template": {
+      "get": {
+        "operationId": "RosterGridController_template",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{roundId}/participants/import/grid": {
+      "get": {
+        "operationId": "RosterGridController_load",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "grid",
+                    "operationId"
+                  ],
+                  "properties": {
+                    "grid": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "studentId",
+                          "studentCode",
+                          "note"
+                        ],
+                        "properties": {
+                          "studentId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "studentCode": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
+        ]
+      },
+      "delete": {
+        "operationId": "RosterGridController_clear",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
+        ]
+      }
+    },
+    "/api/v1/exam-rounds/{roundId}/participants/import/grid/{studentId}": {
+      "delete": {
+        "operationId": "RosterGridController_remove",
+        "parameters": [
+          {
+            "name": "roundId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "grid",
+                    "operationId"
+                  ],
+                  "properties": {
+                    "grid": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "studentId",
+                          "studentCode",
+                          "note"
+                        ],
+                        "properties": {
+                          "studentId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "studentCode": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "RosterGrid"
         ]
       }
     },
@@ -5711,20 +7574,13 @@
           "newPassword"
         ]
       },
-      "ExamRoundSummaryResponseDto": {
+      "CreateExamRoundDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "name": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "effectiveStatus": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
           },
           "opensAt": {
             "type": "string",
@@ -5735,26 +7591,11 @@
             "format": "date-time"
           },
           "durationMinutes": {
-            "type": "number"
-          },
-          "participantCount": {
-            "type": "number"
-          },
-          "sessionCount": {
-            "type": "number"
+            "type": "number",
+            "minimum": 5,
+            "maximum": 180
           }
-        },
-        "required": [
-          "id",
-          "name",
-          "status",
-          "effectiveStatus",
-          "opensAt",
-          "closesAt",
-          "durationMinutes",
-          "participantCount",
-          "sessionCount"
-        ]
+        }
       },
       "StudentExamRoundResponseDto": {
         "type": "object",

@@ -7,6 +7,7 @@ import {
 } from '@apt/shared-types';
 
 export interface ItemFilterOptions {
+  visibleIds?: string[];
   status?: ItemStatus;
   skill?: Skill;
   cefrTarget?: CEFRLevel;

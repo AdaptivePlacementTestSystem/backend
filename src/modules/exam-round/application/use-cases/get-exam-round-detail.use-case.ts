@@ -1,3 +1,4 @@
+﻿import { effectiveStatus } from '../../domain/effective-status';
 import {
   Injectable,
   NotFoundException,
@@ -63,17 +64,6 @@ export class GetExamRoundDetailUseCase {
     }
 
     const now = new Date();
-    let effectiveStatus = round.status as string;
-    if (round.status === 'SCHEDULED' || round.status === 'OPEN') {
-      if (now < round.opensAt) {
-        effectiveStatus = 'SCHEDULED';
-      } else if (now > round.closesAt) {
-        effectiveStatus = 'CLOSED';
-      } else {
-        effectiveStatus = 'OPEN';
-      }
-    }
-
     const latestSession = round.sessions && round.sessions[0];
 
     return {
@@ -83,7 +73,7 @@ export class GetExamRoundDetailUseCase {
       closesAt: round.closesAt,
       durationMinutes: round.durationMinutes,
       status: round.status,
-      effectiveStatus,
+      effectiveStatus: effectiveStatus(round, now),
       sessionStatus: latestSession
         ? (latestSession.status as any)
         : 'NOT_STARTED',

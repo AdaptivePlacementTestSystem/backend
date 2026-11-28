@@ -144,6 +144,10 @@ export const configuration = () => ({
       10,
     ),
     maxRows: parseInt(process.env.IMPORT_MAX_ROWS ?? '1000', 10),
+    maxUncompressedBytes: parseInt(
+      process.env.IMPORT_MAX_UNCOMPRESSED_BYTES ?? '20971520',
+      10,
+    ),
     gridTtlSeconds: parseInt(process.env.IMPORT_GRID_TTL_SECONDS ?? '1800', 10),
     jobTtlSeconds: parseInt(process.env.IMPORT_JOB_TTL_SECONDS ?? '3600', 10),
     // Số tài khoản băm argon2 song song khi Lưu (thread pool mặc định của libuv là 4)

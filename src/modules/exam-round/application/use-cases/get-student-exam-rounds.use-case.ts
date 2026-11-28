@@ -1,3 +1,4 @@
+﻿import { effectiveStatus } from '../../domain/effective-status';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 
@@ -41,17 +42,6 @@ export class GetStudentExamRoundsUseCase {
       const round = p.round;
       const latestSession = p.sessions[0];
 
-      let effectiveStatus = round.status as string;
-      if (round.status === 'SCHEDULED' || round.status === 'OPEN') {
-        if (now < round.opensAt) {
-          effectiveStatus = 'SCHEDULED';
-        } else if (now > round.closesAt) {
-          effectiveStatus = 'CLOSED';
-        } else {
-          effectiveStatus = 'OPEN';
-        }
-      }
-
       let sessionStatus:
         'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED' =
         'NOT_STARTED';
@@ -66,7 +56,7 @@ export class GetStudentExamRoundsUseCase {
         closesAt: round.closesAt,
         durationMinutes: round.durationMinutes,
         status: round.status,
-        effectiveStatus,
+        effectiveStatus: effectiveStatus(round, now),
         sessionStatus,
         sessionId: latestSession?.id,
         scoreCefr: latestSession?.languageProfile?.cefrLevel ?? null,

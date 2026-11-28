@@ -251,6 +251,7 @@ export class TestSessionController {
       ],
     },
   })
+  @Roles(UserRole.STUDENT)
   async getNextItem(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
@@ -375,6 +376,7 @@ export class TestSessionController {
   @Post(':id/responses')
   @Roles(UserRole.STUDENT)
   @ApiOkResponse({ type: SubmitSessionResponseDto })
+  @Roles(UserRole.STUDENT)
   @HttpCode(HttpStatus.OK)
   async submitResponse(
     @Param('id') sessionId: string,
@@ -402,6 +404,7 @@ export class TestSessionController {
   @Get(':id/resume')
   @Roles(UserRole.STUDENT)
   @ApiOkResponse({ type: ResumeSessionResponseDto })
+  @Roles(UserRole.STUDENT)
   async resumeSession(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,

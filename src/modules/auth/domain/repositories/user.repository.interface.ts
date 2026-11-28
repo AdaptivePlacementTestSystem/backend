@@ -9,6 +9,9 @@ import type {
   Paged,
 } from './account.types';
 
+export type RoleChangeResult =
+  'UPDATED' | 'UNCHANGED' | 'NOT_FOUND' | 'INVALID_TARGET' | 'FORBIDDEN';
+
 export interface IUserRepository {
   findById(id: string): Promise<UserEntity | null>;
   findByEmail(email: string): Promise<UserEntity | null>;
@@ -74,8 +77,16 @@ export interface IUserRepository {
   ): Promise<void>;
 
   /** Khóa/mở khóa: ghi `isActive`; `JwtStrategy` đọc DB mỗi request nên có hiệu lực ngay. */
-  setActive(id: string, isActive: boolean): Promise<void>;
+  setActiveAtomically(
+    actorId: string,
+    targetId: string,
+    isActive: boolean,
+  ): Promise<RoleChangeResult>;
 
-  /** Đổi role (nâng/thu hồi Admin); có hiệu lực ngay vì role đọc từ DB mỗi request. */
-  updateRole(id: string, role: UserRole): Promise<void>;
+  /** Kiểm quyền và thay role nguyên tử để không mất Admin cuối khi thao tác đồng thời. */
+  changeRoleAtomically(
+    actorId: string,
+    targetId: string,
+    role: UserRole,
+  ): Promise<RoleChangeResult>;
 }

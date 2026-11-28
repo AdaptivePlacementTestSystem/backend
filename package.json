@@ -27,7 +27,8 @@
     "db:seed": "prisma db seed",
     "db:seed:admin": "tsx prisma/seed-admin.ts",
     "db:studio": "prisma studio",
-    "openapi:generate": "npm run build && node dist/openapi/generate.js"
+    "openapi:generate": "npm run build && node dist/openapi/generate.js",
+    "openapi:admin-exam": "npm run build && node dist/openapi/admin-exam.generate.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -40,7 +41,7 @@
     "@nestjs/jwt": "^12.0.2",
     "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
-    "@nestjs/swagger": "^12.1.2",
+    "@nestjs/swagger": "^12.1.3",
     "@nestjs/throttler": "^6.7.1",
     "@prisma/client": "^6.4.1",
     "argon2": "^0.44.0",
@@ -54,6 +55,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "yauzl": "^3.4.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -67,7 +69,10 @@
     "@types/nodemailer": "^8.0.2",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.0.0",
+    "@types/yauzl": "^2.10.3",
     "@vitest/coverage-v8": "^4.1.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "jscpd": "^5.4.1",
     "oxlint": "^1.58.0",
     "oxlint-tsgolint": "^7.0.2001",

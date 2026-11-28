@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import * as argon2 from 'argon2';
 import type { IUserRepository } from '../../../auth/domain/repositories/user.repository.interface';
 import { UserRole } from '../../../auth/domain/enums/user-role.enum';
@@ -14,7 +19,7 @@ import { accountNotFound, actionForbidden } from '../account-errors';
  * Gửi lại mật khẩu tạm (BR-19, UCADM09): sinh mật khẩu mới, băm argon2,
  * `mustChangePassword = true`, đồng thời `passwordChangedAt = now` nên token cũ mất hiệu lực.
  * Cho phép với tài khoản đã đổi mật khẩu rồi (chốt 14/11/2026). Chỉ áp dụng cho SV và GV.
- * Email gửi sau khi lưu; gửi lỗi chỉ ghi log (cùng chính sách với tạo tài khoản).
+ * Email gửi sau khi lưu; khi gửi lỗi, báo rõ mật khẩu đã đổi nhưng email chưa gửi được.
  */
 @Injectable()
 export class ResendTemporaryPasswordUseCase {
@@ -69,13 +74,14 @@ export class ResendTemporaryPasswordUseCase {
         temporaryPassword,
         profile.kind === 'STUDENT' ? profile.studentCode : undefined,
       );
-      if (!sent) {
-        this.logger.warn(`Không gửi được email mật khẩu tạm cho ${email}`);
-      }
-    } catch (error) {
-      this.logger.warn(
-        `Lỗi gửi email mật khẩu tạm cho ${email}: ${(error as Error).message}`,
-      );
+      if (!sent) throw new Error('MAIL_DELIVERY_FAILED');
+    } catch {
+      this.logger.warn('Không gửi được email mật khẩu tạm.');
+      throw new ServiceUnavailableException({
+        code: 'MAIL_DELIVERY_FAILED',
+        message:
+          'Mật khẩu đã được đặt lại nhưng email chưa gửi được. Hãy kiểm tra cấu hình email và gửi lại.',
+      });
     }
   }
 }
