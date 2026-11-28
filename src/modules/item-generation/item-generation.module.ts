@@ -19,11 +19,6 @@ import { FinalCheckBatchUseCase } from './application/final-check-batch.use-case
 import { DecideFlagUseCase } from './application/decide-flag.use-case';
 import { ImportBatchUseCase } from './application/import-batch.use-case';
 import { FinalizeBatchController } from './presentation/finalize-batch.controller';
-import {
-  TeacherReviewController,
-  TeacherTasksController,
-} from './presentation/teacher-review.controller';
-import { TeacherReviewUseCase } from './application/teacher-review.use-case';
 import { CheckIndependentAnswerUseCase } from './application/check-independent-answer.use-case';
 import { RetryBatchChecksController } from './presentation/retry-batch-checks.controller';
 import { MailModule } from '../mail/mail.module';
@@ -47,8 +42,6 @@ import { ReviewNoticeOutboxWorker } from './application/review-notice-outbox.wor
     CreateAiBatchController,
     ImportQuestionBatchesController,
     FinalizeBatchController,
-    TeacherReviewController,
-    TeacherTasksController,
     RetryBatchChecksController,
   ],
   providers: [
@@ -76,7 +69,6 @@ import { ReviewNoticeOutboxWorker } from './application/review-notice-outbox.wor
     FinalCheckBatchUseCase,
     DecideFlagUseCase,
     ImportBatchUseCase,
-    TeacherReviewUseCase,
     CheckIndependentAnswerUseCase,
     ReviewNotificationsService,
   ],

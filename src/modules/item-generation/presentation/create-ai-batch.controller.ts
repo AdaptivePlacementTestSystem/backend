@@ -1,4 +1,5 @@
-﻿import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { ApiCreatedResponse } from '@nestjs/swagger';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CEFRLevel, Skill } from '@prisma/client';
 import {
   CurrentUser,
@@ -13,6 +14,9 @@ import { CreateAiBatchUseCase } from '../application/create-ai-batch.use-case';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CreateAiBatchController {
   constructor(private readonly create: CreateAiBatchUseCase) {}
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post('generate')
   @Roles(UserRole.ADMIN)
   generate(

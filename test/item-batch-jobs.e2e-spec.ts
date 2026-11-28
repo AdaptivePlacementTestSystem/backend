@@ -16,7 +16,8 @@ describe.skipIf(!safe)('item batch job leases on isolated PostgreSQL', () => {
   const admin = randomUUID();
   const batch = randomUUID();
   beforeAll(async () => {
-    if (await db.itemBatchJob.count()) throw new Error('Queue test requires an empty dedicated test database');
+    if (await db.itemBatchJob.count())
+      throw new Error('Queue test requires an empty dedicated test database');
     await db.user.create({
       data: {
         id: admin,
@@ -58,7 +59,12 @@ describe.skipIf(!safe)('item batch job leases on isolated PostgreSQL', () => {
         });
       },
     };
-    const worker = new ItemCheckWorker(db as never, store, checks as never, {} as never);
+    const worker = new ItemCheckWorker(
+      db as never,
+      store,
+      checks as never,
+      {} as never,
+    );
     await worker.processOne();
     expect(
       (await db.itemBatchJob.findFirstOrThrow({ where: { batchId: batch } }))

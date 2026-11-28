@@ -121,6 +121,126 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/item-batches",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/item-batches/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/assign",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/assign-preview",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/cancel-pending",
+    "contract": "documented"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/item-batches/{id}/deadlines",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/item-batches/{id}/final-check",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/final-check",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/import",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/items/{itemId}/flag-decision",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/reassign",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/reassign-confirmer",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/refresh-status",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/retry-checks",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/{id}/retry-generation",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/generate",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/item-batches/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/item-batches/import/grid",
+    "contract": "documented"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/item-batches/import/grid/{rowKey}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/import/preview",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/import/save",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/item-batches/import/template",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/item-batches/import/upload",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/item-batches/rejected-stats",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
     "path": "/api/v1/items",
     "contract": "documented"
   },

@@ -95,28 +95,26 @@ describe.skipIf(!safe)(
       vi.stubEnv('LITELLM_MODEL', 'fake');
       vi.stubGlobal(
         'fetch',
-        vi
-          .fn()
-          .mockImplementation(
-            async () =>
-              new Response(
-                JSON.stringify({
-                  model: 'fake',
-                  choices: [
-                    {
-                      finish_reason: 'stop',
-                      message: {
-                        content: JSON.stringify({
-                          answer: 'A',
-                          explanationSupportsAnswer: true,
-                        }),
-                      },
+        vi.fn().mockImplementation(
+          async () =>
+            new Response(
+              JSON.stringify({
+                model: 'fake',
+                choices: [
+                  {
+                    finish_reason: 'stop',
+                    message: {
+                      content: JSON.stringify({
+                        answer: 'A',
+                        explanationSupportsAnswer: true,
+                      }),
                     },
-                  ],
-                }),
-                { status: 200 },
-              ),
-          ),
+                  },
+                ],
+              }),
+              { status: 200 },
+            ),
+        ),
       );
       const prisma = db as never;
       const checks = new RunBatchChecksUseCase(

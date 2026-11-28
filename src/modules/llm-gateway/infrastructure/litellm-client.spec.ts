@@ -54,15 +54,13 @@ describe('LiteLlmClient', () => {
   });
 
   it('từ chối phản hồi thiếu content hoặc model', async () => {
-    const transport = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(
-          JSON.stringify({
-            choices: [{ finish_reason: 'stop', message: { content: 'x' } }],
-          }),
-        ),
-      );
+    const transport = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          choices: [{ finish_reason: 'stop', message: { content: 'x' } }],
+        }),
+      ),
+    );
     await expect(
       new LiteLlmClient(config, transport).generate('prompt'),
     ).rejects.toThrow('LITELLM_RESPONSE_INVALID');

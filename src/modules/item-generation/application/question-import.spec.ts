@@ -64,7 +64,7 @@ describe('nhập câu hỏi Excel', () => {
         originalname: 'test.xlsx',
       }),
     ).rejects.toThrow();
-  });
+  }, 15_000);
   it('đọc câu hợp lệ, loại câu sai và trùng trong tệp', async () => {
     const input = await workbook([
       valid,

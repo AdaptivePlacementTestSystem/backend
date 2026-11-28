@@ -1,3 +1,4 @@
+import { ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -36,6 +37,9 @@ export class FinalizeBatchController {
     private readonly prisma: PrismaService,
   ) {}
 
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/cancel-pending')
   @Roles(UserRole.ADMIN)
   cancel(
@@ -46,18 +50,25 @@ export class FinalizeBatchController {
     return this.cancelPending.execute(id, user.sub, body?.reason);
   }
 
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/refresh-status')
   @Roles(UserRole.ADMIN)
   refresh(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.refreshStatus.execute(id);
   }
 
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/final-check')
   @Roles(UserRole.ADMIN)
   check(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.finalCheck.execute(id);
   }
 
+  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
   @Get(':id/final-check')
   @Roles(UserRole.ADMIN)
   async report(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -134,6 +145,9 @@ export class FinalizeBatchController {
     };
   }
 
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/items/:itemId/flag-decision')
   @Roles(UserRole.ADMIN)
   decide(
@@ -151,6 +165,9 @@ export class FinalizeBatchController {
     );
   }
 
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/import')
   @Roles(UserRole.ADMIN)
   import(

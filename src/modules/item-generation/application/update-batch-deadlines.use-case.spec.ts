@@ -8,7 +8,9 @@ const input = {
 function setup() {
   const tx = {
     itemBatch: {
-      findUnique: vi.fn().mockResolvedValue({ status: 'IN_REVIEW', confirmerId: 'b' }),
+      findUnique: vi
+        .fn()
+        .mockResolvedValue({ status: 'IN_REVIEW', confirmerId: 'b' }),
     },
     item: {
       findMany: vi.fn().mockResolvedValue([
@@ -54,14 +56,26 @@ describe('chỉnh hạn chung', () => {
       'firstReview',
     );
     expect(tx.itemReviewEvent.create).toHaveBeenCalledOnce();
-    expect(tx.itemReviewEvent.create).toHaveBeenCalledWith({ data: expect.objectContaining({
-      batchId: 'batch', itemId: null, actorId: 'admin', action: 'UPDATE_DUE_DATE',
-      details: expect.objectContaining({ reason: input.reason, updatedCount: 2, itemIds: ['a', 'b'] }),
-    }) });
+    expect(tx.itemReviewEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        batchId: 'batch',
+        itemId: null,
+        actorId: 'admin',
+        action: 'UPDATE_DUE_DATE',
+        details: expect.objectContaining({
+          reason: input.reason,
+          updatedCount: 2,
+          itemIds: ['a', 'b'],
+        }),
+      }),
+    });
   });
   it('không sửa hạn lô ngoài vòng duyệt', async () => {
     const { tx, service } = setup();
-    tx.itemBatch.findUnique.mockResolvedValue({ status: 'DONE', confirmerId: 'b' });
+    tx.itemBatch.findUnique.mockResolvedValue({
+      status: 'DONE',
+      confirmerId: 'b',
+    });
     await expect(service.execute('batch', 'admin', input)).rejects.toThrow();
     expect(tx.item.update).not.toHaveBeenCalled();
   });
@@ -77,7 +91,9 @@ describe('chỉnh hạn chung', () => {
   });
   it('từ chối lý do trống', async () => {
     const { service, tx } = setup();
-    await expect(service.execute('batch', 'admin', { ...input, reason: ' ' })).rejects.toThrow();
+    await expect(
+      service.execute('batch', 'admin', { ...input, reason: ' ' }),
+    ).rejects.toThrow();
     expect(tx.itemReviewEvent.create).not.toHaveBeenCalled();
   });
 });

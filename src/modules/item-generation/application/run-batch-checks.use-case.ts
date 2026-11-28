@@ -26,7 +26,8 @@ export class RunBatchChecksUseCase {
     checkpoint: 'C1' | 'C2' = 'C1',
     lease?: JobLease,
   ) {
-    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
+    if (lease && lease.batchId !== batchId)
+      throw new Error('JOB_BATCH_MISMATCH');
     const exact = await this.t1.execute(batchId, checkpoint, lease);
     const near = await this.t2.execute(batchId, checkpoint, undefined, lease);
     const semantic = await this.t3.execute(batchId, checkpoint, lease);

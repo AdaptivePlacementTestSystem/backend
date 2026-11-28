@@ -10,7 +10,8 @@ export class CheckExactDuplicatesUseCase {
     checkpoint: 'C1' | 'C2' = 'C1',
     lease?: JobLease,
   ) {
-    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
+    if (lease && lease.batchId !== batchId)
+      throw new Error('JOB_BATCH_MISMATCH');
     return this.prisma.$transaction(async (tx) => {
       await assertJobLease(tx, lease);
       const items = await tx.item.findMany({

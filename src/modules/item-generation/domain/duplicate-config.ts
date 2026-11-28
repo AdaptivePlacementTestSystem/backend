@@ -1,7 +1,4 @@
-import {
-  DEFAULT_T2_THRESHOLDS,
-  SimilarityThresholds,
-} from './text-similarity';
+import { DEFAULT_T2_THRESHOLDS, SimilarityThresholds } from './text-similarity';
 
 function num(value: string | undefined, fallback: number): number {
   const n = value === undefined || value === '' ? NaN : Number(value);

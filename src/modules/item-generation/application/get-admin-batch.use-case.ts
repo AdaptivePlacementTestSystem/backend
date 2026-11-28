@@ -92,61 +92,75 @@ export class GetAdminBatchUseCase {
     });
     if (!batch) throw new NotFoundException('Không tìm thấy lô câu hỏi');
 
-    const [items, total, grouped, cancellations] = await this.prisma.$transaction([
-      this.prisma.item.findMany({
-        where: { batchId },
-        select: {
-          id: true,
-          content: true,
-          options: true,
-          correctAnswer: true,
-          explanation: { select: { content: true } },
-          checkResults: {
-            select: {
-              checkpoint: true,
-              level: true,
-              reasonCodes: true,
-              checkedAt: true,
-              suspectedDuplicateId: true,
+    const [items, total, grouped, cancellations] =
+      await this.prisma.$transaction([
+        this.prisma.item.findMany({
+          where: { batchId },
+          select: {
+            id: true,
+            content: true,
+            options: true,
+            correctAnswer: true,
+            explanation: { select: { content: true } },
+            checkResults: {
+              select: {
+                checkpoint: true,
+                level: true,
+                reasonCodes: true,
+                checkedAt: true,
+                suspectedDuplicateId: true,
+              },
+              orderBy: { checkedAt: 'desc' },
             },
-            orderBy: { checkedAt: 'desc' },
+            status: true,
+            skill: true,
+            cefrTarget: true,
+            topicTag: true,
+            irtB: true,
+            generatedFromRefIds: true,
+            firstReview: true,
+            secondReview: true,
+            reviewEvents: {
+              where: { action: 'ACCEPT_FLAG' },
+              select: { createdAt: true },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+            },
+            reviewer: { select: { id: true, fullName: true } },
           },
-          status: true,
-          skill: true,
-          cefrTarget: true,
-          topicTag: true,
-          irtB: true,
-          generatedFromRefIds: true,
-          firstReview: true,
-          secondReview: true,
-          reviewEvents: {
-            where: { action: 'ACCEPT_FLAG' },
-            select: { createdAt: true },
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-          },
-          reviewer: { select: { id: true, fullName: true } },
-        },
-        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      this.prisma.item.count({ where: { batchId } }),
-      this.prisma.item.groupBy({
-        by: ['status'],
-        where: { batchId },
-        _count: { _all: true },
-      }),
-      this.prisma.itemReviewEvent.findMany({ where: { batchId, action: 'CANCEL_PENDING' }, select: { details: true } }),
-    ]);
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+        this.prisma.item.count({ where: { batchId } }),
+        this.prisma.item.groupBy({
+          by: ['status'],
+          where: { batchId },
+          _count: { _all: true },
+        }),
+        this.prisma.itemReviewEvent.findMany({
+          where: { batchId, action: 'CANCEL_PENDING' },
+          select: { details: true },
+        }),
+      ]);
     const cancelledIds = new Set<string>();
     for (const event of cancellations) {
-      if (event.details && typeof event.details === 'object' && !Array.isArray(event.details) && Array.isArray(event.details.itemIds))
-        for (const id of event.details.itemIds) if (typeof id === 'string') cancelledIds.add(id);
+      if (
+        event.details &&
+        typeof event.details === 'object' &&
+        !Array.isArray(event.details) &&
+        Array.isArray(event.details.itemIds)
+      )
+        for (const id of event.details.itemIds)
+          if (typeof id === 'string') cancelledIds.add(id);
     }
     return {
       batch,
-      items: items.map((item) => ({ ...item, confirmer: batch.confirmer, administrativelyCancelled: cancelledIds.has(item.id) })),
+      items: items.map((item) => ({
+        ...item,
+        confirmer: batch.confirmer,
+        administrativelyCancelled: cancelledIds.has(item.id),
+      })),
       administrativelyCancelledCount: cancelledIds.size,
       total,
       page,

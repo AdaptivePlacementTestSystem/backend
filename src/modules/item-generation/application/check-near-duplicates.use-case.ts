@@ -19,7 +19,8 @@ export class CheckNearDuplicatesUseCase {
     thresholds: SimilarityThresholds = readT2Thresholds(),
     lease?: JobLease,
   ) {
-    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
+    if (lease && lease.batchId !== batchId)
+      throw new Error('JOB_BATCH_MISMATCH');
     const items = await this.prisma.item.findMany({
       where: { batchId, status: 'DRAFT' },
       select: { id: true, content: true, contentHash: true },

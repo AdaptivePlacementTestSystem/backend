@@ -60,8 +60,13 @@ export class ReviewNotificationsService
   }
 
   async assigned(batchId: string) {
-    const pendingNotices = await this.prisma.reviewNoticeOutbox.findMany({ where: { batchId, status: 'PENDING' }, select: { recipientId: true } });
-    const blockedRecipients = new Set(pendingNotices.map((entry) => entry.recipientId));
+    const pendingNotices = await this.prisma.reviewNoticeOutbox.findMany({
+      where: { batchId, status: 'PENDING' },
+      select: { recipientId: true },
+    });
+    const blockedRecipients = new Set(
+      pendingNotices.map((entry) => entry.recipientId),
+    );
     const items = await this.prisma.item.findMany({
       where: { batchId, status: { in: ['DRAFT', 'FIRST_APPROVED'] } },
       select: {
@@ -78,7 +83,13 @@ export class ReviewNotificationsService
     });
     const groups = new Map<
       string,
-      { email: string; userId: string; role: 'A' | 'B'; ids: string[]; due: string }
+      {
+        email: string;
+        userId: string;
+        role: 'A' | 'B';
+        ids: string[];
+        due: string;
+      }
     >();
     for (const item of items)
       for (const role of ['A', 'B'] as const) {
@@ -120,7 +131,12 @@ export class ReviewNotificationsService
               where: {
                 id: { in: group.ids },
                 status: a ? 'DRAFT' : { in: ['DRAFT', 'FIRST_APPROVED'] },
-                batch: { is: { status: 'IN_REVIEW', ...(a ? {} : { confirmerId: group.userId }) } },
+                batch: {
+                  is: {
+                    status: 'IN_REVIEW',
+                    ...(a ? {} : { confirmerId: group.userId }),
+                  },
+                },
                 ...(a
                   ? {
                       reviewerId: group.userId,
@@ -176,7 +192,9 @@ export class ReviewNotificationsService
           reviewerId: true,
           firstReview: true,
           secondReview: true,
-          batch: { select: { confirmer: { select: { id: true, email: true } } } },
+          batch: {
+            select: { confirmer: { select: { id: true, email: true } } },
+          },
         },
       });
       const groups = new Map<
@@ -190,8 +208,16 @@ export class ReviewNotificationsService
           rawDue: string;
         }
       >();
-      const pendingNotices = await this.prisma.reviewNoticeOutbox.findMany({ where: { status: 'PENDING', batchId: { in: [...new Set(items.map((item) => item.batchId))] } }, select: { batchId: true, recipientId: true } });
-      const blocked = new Set(pendingNotices.map((entry) => `${entry.batchId}:${entry.recipientId}`));
+      const pendingNotices = await this.prisma.reviewNoticeOutbox.findMany({
+        where: {
+          status: 'PENDING',
+          batchId: { in: [...new Set(items.map((item) => item.batchId))] },
+        },
+        select: { batchId: true, recipientId: true },
+      });
+      const blocked = new Set(
+        pendingNotices.map((entry) => `${entry.batchId}:${entry.recipientId}`),
+      );
       for (const item of items)
         for (const role of ['A', 'B'] as const) {
           const a = role === 'A';
@@ -201,7 +227,8 @@ export class ReviewNotificationsService
           const review = a ? item.firstReview : item.secondReview;
           const email = a ? item.reviewer?.email : item.batch.confirmer?.email;
           const userId = a ? item.reviewerId : item.batch.confirmer?.id;
-          if (!a && userId && blocked.has(`${item.batchId}:${userId}`)) continue;
+          if (!a && userId && blocked.has(`${item.batchId}:${userId}`))
+            continue;
           const value =
             review && typeof review === 'object' && !Array.isArray(review)
               ? review.dueAt
@@ -235,7 +262,12 @@ export class ReviewNotificationsService
                 where: {
                   id: { in: group.ids },
                   status: a ? 'DRAFT' : { in: ['DRAFT', 'FIRST_APPROVED'] },
-                  batch: { is: { status: 'IN_REVIEW', ...(a ? {} : { confirmerId: group.userId }) } },
+                  batch: {
+                    is: {
+                      status: 'IN_REVIEW',
+                      ...(a ? {} : { confirmerId: group.userId }),
+                    },
+                  },
                   ...(a
                     ? {
                         reviewerId: group.userId,

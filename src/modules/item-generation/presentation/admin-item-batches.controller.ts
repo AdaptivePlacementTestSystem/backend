@@ -1,3 +1,4 @@
+import { ApiOkResponse } from '@nestjs/swagger';
 import {
   BadRequestException,
   Controller,
@@ -19,6 +20,7 @@ import { ItemBatchSource, ItemBatchStatus } from '@prisma/client';
 export class AdminItemBatchesController {
   constructor(private readonly getAdminBatch: GetAdminBatchUseCase) {}
 
+  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
   @Get()
   @Roles(UserRole.ADMIN)
   list(
@@ -41,6 +43,7 @@ export class AdminItemBatchesController {
     );
   }
 
+  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
   @Get('rejected-stats')
   @Roles(UserRole.ADMIN)
   rejectedStats(
@@ -57,6 +60,7 @@ export class AdminItemBatchesController {
     );
   }
 
+  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
   @Get(':id')
   @Roles(UserRole.ADMIN)
   getDetail(

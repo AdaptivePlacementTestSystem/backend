@@ -1,4 +1,5 @@
-﻿import {
+import { ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import {
   Body,
   Controller,
   Param,
@@ -37,11 +38,21 @@ export class AssignBatchController {
     private readonly preview: AssignmentPreviewUseCase,
     private readonly reassignConfirmer: ReassignConfirmerUseCase,
   ) {}
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/reassign-confirmer')
   @Roles(UserRole.ADMIN)
-  changeConfirmer(@Param('id', new ParseUUIDPipe()) id: string, @CurrentUser() user: JwtPayload, @Body() body: { toConfirmerId?: unknown; reason?: unknown }) {
+  changeConfirmer(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() body: { toConfirmerId?: unknown; reason?: unknown },
+  ) {
     return this.reassignConfirmer.execute(id, user.sub, body);
   }
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/assign-preview')
   @Roles(UserRole.ADMIN)
   previewAssignment(
@@ -50,6 +61,7 @@ export class AssignBatchController {
   ) {
     return this.preview.execute(id, body?.reviewerIds);
   }
+  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
   @Patch(':id/deadlines')
   @Roles(UserRole.ADMIN)
   deadlines(
@@ -59,6 +71,9 @@ export class AssignBatchController {
   ) {
     return this.updateDeadlines.execute(id, user.sub, body);
   }
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/assign')
   @Roles(UserRole.ADMIN)
   assign(
@@ -68,6 +83,9 @@ export class AssignBatchController {
   ) {
     return this.assignBatch.execute(id, user.sub, body);
   }
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/reassign')
   @Roles(UserRole.ADMIN)
   reassign(

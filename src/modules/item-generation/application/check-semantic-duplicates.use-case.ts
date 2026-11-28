@@ -55,7 +55,8 @@ export class CheckSemanticDuplicatesUseCase {
     checkpoint: 'C1' | 'C2' | 'C3' = 'C1',
     lease?: JobLease,
   ) {
-    if (lease && lease.batchId !== batchId) throw new Error('JOB_BATCH_MISMATCH');
+    if (lease && lease.batchId !== batchId)
+      throw new Error('JOB_BATCH_MISMATCH');
     if (!this.embedder)
       return { skipped: true as const, checked: 0, flagged: 0 };
     const softThreshold = readT3Soft();

@@ -13,14 +13,12 @@ describe('generateCandidates', () => {
         cefrTarget: 'A2',
       },
     ]);
-    const generate = vi
-      .fn()
-      .mockResolvedValue({
-        content,
-        model: 'fake',
-        promptTokens: null,
-        completionTokens: null,
-      });
+    const generate = vi.fn().mockResolvedValue({
+      content,
+      model: 'fake',
+      promptTokens: null,
+      completionTokens: null,
+    });
     const result = await generateCandidates({ generate }, 'create items', 1);
     expect(generate).toHaveBeenCalledWith('create items');
     expect(result.checks).toEqual([{ index: 0, errors: [] }]);

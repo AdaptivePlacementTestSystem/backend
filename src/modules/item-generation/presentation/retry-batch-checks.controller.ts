@@ -1,3 +1,4 @@
+import { ApiCreatedResponse } from '@nestjs/swagger';
 import {
   ConflictException,
   Controller,
@@ -22,6 +23,9 @@ export class RetryBatchChecksController {
     private readonly prisma: PrismaService,
     private readonly runChecks: RunBatchChecksUseCase,
   ) {}
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/retry-generation')
   @Roles(UserRole.ADMIN)
   async retryGeneration(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -52,6 +56,9 @@ export class RetryBatchChecksController {
       );
     return { status: 'GENERATING', jobStatus: 'PENDING' };
   }
+  @ApiCreatedResponse({
+    schema: { type: 'object', additionalProperties: true },
+  })
   @Post(':id/retry-checks')
   @Roles(UserRole.ADMIN)
   async execute(@Param('id', new ParseUUIDPipe()) id: string) {

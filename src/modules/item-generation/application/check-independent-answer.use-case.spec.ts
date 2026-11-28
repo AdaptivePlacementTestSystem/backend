@@ -46,7 +46,9 @@ describe('kiểm tra đáp án độc lập', () => {
         ]),
       },
       itemCheckResult: { create: vi.fn() },
-      $transaction: vi.fn((fn) => fn({ $executeRaw: vi.fn().mockResolvedValue(1) })),
+      $transaction: vi.fn((fn) =>
+        fn({ $executeRaw: vi.fn().mockResolvedValue(1) }),
+      ),
     };
     const result = await new CheckIndependentAnswerUseCase(
       prisma as never,

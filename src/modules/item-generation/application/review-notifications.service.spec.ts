@@ -43,12 +43,21 @@ describe('email nhắc việc', () => {
     ).assigned('batch');
     expect(mail.sendMail).toHaveBeenCalledTimes(2);
     expect(updateMany).toHaveBeenCalledTimes(2);
-    expect(updateMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({
-      reviewerId: 'a', batch: { is: { status: 'IN_REVIEW' } },
-    }) }));
-    expect(updateMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({
-      batch: { is: { status: 'IN_REVIEW', confirmerId: 'b' } },
-    }) }));
+    expect(updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          reviewerId: 'a',
+          batch: { is: { status: 'IN_REVIEW' } },
+        }),
+      }),
+    );
+    expect(updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          batch: { is: { status: 'IN_REVIEW', confirmerId: 'b' } },
+        }),
+      }),
+    );
   });
   it('gộp câu cùng lô và GV vào một email, chỉ đánh dấu sau khi gửi thành công', async () => {
     const item = {
@@ -82,6 +91,10 @@ describe('email nhắc việc', () => {
       expect.objectContaining({ text: expect.stringContaining('2 câu hỏi') }),
     );
     expect(updateMany).toHaveBeenCalledOnce();
-    expect(updateMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ reviewerId: 'teacher' }) }));
+    expect(updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ reviewerId: 'teacher' }),
+      }),
+    );
   });
 });

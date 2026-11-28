@@ -14,7 +14,9 @@ describe('semantic duplicate checks', () => {
         upsert: vi.fn(),
       },
       itemCheckResult: { createMany: vi.fn() },
-      $transaction: vi.fn((fn) => fn({ $executeRaw: vi.fn().mockResolvedValue(1) })),
+      $transaction: vi.fn((fn) =>
+        fn({ $executeRaw: vi.fn().mockResolvedValue(1) }),
+      ),
     };
     const embedder = {
       model: 'test',

@@ -8,8 +8,12 @@ import {
 
 describe('text-similarity', () => {
   it('giống hệt cho điểm 1, khác hẳn cho điểm thấp', () => {
-    expect(trigramSimilarity('She goes to school.', 'she goes to school')).toBe(1);
-    expect(trigramSimilarity('She goes to school', 'Quantum physics lecture')).toBeLessThan(0.2);
+    expect(trigramSimilarity('She goes to school.', 'she goes to school')).toBe(
+      1,
+    );
+    expect(
+      trigramSimilarity('She goes to school', 'Quantum physics lecture'),
+    ).toBeLessThan(0.2);
   });
 
   it('chuỗi rỗng không gây chia cho 0', () => {
