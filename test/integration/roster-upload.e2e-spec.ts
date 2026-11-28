@@ -267,6 +267,11 @@ suite('roster upload on PostgreSQL and Redis', () => {
       .expect(401);
     await request(app.getHttpServer())
       .post(`${route}/save`)
+      .set('x-test-role', 'STUDENT')
+      .send({ operationId })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post(`${route}/save`)
       .set('x-test-role', 'TEACHER')
       .send({ operationId })
       .expect(403);
@@ -365,6 +370,105 @@ suite('roster upload on PostgreSQL and Redis', () => {
     ).toBe(1);
     await expect(service.save(other, roundId, operationId)).rejects.toThrow();
     clear.mockRestore();
+  });
+  it('handles concurrent saves of the same operation on PostgreSQL', async () => {
+    const book = new ExcelJS.Workbook();
+    book.addWorksheet('Sheet').addRows([['MSSV'], [code2]]);
+    const route = `/exam-rounds/${roundId}/participants/import`;
+    const uploaded = await request(app.getHttpServer())
+      .post(`${route}/upload`)
+      .set('x-test-role', 'ADMIN')
+      .attach('file', Buffer.from(await book.xlsx.writeBuffer()), 'roster.xlsx')
+      .expect(200);
+    const operationId = uploaded.body.operationId;
+    const results = await Promise.all(
+      [1, 2, 3].map(() =>
+        request(app.getHttpServer())
+          .post(`${route}/save`)
+          .set('x-test-role', 'ADMIN')
+          .send({ operationId }),
+      ),
+    );
+    expect(results.some((result) => result.status === 200)).toBe(true);
+    expect(results.every((result) => [200, 409].includes(result.status))).toBe(
+      true,
+    );
+    expect(
+      await prisma.rosterImportEvent.count({ where: { operationId } }),
+    ).toBe(1);
+    expect(
+      await prisma.examRoundParticipant.count({
+        where: { roundId, studentId: student2 },
+      }),
+    ).toBe(1);
+    await prisma.rosterImportEvent.deleteMany({ where: { operationId } });
+    await prisma.examRoundParticipant.deleteMany({
+      where: { roundId, studentId: student2 },
+    });
+  });
+  it('rejects reusing an operation from a different round', async () => {
+    const otherRound = randomUUID();
+    const operationId = randomUUID();
+    const opensAt = new Date(Date.now() + 3600000);
+    await prisma.examRound.create({
+      data: {
+        id: otherRound,
+        name: 'Other',
+        createdById: admin,
+        opensAt,
+        closesAt: new Date(opensAt.getTime() + 3600000),
+        durationMinutes: 45,
+      },
+    });
+    try {
+      await prisma.rosterImportEvent.create({
+        data: { operationId, roundId, adminId: admin, addedCount: 0 },
+      });
+      await request(app.getHttpServer())
+        .post(`/exam-rounds/${otherRound}/participants/import/save`)
+        .set('x-test-role', 'ADMIN')
+        .send({ operationId })
+        .expect(409);
+      expect(
+        await prisma.rosterImportEvent.count({
+          where: { operationId, roundId: otherRound },
+        }),
+      ).toBe(0);
+    } finally {
+      await prisma.rosterImportEvent.deleteMany({ where: { operationId } });
+      await prisma.examRound.delete({ where: { id: otherRound } });
+    }
+  });
+  it('rejects saving a closed round without recording an operation', async () => {
+    const book = new ExcelJS.Workbook();
+    book.addWorksheet('Sheet').addRows([['MSSV'], [code2]]);
+    const route = `/exam-rounds/${roundId}/participants/import`;
+    const uploaded = await request(app.getHttpServer())
+      .post(`${route}/upload`)
+      .set('x-test-role', 'ADMIN')
+      .attach('file', Buffer.from(await book.xlsx.writeBuffer()), 'roster.xlsx')
+      .expect(200);
+    const operationId = uploaded.body.operationId;
+    await prisma.examRound.update({
+      where: { id: roundId },
+      data: { status: 'CLOSED' },
+    });
+    try {
+      await request(app.getHttpServer())
+        .post(`${route}/save`)
+        .set('x-test-role', 'ADMIN')
+        .send({ operationId })
+        .expect(409);
+      expect(
+        await prisma.rosterImportEvent.count({ where: { operationId } }),
+      ).toBe(0);
+    } finally {
+      await prisma.examRound.update({
+        where: { id: roundId },
+        data: { status: 'DRAFT' },
+      });
+      await grid.clear(admin, roundId);
+    }
   });
   it('rejects a stale operation and rolls back on a duplicate participant', async () => {
     const book = new ExcelJS.Workbook();
