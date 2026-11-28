@@ -49,7 +49,7 @@ enum Skill {
 }
 
 // DC-39 (KE_HOACH_SINH_VA_DUYET_DE_AI.md Mục 2): một chiều DRAFT -> FIRST_APPROVED -> SECOND_APPROVED -> FINAL_APPROVED.
-// REJECTED = người loại (không lưu lý do, #56); AI_REJECTED = máy loại (lưu mã lý do ở item_check_results). CAT chỉ chọn FINAL_APPROVED.
+// REJECTED = người loại (comment bắt buộc sau trim khi A REJECT, B REMOVE, Admin soft-reject hoặc cancel-pending; comment lịch sử null giữ nguyên); AI_REJECTED = máy loại (lưu mã lý do ở item_check_results). CAT chỉ chọn FINAL_APPROVED.
 enum ItemStatus {
   DRAFT
   FIRST_APPROVED
@@ -74,6 +74,7 @@ enum ItemBatchStatus {
   IN_REVIEW
   READY_TO_FINALIZE
   FINAL_CHECKED
+  PARTIALLY_IMPORTED
   DONE
   FAILED
   PARTIAL
@@ -101,7 +102,10 @@ enum ReviewAction {
   IMPORT
   ASSIGN
   REASSIGN
+  UPDATE_DUE_DATE
   ACCEPT_FLAG
+  CANCEL_PENDING
+  REASSIGN_CONFIRMER
 }
 
 enum ExamRoundStatus {
@@ -136,9 +140,11 @@ model User {
   teacherProfile    TeacherProfile?
   approvedItems     Item[]                 @relation("ItemApprover")
   createdBatches    ItemBatch[]            @relation("BatchCreator")
+  batchesAsConfirmer ItemBatch[]           @relation("BatchConfirmer")
   itemsAsReviewer   Item[]                 @relation("ItemReviewer")
   itemsAsConfirmer  Item[]                 @relation("ItemConfirmer")
   reviewEvents      ItemReviewEvent[]      @relation("ReviewEventActor")
+  reviewNotices     ReviewNoticeOutbox[]
   testSessions      TestSession[]
   profiles          LanguageProfile[]
   createdExamRounds ExamRound[]            @relation("ExamRoundCreator")
@@ -186,10 +192,10 @@ model Item {
   // content_hash nullable có chủ đích: chưa có hash ở dữ liệu cũ.
   // content_hash = băm chuẩn hóa (nội dung + đáp án + giải thích) cho lọc trùng T1; chỉ mục băm ở custom_migrations.sql.
   contentHash   String?    @map("content_hash") @db.VarChar(64)
+  generatedFromRefIds String[] @default([]) @map("generated_from_ref_ids") @db.Uuid
   batchId       String     @map("batch_id") @db.Uuid
   // Quyết định 03/11/2026 (bỏ ItemPackage): giao việc và duyệt theo từng câu, không còn gói.
-  // reviewer_id (GV A) / confirmer_id (GV B) là cột khóa ngoại (Restrict) để DB chặn xóa GV đang có việc; null khi câu chưa được giao.
-  // Sơ đồ UML vẽ cả hai trên Item.
+  // reviewer_id là GV A; confirmer_id trên Item chỉ giữ tương thích dữ liệu cũ. GV B hiện hành ở ItemBatch.confirmerId.
   reviewerId    String?    @map("reviewer_id") @db.Uuid
   confirmerId   String?    @map("confirmer_id") @db.Uuid
   // first_review = FirstReviewDetail { dueAt, action, reviewedAt, comment, originalSnapshot }; second_review = SecondReviewDetail { dueAt, action, confirmedAt, comment }.
@@ -199,6 +205,8 @@ model Item {
   // Cờ kỹ thuật cho job nhắc hạn (BullMQ); cột riêng để job không ghi đè JSON kết quả duyệt. Không vẽ trên sơ đồ.
   firstReminderSent  Boolean @default(false) @map("first_reminder_sent")
   secondReminderSent Boolean @default(false) @map("second_reminder_sent")
+  firstAssignmentNoticeSent  Boolean @default(false) @map("first_assignment_notice_sent")
+  secondAssignmentNoticeSent Boolean @default(false) @map("second_assignment_notice_sent")
   createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -216,6 +224,7 @@ model Item {
   @@index([batchId, status])
   @@index([reviewerId, status])
   @@index([confirmerId, status])
+  @@index([contentHash], map: "idx_items_content_hash")
   @@map("items")
 }
 
@@ -236,22 +245,74 @@ model ItemBatch {
   // Nhãn hiển thị, tùy chọn; dùng cho lô seed theo bộ nguồn (CEFR-J, CLOTH, GV tự soạn).
   name           String?         @db.VarChar(100)
   createdById    String          @map("created_by") @db.Uuid
+  importOperationId String?      @unique @map("import_operation_id") @db.Uuid
+  importGroupId  String?         @map("import_group_id") @db.Uuid
+  importPart     Int?            @map("import_part")
   // Nullable có chủ đích: lô IMPORTED gồm nhiều skill/CEFR (mỗi dòng file tự có); chỉ lô AI_GENERATED có đích đơn.
   skill          Skill?
   cefrTarget     CEFRLevel?      @map("cefr_target")
   topicTag       String?         @map("topic_tag") @db.VarChar(50)
   // Chỉ lô AI_GENERATED có N; lô IMPORTED/seed để trống (khớp SRS DDL item_batches.requested_count nullable).
   requestedCount Int?            @map("requested_count")
+  aiCallCount    Int             @default(0) @map("ai_call_count")
+  aiCallLimit    Int             @default(250) @map("ai_call_limit")
+  // Một GV B chung cho toàn bộ lô; nguồn sự thật cấp lô theo quyết định 26/11/2026.
+  confirmerId    String?         @map("confirmer_id") @db.Uuid
   status         ItemBatchStatus
+  failureReason  String?         @map("failure_reason") @db.VarChar(100)
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   createdBy  User                  @relation("BatchCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  confirmer  User?                @relation("BatchConfirmer", fields: [confirmerId], references: [id], onDelete: Restrict)
   items      Item[]
   events     ItemReviewEvent[]
+  jobs       ItemBatchJob[]
+  reviewNotices ReviewNoticeOutbox[]
 
   @@index([status])
+  @@unique([importGroupId, importPart])
+  @@index([confirmerId, status], map: "item_batches_confirmer_id_status_idx")
   @@map("item_batches")
+}
+
+model ItemBatchJob {
+  id          String   @id @default(uuid()) @db.Uuid
+  batchId     String   @map("batch_id") @db.Uuid
+  kind        String   @db.VarChar(16)
+  status      String   @default("PENDING") @db.VarChar(16)
+  attempts    Int      @default(0)
+  availableAt DateTime @default(now()) @map("available_at") @db.Timestamptz(6)
+  leaseToken  String?  @map("lease_token") @db.Uuid
+  leaseUntil  DateTime? @map("lease_until") @db.Timestamptz(6)
+  lastError   String?  @map("last_error") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  batch       ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, kind])
+  @@index([status, availableAt])
+  @@map("item_batch_jobs")
+}
+
+model ReviewNoticeOutbox {
+  id          String    @id @default(uuid()) @db.Uuid
+  batchId     String    @map("batch_id") @db.Uuid
+  recipientId String    @map("recipient_id") @db.Uuid
+  status      String    @default("PENDING") @db.VarChar(16)
+  attempts    Int       @default(0)
+  availableAt DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)
+  leaseToken  String?   @map("lease_token") @db.Uuid
+  leaseUntil  DateTime? @map("lease_until") @db.Timestamptz(6)
+  lastError   String?   @map("last_error") @db.VarChar(200)
+  sentAt      DateTime? @map("sent_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  batch       ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  recipient   User      @relation(fields: [recipientId], references: [id], onDelete: Restrict)
+
+  @@index([status, availableAt])
+  @@map("review_notice_outbox")
 }
 
 // Embedding tính đúng một lần cho mỗi nội dung (nguyên tắc 4, Mục 4). Mô hình embedding còn chờ chốt (Q-9);
@@ -287,14 +348,16 @@ model ItemCheckResult {
   @@map("item_check_results")
 }
 
-// Truy vết (tùy chọn theo Mục 10; đề xuất giữ). itemId nullable: CONFIRM_ALL tác động nhiều câu.
-// Giao việc (ASSIGN) và giao lại (REASSIGN) ghi một dòng cho mỗi câu, actorId = Admin (quyết định 03/11/2026).
+// Truy vết (tùy chọn theo Mục 10; đề xuất giữ). itemId nullable cho các sự kiện cấp lô:
+// CONFIRM_ALL, UPDATE_DUE_DATE, CANCEL_PENDING và REASSIGN_CONFIRMER (đổi GV B), kèm details Json?.
+// Giao việc (ASSIGN) và giao lại GV A (REASSIGN) ghi một dòng cho mỗi câu, actorId = Admin.
 model ItemReviewEvent {
   id        String       @id @default(uuid()) @db.Uuid
   batchId   String       @map("batch_id") @db.Uuid
   itemId    String?      @map("item_id") @db.Uuid
   actorId   String       @map("actor_id") @db.Uuid
   action    ReviewAction
+  details   Json?
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   batch ItemBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
