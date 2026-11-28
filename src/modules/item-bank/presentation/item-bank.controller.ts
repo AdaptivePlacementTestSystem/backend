@@ -1,12 +1,15 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
+  Post,
   Query,
   UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
 import { ItemService } from '../application/services/item.service';
+import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import {
   CurrentUser,
@@ -20,10 +23,12 @@ import { Skill } from '../domain/enums/skill.enum';
 import { ItemStatus } from '../domain/enums/item-status.enum';
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiQuery,
 } from '@nestjs/swagger';
 import {
+  ExplanationResponseDto,
   ItemDetailResponseDto,
   ItemResponseDto,
 } from './item-response.dto';
@@ -74,6 +79,13 @@ export class ItemBankController {
         ? await this.teacherItemIds(user.sub)
         : undefined;
     return this.itemService.listItems({ status, skill, visibleIds });
+  }
+
+  @Post('generate-explanation')
+  @ApiCreatedResponse({ type: ExplanationResponseDto })
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async generateExplanation(@Body() dto: GenerateExplanationDto) {
+    return this.itemService.generateExplanation(dto);
   }
 
   @Get(':id')

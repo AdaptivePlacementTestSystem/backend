@@ -10,18 +10,16 @@ describe('SetAccountActiveUseCase', () => {
   beforeEach(() => {
     repo = {
       setActiveAtomically: vi.fn().mockResolvedValue('UPDATED'),
-      findAccountByUserId: vi
-        .fn()
-        .mockResolvedValue({
-          user: new UserEntity(
-            'target',
-            'x@example.com',
-            'Tên',
-            UserRole.STUDENT,
-            'hash',
-          ),
-          profile: { kind: 'STUDENT', studentCode: '1' },
-        }),
+      findAccountByUserId: vi.fn().mockResolvedValue({
+        user: new UserEntity(
+          'target',
+          'x@example.com',
+          'Tên',
+          UserRole.STUDENT,
+          'hash',
+        ),
+        profile: { kind: 'STUDENT', studentCode: '1' },
+      }),
     };
     useCase = new SetAccountActiveUseCase(repo);
   });

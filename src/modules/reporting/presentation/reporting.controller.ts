@@ -45,12 +45,42 @@ export class ReportingController {
   }
 
   @Get('error-patterns')
+  @ApiQuery({ name: 'examRoundId', required: false, type: String })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          topicTag: { type: 'string' },
+          skill: { type: 'string' },
+          itemsAttempted: { type: 'number' },
+          correctCount: { type: 'number' },
+          accuracyRate: { type: 'number' },
+          severity: { type: 'string' },
+        },
+      },
+    },
+  })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getErrorPatterns(@Query() query: OverviewQueryDto) {
     return this.getErrorPatternsUseCase.execute(query.examRoundId);
   }
 
   @Get('exam-rounds')
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['id', 'name'],
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+        },
+      },
+    },
+  })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getReportExamRounds() {
     return this.prisma.examRound.findMany({

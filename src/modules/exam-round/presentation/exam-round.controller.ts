@@ -115,12 +115,14 @@ export class ExamRoundController {
   ) {}
 
   @Get()
+  @ApiOkResponse({ schema: { type: 'array', items: roundRecord } })
   @Roles(UserRole.ADMIN)
   list() {
     return this.adminExamRoundsUseCase.list();
   }
 
   @Post()
+  @ApiCreatedResponse({ schema: roundRecord })
   @Roles(UserRole.ADMIN)
   create(@Body() dto: CreateExamRoundDto, @CurrentUser() user: JwtPayload) {
     return this.adminExamRoundsUseCase.create(dto, user.sub);
@@ -197,6 +199,12 @@ export class ExamRoundController {
   }
 
   @Delete(':id/participants/:studentId')
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: { removed: { type: 'boolean' } },
+    },
+  })
   @Roles(UserRole.ADMIN)
   removeParticipant(
     @Param('id', ParseUUIDPipe) id: string,
@@ -206,6 +214,14 @@ export class ExamRoundController {
   }
 
   @Get(':id/participants/export')
+  @ApiOkResponse({
+    content: {
+      'text/csv': { schema: { type: 'string', format: 'binary' } },
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
   @Roles(UserRole.ADMIN)
   async exportParticipants(
     @Param('id', ParseUUIDPipe) id: string,
