@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { ErrorCode } from '@apt/shared-types';
 import {
   ClassReportEntity,
   CEFRDistribution,
@@ -10,6 +11,19 @@ export class GenerateClassReportUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(examRoundId?: string): Promise<ClassReportEntity> {
+    if (examRoundId) {
+      const round = await this.prisma.examRound.findUnique({
+        where: { id: examRoundId },
+        select: { id: true },
+      });
+      if (!round) {
+        throw new NotFoundException({
+          code: ErrorCode.NOT_FOUND,
+          message: 'Không tìm thấy kỳ thi.',
+        });
+      }
+    }
+
     const where: any = {};
     if (examRoundId) {
       where.testSession = { examRoundId };

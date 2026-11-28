@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TestSessionController } from './test-session.controller';
+import {
+  TestSessionController,
+  StartSessionBodyDto,
+} from './test-session.controller';
+import { validate } from 'class-validator';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ROLES_KEY } from '../../../shared/decorators/roles.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
+import { GetSessionReviewUseCase } from '../application/use-cases/get-session-review.use-case';
+import { SessionStatus } from '../domain/entities/test-session.entity';
 import type { JwtPayload } from '../../../shared/decorators/current-user.decorator';
 
 describe('TestSessionController - IDOR & Authorization Security Tests', () => {
@@ -66,9 +73,9 @@ describe('TestSessionController - IDOR & Authorization Security Tests', () => {
     };
     getSessionReviewUseCase = {
       execute: vi.fn((sessionId, userId, userRole) => {
-        if (userRole !== UserRole.ADMIN && userId !== 'student-B-id') {
+        if (userRole !== UserRole.STUDENT || userId !== 'student-B-id') {
           throw new ForbiddenException(
-            'Bạn không có quyền xem lại bài thi này',
+            'Chỉ sinh viên chủ sở hữu mới có quyền xem lại bài thi này',
           );
         }
         return Promise.resolve([]);
@@ -166,11 +173,84 @@ describe('TestSessionController - IDOR & Authorization Security Tests', () => {
     });
   });
 
-  describe('Chặn IDOR trên GET /sessions/:id/review', () => {
+  describe('Chặn IDOR & Role trên GET /sessions/:id/review & TestSessionController (WP-9.1 / K6)', () => {
     it('quăng ForbiddenException (403) khi Sinh viên A cố xem giải thích AI bài thi của Sinh viên B', async () => {
       await expect(
         controller.getReview(sessionOfStudentB.id, studentA),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('chặn ADMIN thao tác resume / submit / review phiên của sinh viên (K6)', async () => {
+      await expect(
+        controller.resumeSession(sessionOfStudentB.id, adminUser),
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        controller.submitResponse(
+          sessionOfStudentB.id,
+          { itemId: 'item-1', response: 'A' },
+          adminUser,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        controller.getReview(sessionOfStudentB.id, adminUser),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('gắn @Roles(UserRole.STUDENT) cho các endpoint làm bài và xem lại đáp án', () => {
+      const proto = TestSessionController.prototype;
+      for (const method of [
+        proto.startSession,
+        proto.getActiveSession,
+        proto.getNextItem,
+        proto.submitResponse,
+        proto.resumeSession,
+        proto.getReview,
+      ]) {
+        expect(Reflect.getMetadata(ROLES_KEY, method)).toEqual([
+          UserRole.STUDENT,
+        ]);
+      }
+    });
+
+    it('GetSessionReviewUseCase thực tế chặn ADMIN và chặn phiên chưa COMPLETED', async () => {
+      const prismaMock: any = {
+        testSession: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: 'sess-1',
+            studentId: 'student-B-id',
+            status: SessionStatus.COMPLETED,
+            responses: [],
+          }),
+        },
+      };
+      const configMock: any = { get: vi.fn().mockReturnValue(true) };
+      const uc = new GetSessionReviewUseCase(prismaMock, configMock);
+
+      await expect(
+        uc.execute('sess-1', adminUser.sub, UserRole.ADMIN),
+      ).rejects.toThrow(ForbiddenException);
+
+      prismaMock.testSession.findUnique.mockResolvedValue({
+        id: 'sess-1',
+        studentId: 'student-B-id',
+        status: SessionStatus.IN_PROGRESS,
+        responses: [],
+      });
+      await expect(
+        uc.execute('sess-1', 'student-B-id', UserRole.STUDENT),
+      ).rejects.toThrow('Chỉ có thể xem lại bài thi sau khi đã hoàn thành');
+    });
+
+    it('StartSessionBodyDto chấp nhận UUID seed chuẩn PostgreSQL dạng 8-4-4-4-12 hex (a0000000-0000-0000-0000-000000000001)', async () => {
+      const dto = new StartSessionBodyDto();
+      dto.examRoundId = 'a0000000-0000-0000-0000-000000000001';
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+
+      const invalidDto = new StartSessionBodyDto();
+      invalidDto.examRoundId = 'not-a-uuid';
+      const invalidErrors = await validate(invalidDto);
+      expect(invalidErrors.length).toBeGreaterThan(0);
     });
   });
 });

@@ -24,7 +24,9 @@ export class ItemService {
     return this.getItemUseCase.execute(id);
   }
 
-  async listItems(options?: ItemFilterOptions): Promise<ItemEntity[]> {
+  async listItems(
+    options?: ItemFilterOptions,
+  ): Promise<{ items: ItemEntity[]; total: number }> {
     return this.listItemsUseCase.execute(options);
   }
 

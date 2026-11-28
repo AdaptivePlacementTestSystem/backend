@@ -47,6 +47,16 @@ export function createOpenApiDocument(
       '/reports/error-patterns',
       '/reports/exam-rounds',
       '/reports/export-csv',
+      '/teacher/tasks/reviews',
+      '/teacher/tasks/reviews/{batchId}',
+      '/teacher/tasks/confirms',
+      '/teacher/tasks/confirms/{batchId}',
+      '/teacher/tasks/confirms/{batchId}/confirm-all',
+      '/teacher/items/{id}',
+      '/teacher/items/{id}/approve',
+      '/teacher/items/{id}/reject',
+      '/teacher/items/{id}/confirm',
+      '/teacher/items/{id}/remove',
       '/health',
       '/ready',
       '/items',
@@ -113,8 +123,9 @@ export function createOpenApiDocument(
         continue;
       const statuses = path.startsWith(`${base}/auth/`)
         ? [400, 401, 403, 429]
-        : path.startsWith(`${base}/users/import/`)
-          ? [400, 401, 403, 409, 410, 413, 422]
+        : path.startsWith(`${base}/users/import/`) ||
+            path.startsWith(`${base}/teacher/`)
+          ? [400, 401, 403, 404, 409, 410, 413, 422]
           : [400, 401, 403, 404, 409];
       for (const status of statuses) {
         operation.responses[status] ??= {

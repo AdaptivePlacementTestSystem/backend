@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ItemResponseDto {
   @ApiProperty() id: string;
@@ -23,6 +23,16 @@ export class ItemResponseDto {
   @ApiProperty() calibrated: boolean;
   @ApiProperty({ format: 'date-time' }) createdAt: string;
   @ApiProperty({ format: 'date-time' }) updatedAt: string;
+  @ApiPropertyOptional() source?: string;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  reviewerId?: string | null;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  confirmerId?: string | null;
+}
+
+export class PagedItemsResponseDto {
+  @ApiProperty({ type: [ItemResponseDto] }) data: ItemResponseDto[];
+  @ApiProperty() total: number;
 }
 export class ItemDetailResponseDto {
   @ApiProperty() id: string;
@@ -38,6 +48,10 @@ export class ItemDetailResponseDto {
   @ApiProperty() source: string;
   @ApiProperty({ type: String, nullable: true }) topicTag: string | null;
   @ApiProperty() timesUsed: number;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  reviewerId?: string | null;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  confirmerId?: string | null;
   @ApiProperty({ type: String, nullable: true }) explanation: string | null;
   @ApiProperty({ format: 'date-time' }) createdAt: string;
   @ApiProperty({ format: 'date-time' }) updatedAt: string;

@@ -33,3 +33,15 @@ export class SystemOverviewDto {
   openRounds: OpenRoundSummaryDto[];
   @ApiProperty({ format: 'date-time' }) generatedAt: string;
 }
+export class ClassErrorPatternDto {
+  @ApiProperty() topicTag: string;
+  @ApiProperty() skill: string;
+  @ApiProperty() studentCount: number;
+  @ApiProperty() errorRate: number;
+  @ApiProperty() totalAttempted: number;
+  @ApiProperty() totalIncorrect: number;
+  @ApiProperty() itemsAttempted: number;
+  @ApiProperty() correctCount: number;
+  @ApiProperty() accuracyRate: number;
+  @ApiProperty() severity: string;
+}

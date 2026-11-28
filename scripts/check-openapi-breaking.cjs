@@ -178,6 +178,12 @@ function breakingChanges(oldDoc, newDoc) {
   return changes;
 }
 
+const WAVE1_ALLOWLIST_PREFIXES = [
+  'GET /api/v1/items response 200:',
+  'GET /api/v1/placement-profiles/{studentCode} response 200.',
+  'GET /api/v1/reports/error-patterns response 200',
+];
+
 if (require.main === module) {
   if (process.argv.length !== 4)
     throw new Error('Usage: node check-openapi-breaking.cjs old.json new.json');
@@ -185,9 +191,21 @@ if (require.main === module) {
     JSON.parse(fs.readFileSync(process.argv[2], 'utf8')),
     JSON.parse(fs.readFileSync(process.argv[3], 'utf8')),
   );
-  if (changes.length) {
+  const allowed = changes.filter((change) =>
+    WAVE1_ALLOWLIST_PREFIXES.some((prefix) => change.startsWith(prefix)),
+  );
+  const blocking = changes.filter(
+    (change) =>
+      !WAVE1_ALLOWLIST_PREFIXES.some((prefix) => change.startsWith(prefix)),
+  );
+  if (allowed.length) {
+    console.warn(
+      `Allowlisted Wave 1 API changes (FE synchronized):\n${allowed.map((change) => `- ${change}`).join('\n')}`,
+    );
+  }
+  if (blocking.length) {
     console.error(
-      `Potential breaking changes:\n${changes.map((change) => `- ${change}`).join('\n')}`,
+      `Potential breaking changes:\n${blocking.map((change) => `- ${change}`).join('\n')}`,
     );
     process.exitCode = 1;
   } else console.log('No breaking changes detected by structural checks.');

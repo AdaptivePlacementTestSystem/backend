@@ -38,7 +38,10 @@ export class RedisImportStateStore
       port,
       lazyConnect: true,
       maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      retryStrategy: () => null,
     });
+    this.redis.on('error', () => {});
     this.redis.connect().catch((error: Error) => {
       this.logger.warn(
         `ImportState: không kết nối được Redis ${host}:${port}: ${error.message}`,

@@ -168,5 +168,69 @@ describe('CatEngineService & EAP Algorithm', () => {
       expect(result.shouldStop).toBe(false);
       expect(result.reason).toBeUndefined();
     });
+
+    it('biên Outlier Early Stop (-2.5 và +1.5): tại đúng ngưỡng -2.5 / +1.5 chưa dừng sớm, vượt ngưỡng ở câu thứ 8 mới dừng', () => {
+      const exactMin = catEngineService.checkStoppingCriterion({
+        itemCount: 8,
+        standardError: 0.4,
+        currentTheta: -2.5,
+        expiresAt: new Date(Date.now() + 45 * 60 * 1000),
+      });
+      expect(exactMin.shouldStop).toBe(false);
+
+      const exactMax = catEngineService.checkStoppingCriterion({
+        itemCount: 8,
+        standardError: 0.4,
+        currentTheta: 1.5,
+        expiresAt: new Date(Date.now() + 45 * 60 * 1000),
+      });
+      expect(exactMax.shouldStop).toBe(false);
+
+      const justBelowMin = catEngineService.checkStoppingCriterion({
+        itemCount: 8,
+        standardError: 0.4,
+        currentTheta: -2.51,
+        expiresAt: new Date(Date.now() + 45 * 60 * 1000),
+      });
+      expect(justBelowMin.shouldStop).toBe(true);
+      expect(justBelowMin.reason).toBe('ITEM_BANK_BOUNDARY');
+    });
+  });
+
+  describe('Biên irt_b (CAT_ITEM_B_MIN/MAX = -4/+4 vs CAT_OUTLIER_THETA_MIN/MAX = -2.5/+1.5)', () => {
+    it('computeEAP xử lý ổn định câu hỏi tại hai biên độ khó irt_b = -4.0 và +4.0 mà không sinh NaN', () => {
+      const lowBoundary = catEngineService.computeEAP([
+        { irtB: -4.0, isCorrect: false },
+        { irtB: -4.0, isCorrect: true },
+      ]);
+      expect(Number.isFinite(lowBoundary.theta)).toBe(true);
+      expect(Number.isFinite(lowBoundary.standardError)).toBe(true);
+      expect(lowBoundary.theta).toBeGreaterThanOrEqual(-4.0);
+      expect(lowBoundary.theta).toBeLessThanOrEqual(4.0);
+
+      const highBoundary = catEngineService.computeEAP([
+        { irtB: 4.0, isCorrect: true },
+        { irtB: 4.0, isCorrect: true },
+      ]);
+      expect(Number.isFinite(highBoundary.theta)).toBe(true);
+      expect(highBoundary.theta).toBeGreaterThan(0);
+      expect(highBoundary.theta).toBeLessThanOrEqual(4.0);
+    });
+
+    it('trả lời đúng hết toàn bộ câu ở ngưỡng +4.0 qua 12 câu kéo theta > +1.5 và kích hoạt ITEM_BANK_BOUNDARY', () => {
+      const extremeCorrect = Array.from({ length: 12 }, () => ({
+        irtB: 2.0,
+        isCorrect: true,
+      }));
+      const est = catEngineService.computeEAP(extremeCorrect);
+      const stop = catEngineService.checkStoppingCriterion({
+        itemCount: extremeCorrect.length,
+        standardError: est.standardError,
+        currentTheta: est.theta,
+        expiresAt: new Date(Date.now() + 45 * 60 * 1000),
+      });
+      expect(stop.shouldStop).toBe(true);
+      expect(['SE_THRESHOLD', 'ITEM_BANK_BOUNDARY']).toContain(stop.reason);
+    });
   });
 });

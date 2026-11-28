@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import type { ThrottlerStorage } from '@nestjs/throttler';
 import Redis from 'ioredis';
 
@@ -25,11 +30,21 @@ return {hits, ttl}
  */
 @Injectable()
 export class RedisThrottlerStorage
-  implements ThrottlerStorage, OnModuleDestroy
+  implements ThrottlerStorage, OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(RedisThrottlerStorage.name);
 
   constructor(private readonly redis: Redis) {}
+
+  async onModuleInit(): Promise<void> {
+    if (this.redis.status === 'wait') {
+      await this.redis.connect().catch((err: Error) => {
+        this.logger.warn(
+          `RedisThrottlerStorage: Không kết nối được Redis: ${err.message}`,
+        );
+      });
+    }
+  }
 
   async increment(
     key: string,
@@ -39,6 +54,15 @@ export class RedisThrottlerStorage
     throttlerName: string,
   ): Promise<ThrottlerStorageRecord> {
     const redisKey = `auth:throttle:${throttlerName}:${key}`;
+    if (this.redis.status !== 'ready') {
+      return {
+        totalHits: 0,
+        timeToExpire: 0,
+        isBlocked: false,
+        timeToBlockExpire: 0,
+      };
+    }
+
     try {
       const [hits, pttl] = (await this.redis.eval(
         INCREMENT_SCRIPT,
@@ -54,8 +78,8 @@ export class RedisThrottlerStorage
         timeToBlockExpire: isBlocked ? Math.ceil(pttl / 1000) : 0,
       };
     } catch (err) {
-      // Fail-open: Redis lỗi thì không chặn đăng nhập, chỉ ghi log (cần xác nhận với nhóm).
-      this.logger.error(
+      // Fail-open: Redis lỗi thì không chặn đăng nhập, ghi warn (cần xác nhận với nhóm).
+      this.logger.warn(
         `Không ghi được bộ đếm rate-limit: ${(err as Error).message}`,
       );
       return {

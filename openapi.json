@@ -2280,6 +2280,58 @@
               ],
               "type": "string"
             }
+          },
+          {
+            "name": "cefr",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PRE_A1",
+                "A1",
+                "A2",
+                "B1",
+                "B2",
+                "C1_PLUS"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "AI_GENERATED",
+                "IMPORTED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
@@ -2288,10 +2340,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ItemResponseDto"
-                  }
+                  "$ref": "#/components/schemas/PagedItemsResponseDto"
                 }
               }
             }
@@ -2446,16 +2495,7 @@
     "/api/v1/items/{id}": {
       "get": {
         "operationId": "ItemBankController_getItem",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -3051,7 +3091,6 @@
             "required": false,
             "in": "query",
             "schema": {
-              "format": "uuid",
               "type": "string"
             }
           }
@@ -3064,27 +3103,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "topicTag": {
-                        "type": "string"
-                      },
-                      "skill": {
-                        "type": "string"
-                      },
-                      "itemsAttempted": {
-                        "type": "number"
-                      },
-                      "correctCount": {
-                        "type": "number"
-                      },
-                      "accuracyRate": {
-                        "type": "number"
-                      },
-                      "severity": {
-                        "type": "string"
-                      }
-                    }
+                    "$ref": "#/components/schemas/ClassErrorPatternDto"
                   }
                 }
               }
@@ -3247,6 +3266,18 @@
       "get": {
         "operationId": "ReportingController_exportCsv",
         "parameters": [
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "profiles",
+                "distribution"
+              ],
+              "type": "string"
+            }
+          },
           {
             "name": "examRoundId",
             "required": false,
@@ -4028,6 +4059,1198 @@
         ],
         "tags": [
           "RosterGrid"
+        ]
+      }
+    },
+    "/api/v1/teacher/tasks/reviews": {
+      "get": {
+        "operationId": "TeacherReviewController_getReviewTasks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewTasksResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Danh sách lô cần duyệt của GV vai A (S33)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/tasks/reviews/{batchId}": {
+      "get": {
+        "operationId": "TeacherReviewController_getBatchItemsForReview",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchItemsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Danh sách câu hỏi cần duyệt trong lô của GV vai A (S11)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/tasks/confirms": {
+      "get": {
+        "operationId": "TeacherReviewController_getConfirmTasks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmTasksResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Danh sách lô cần xác nhận của GV vai B (S34, Q2)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/tasks/confirms/{batchId}": {
+      "get": {
+        "operationId": "TeacherReviewController_getBatchItemsForConfirm",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchItemsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Danh sách câu hỏi cần xác nhận trong lô của GV vai B (S35, Q2)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/tasks/confirms/{batchId}/confirm-all": {
+      "post": {
+        "operationId": "TeacherReviewController_confirmAllRemaining",
+        "parameters": [
+          {
+            "name": "batchId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmAllResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai B xác nhận tất cả câu FIRST_APPROVED trong lô (Q3)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/items/{id}": {
+      "patch": {
+        "operationId": "TeacherReviewController_editItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewItemDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai A chỉnh sửa câu hỏi DRAFT được giao (Q7)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/items/{id}/approve": {
+      "post": {
+        "operationId": "TeacherReviewController_approveItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai A duyệt câu hỏi (FIRST_APPROVED)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/items/{id}/reject": {
+      "post": {
+        "operationId": "TeacherReviewController_rejectItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredReviewCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai A từ chối câu hỏi (REJECTED, bắt buộc lý do Q1)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/items/{id}/confirm": {
+      "post": {
+        "operationId": "TeacherReviewController_confirmItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai B xác nhận câu hỏi (SECOND_APPROVED)",
+        "tags": [
+          "Teacher Item Review"
+        ]
+      }
+    },
+    "/api/v1/teacher/items/{id}/remove": {
+      "post": {
+        "operationId": "TeacherReviewController_removeItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredReviewCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewActionResultDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "GV vai B loại bỏ câu hỏi (REJECTED, bắt buộc lý do Q1)",
+        "tags": [
+          "Teacher Item Review"
         ]
       }
     },
@@ -5287,6 +6510,16 @@
               }
             }
           },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
@@ -5396,6 +6629,16 @@
               }
             }
           },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
@@ -5487,6 +6730,16 @@
             }
           },
           "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
               "application/json": {
@@ -5614,6 +6867,16 @@
               }
             }
           },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
@@ -5714,6 +6977,16 @@
             }
           },
           "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
               "application/json": {
@@ -5839,6 +7112,16 @@
               }
             }
           },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
           "409": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
@@ -5947,6 +7230,16 @@
             }
           },
           "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
             "content": {
               "application/json": {
@@ -6642,6 +7935,17 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "reviewerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmerId": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -6665,6 +7969,24 @@
           "calibrated",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "PagedItemsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total"
         ]
       },
       "GenerateExplanationDto": {
@@ -6747,6 +8069,14 @@
           "timesUsed": {
             "type": "number"
           },
+          "reviewerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmerId": {
+            "type": "string",
+            "nullable": true
+          },
           "explanation": {
             "type": "string",
             "nullable": true
@@ -6778,6 +8108,29 @@
           "updatedAt"
         ]
       },
+      "ProfileStudentInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "studentCode": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "studentCode",
+          "fullName",
+          "email"
+        ]
+      },
       "AbilityResponseDto": {
         "type": "object",
         "properties": {
@@ -6800,24 +8153,37 @@
           "confidenceInterval95"
         ]
       },
-      "LanguageProfileResponseDto": {
+      "ProfileMetaDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
+          "stoppingReason": {
+            "type": "string",
+            "nullable": true
           },
-          "studentId": {
-            "type": "string"
+          "totalItems": {
+            "type": "number",
+            "nullable": true
           },
-          "testSessionId": {
+          "itemsAdministered": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "stoppingReason",
+          "totalItems",
+          "itemsAdministered"
+        ]
+      },
+      "LatestProfileDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
             "type": "string"
           },
           "completedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "abilityEstimate": {
-            "$ref": "#/components/schemas/AbilityResponseDto"
           },
           "cefrLevel": {
             "type": "string"
@@ -6828,6 +8194,12 @@
           "boundaryEffect": {
             "type": "boolean"
           },
+          "ability": {
+            "$ref": "#/components/schemas/AbilityResponseDto"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ProfileMetaDto"
+          },
           "skillProfiles": {
             "type": "array",
             "items": {}
@@ -6836,34 +8208,23 @@
             "type": "array",
             "items": {}
           },
-          "testMetadata": {
-            "type": "object",
-            "additionalProperties": true
-          },
           "aiRecommendations": {
             "type": "array",
             "items": {
               "type": "string"
             }
-          },
-          "schemaVersion": {
-            "type": "string"
           }
         },
         "required": [
-          "id",
-          "studentId",
-          "testSessionId",
+          "sessionId",
           "completedAt",
-          "abilityEstimate",
           "cefrLevel",
           "cefrConfidence",
           "boundaryEffect",
+          "ability",
+          "meta",
           "skillProfiles",
-          "errorPatterns",
-          "testMetadata",
-          "aiRecommendations",
-          "schemaVersion"
+          "errorPatterns"
         ]
       },
       "StudentHistoryResponseDto": {
@@ -6922,6 +8283,34 @@
           "standardError",
           "status",
           "stoppingReason"
+        ]
+      },
+      "LanguageProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "student": {
+            "$ref": "#/components/schemas/ProfileStudentInfoDto"
+          },
+          "latest": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LatestProfileDto"
+              }
+            ]
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentHistoryResponseDto"
+            }
+          }
+        },
+        "required": [
+          "student",
+          "latest",
+          "history"
         ]
       },
       "EduZOverallDto": {
@@ -7137,6 +8526,569 @@
           "cefrDistribution",
           "averageTheta",
           "generatedAt"
+        ]
+      },
+      "ClassErrorPatternDto": {
+        "type": "object",
+        "properties": {
+          "topicTag": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "errorRate": {
+            "type": "number"
+          },
+          "totalAttempted": {
+            "type": "number"
+          },
+          "totalIncorrect": {
+            "type": "number"
+          },
+          "itemsAttempted": {
+            "type": "number"
+          },
+          "correctCount": {
+            "type": "number"
+          },
+          "accuracyRate": {
+            "type": "number"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "topicTag",
+          "skill",
+          "studentCount",
+          "errorRate",
+          "totalAttempted",
+          "totalIncorrect",
+          "itemsAttempted",
+          "correctCount",
+          "accuracyRate",
+          "severity"
+        ]
+      },
+      "ReviewBatchSummaryDto": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "string"
+          },
+          "batchName": {
+            "type": "string"
+          },
+          "totalAssigned": {
+            "type": "number"
+          },
+          "decidedCount": {
+            "type": "number"
+          },
+          "pendingCount": {
+            "type": "number"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isOverdue": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "batchId",
+          "batchName",
+          "totalAssigned",
+          "decidedCount",
+          "pendingCount",
+          "dueAt",
+          "isOverdue"
+        ]
+      },
+      "TeacherTaskStatsDto": {
+        "type": "object",
+        "properties": {
+          "pendingReviews": {
+            "type": "number"
+          },
+          "pendingConfirms": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "pendingReviews",
+          "pendingConfirms"
+        ]
+      },
+      "ReviewTasksResponseDto": {
+        "type": "object",
+        "properties": {
+          "batches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewBatchSummaryDto"
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/TeacherTaskStatsDto"
+          }
+        },
+        "required": [
+          "batches",
+          "stats"
+        ]
+      },
+      "OptionMap": {
+        "type": "object",
+        "properties": {
+          "A": {
+            "type": "string"
+          },
+          "B": {
+            "type": "string"
+          },
+          "C": {
+            "type": "string"
+          },
+          "D": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "OriginalSnapshotDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/OptionMap"
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content",
+          "options",
+          "correctAnswer",
+          "explanation"
+        ]
+      },
+      "FirstReviewDetailDto": {
+        "type": "object",
+        "properties": {
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT",
+              "CONFIRM",
+              "REMOVE",
+              "CONFIRM_ALL",
+              "IMPORT",
+              "ASSIGN",
+              "REASSIGN",
+              "REASSIGN_CONFIRMER",
+              "UPDATE_DUE_DATE",
+              "ACCEPT_FLAG",
+              "CANCEL_PENDING"
+            ],
+            "nullable": true
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalSnapshot": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OriginalSnapshotDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "dueAt",
+          "action",
+          "reviewedAt",
+          "comment",
+          "originalSnapshot"
+        ]
+      },
+      "SecondReviewDetailDto": {
+        "type": "object",
+        "properties": {
+          "dueAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT",
+              "CONFIRM",
+              "REMOVE",
+              "CONFIRM_ALL",
+              "IMPORT",
+              "ASSIGN",
+              "REASSIGN",
+              "REASSIGN_CONFIRMER",
+              "UPDATE_DUE_DATE",
+              "ACCEPT_FLAG",
+              "CANCEL_PENDING"
+            ],
+            "nullable": true
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "dueAt",
+          "action",
+          "confirmedAt",
+          "comment"
+        ]
+      },
+      "ItemFlagDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "reasonCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "suspectedDuplicateId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "level",
+          "reasonCodes"
+        ]
+      },
+      "ReviewItemDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/OptionMap"
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string",
+            "enum": [
+              "VOCABULARY",
+              "GRAMMAR"
+            ]
+          },
+          "cefrTarget": {
+            "type": "string",
+            "enum": [
+              "PRE_A1",
+              "A1",
+              "A2",
+              "B1",
+              "B2",
+              "C1_PLUS"
+            ]
+          },
+          "topicTag": {
+            "type": "string",
+            "nullable": true
+          },
+          "irtB": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "FIRST_APPROVED",
+              "SECOND_APPROVED",
+              "FINAL_APPROVED",
+              "REJECTED",
+              "AI_REJECTED"
+            ]
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "firstReview": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FirstReviewDetailDto"
+              }
+            ]
+          },
+          "secondReview": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SecondReviewDetailDto"
+              }
+            ]
+          },
+          "hasEdited": {
+            "type": "boolean"
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemFlagDto"
+            }
+          },
+          "reviewerName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "options",
+          "correctAnswer",
+          "skill",
+          "cefrTarget",
+          "topicTag",
+          "irtB",
+          "status",
+          "explanation",
+          "firstReview",
+          "hasEdited",
+          "flags"
+        ]
+      },
+      "BatchItemsResponseDto": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "string"
+          },
+          "batchName": {
+            "type": "string"
+          },
+          "totalCount": {
+            "type": "number"
+          },
+          "decidedCount": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewItemDetailDto"
+            }
+          }
+        },
+        "required": [
+          "batchId",
+          "batchName",
+          "totalCount",
+          "decidedCount",
+          "items"
+        ]
+      },
+      "ConfirmBatchSummaryDto": {
+        "type": "object",
+        "properties": {
+          "batchId": {
+            "type": "string"
+          },
+          "batchName": {
+            "type": "string"
+          },
+          "totalAssigned": {
+            "type": "number"
+          },
+          "pendingCount": {
+            "type": "number"
+          },
+          "confirmedCount": {
+            "type": "number"
+          },
+          "removedCount": {
+            "type": "number"
+          },
+          "decidedCount": {
+            "type": "number"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isOverdue": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "batchId",
+          "batchName",
+          "totalAssigned",
+          "pendingCount",
+          "confirmedCount",
+          "removedCount",
+          "decidedCount",
+          "dueAt",
+          "isOverdue"
+        ]
+      },
+      "ConfirmTasksResponseDto": {
+        "type": "object",
+        "properties": {
+          "batches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConfirmBatchSummaryDto"
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/TeacherTaskStatsDto"
+          }
+        },
+        "required": [
+          "batches",
+          "stats"
+        ]
+      },
+      "ConfirmAllResultDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "confirmedCount": {
+            "type": "number"
+          },
+          "batchFinalized": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "confirmedCount",
+          "batchFinalized"
+        ]
+      },
+      "EditItemDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/OptionMap"
+          },
+          "correctAnswer": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      },
+      "ReviewCommentDto": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ghi chú tùy chọn khi duyệt / xác nhận câu hỏi"
+          }
+        }
+      },
+      "ReviewActionResultDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "FIRST_APPROVED",
+              "SECOND_APPROVED",
+              "FINAL_APPROVED",
+              "REJECTED",
+              "AI_REJECTED"
+            ]
+          },
+          "batchFinalized": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "itemId",
+          "status",
+          "batchFinalized"
+        ]
+      },
+      "RequiredReviewCommentDto": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Lý do bắt buộc khi từ chối hoặc loại bỏ câu hỏi (Q1)"
+          }
+        },
+        "required": [
+          "comment"
         ]
       },
       "SessionMetaDto": {

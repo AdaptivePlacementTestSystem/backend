@@ -121,6 +121,7 @@ export class ComputeResultUseCase {
           skill: t.skill,
           itemsAttempted: t.total,
           correctCount: t.correct,
+          itemsIncorrect: t.total - t.correct,
           accuracyRate: parseFloat(accuracyRate.toFixed(2)),
           severity,
         };
