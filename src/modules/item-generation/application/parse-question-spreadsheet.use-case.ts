@@ -4,7 +4,7 @@
   PayloadTooLargeException,
 } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
-import * as yauzl from 'yauzl';
+import { validateXlsxArchive } from '../../../shared/utils/xlsx-archive.util';
 import { validateCandidate } from '../domain/candidate-validation';
 
 export type ImportedCandidate = {
@@ -19,76 +19,6 @@ export type ImportedCandidate = {
 };
 const MAX_ROWS = 1000;
 const MAX_UNCOMPRESSED_BYTES = 20 * 1024 * 1024;
-async function validateArchive(buffer: Buffer, limit: number): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    yauzl.fromBuffer(
-      buffer,
-      { lazyEntries: true, validateEntrySizes: true },
-      (error, zip) => {
-        if (error || !zip) {
-          reject(new BadRequestException('File .xlsx không hợp lệ'));
-          return;
-        }
-        let total = 0;
-        let ended = false;
-        const fail = (cause: Error) => {
-          if (ended) return;
-          ended = true;
-          zip.close();
-          reject(cause);
-        };
-        zip.on('error', () =>
-          fail(new BadRequestException('File .xlsx không hợp lệ')),
-        );
-        zip.on('end', () => {
-          if (!ended) {
-            ended = true;
-            resolve();
-          }
-        });
-        zip.on('entry', (entry: yauzl.Entry) => {
-          if (
-            (entry.generalPurposeBitFlag & 1) !== 0 ||
-            /(^|\/)vbaproject\.bin$/i.test(entry.fileName)
-          ) {
-            fail(
-              new BadRequestException(
-                'File mã hóa hoặc có macro không được hỗ trợ',
-              ),
-            );
-            return;
-          }
-          if (entry.uncompressedSize > limit - total) {
-            fail(new PayloadTooLargeException('File giải nén vượt giới hạn'));
-            return;
-          }
-          zip.openReadStream(entry, (streamError, stream) => {
-            if (streamError || !stream) {
-              fail(new BadRequestException('File .xlsx không hợp lệ'));
-              return;
-            }
-            stream.on('data', (chunk: Buffer) => {
-              total += chunk.length;
-              if (total > limit) {
-                stream.destroy();
-                fail(
-                  new PayloadTooLargeException('File giải nén vượt giới hạn'),
-                );
-              }
-            });
-            stream.on('error', () =>
-              fail(new BadRequestException('File .xlsx không hợp lệ')),
-            );
-            stream.on('end', () => {
-              if (!ended) zip.readEntry();
-            });
-          });
-        });
-        zip.readEntry();
-      },
-    );
-  });
-}
 
 @Injectable()
 export class ParseQuestionSpreadsheetUseCase {
@@ -126,7 +56,7 @@ export class ParseQuestionSpreadsheetUseCase {
       file.buffer.length > 2 * 1024 * 1024
     )
       throw new BadRequestException('Chọn tệp .xlsx không quá 2 MB');
-    await validateArchive(file.buffer, MAX_UNCOMPRESSED_BYTES);
+    await validateXlsxArchive(file.buffer, MAX_UNCOMPRESSED_BYTES);
     const wb = new ExcelJS.Workbook();
     try {
       await wb.xlsx.load(file.buffer as unknown as ExcelJS.Buffer);

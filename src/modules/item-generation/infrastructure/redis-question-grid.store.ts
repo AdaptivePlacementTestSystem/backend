@@ -44,29 +44,33 @@ redis.call('SET', KEYS[2], '1', 'EX', ARGV[4])
 return added
 `;
 
+import {
+  createGridRedisClient,
+  evalGridMerge,
+  parseGridSnapshot,
+  readGridConfig,
+  type RedisGridConfig,
+} from '../../../shared/cache/redis-grid.helper';
+
 @Injectable()
 export class RedisQuestionGridStore implements OnModuleInit, OnModuleDestroy {
   private redis!: Redis;
   private readonly logger = new Logger(RedisQuestionGridStore.name);
-  private readonly ttl: number;
-  private readonly maxRows: number;
-  private readonly markerTtl: number;
+  private readonly gridCfg: RedisGridConfig;
+  private get ttl(): number {
+    return this.gridCfg.ttl;
+  }
+  private get markerTtl(): number {
+    return this.gridCfg.markerTtl;
+  }
   constructor(private readonly config: ConfigService) {
-    this.ttl = config.get<number>('accountImport.gridTtlSeconds') ?? 1800;
-    this.maxRows = config.get<number>('accountImport.maxRows') ?? 1000;
-    this.markerTtl = Math.max(
-      this.ttl + 1,
-      config.get<number>('accountImport.jobTtlSeconds') ?? 3600,
-    );
+    this.gridCfg = readGridConfig(config);
   }
   onModuleInit(): void {
-    this.redis = new Redis({
-      host: this.config.get<string>('redis.host') ?? 'localhost',
-      port: this.config.get<number>('redis.port') ?? 6379,
-      maxRetriesPerRequest: 1,
-    });
-    this.redis.on('error', () =>
-      this.logger.warn('Không kết nối được Redis cho lưới danh sách thi'),
+    this.redis = createGridRedisClient(
+      this.config,
+      this.logger,
+      'Không kết nối được Redis cho lưới câu hỏi',
     );
   }
   async onModuleDestroy(): Promise<void> {
@@ -94,18 +98,7 @@ export class RedisQuestionGridStore implements OnModuleInit, OnModuleDestroy {
     adminId: string,
   ): Promise<{ operationId: string; rows: QuestionGridRow[] } | null> {
     const entries = await this.redis.hgetall(this.key(adminId));
-    if (!entries.__grid__) return null;
-    const operationId = entries.__operation__;
-    if (!operationId)
-      throw new ConflictException('Lưới thiếu mã thao tác; hãy xóa và tải lại');
-    delete entries.__grid__;
-    delete entries.__operation__;
-    return {
-      operationId,
-      rows: Object.values(entries).map(
-        (value) => JSON.parse(value) as QuestionGridRow,
-      ),
-    };
+    return parseGridSnapshot<QuestionGridRow>(entries);
   }
   async load(adminId: string): Promise<QuestionGridRow[] | null> {
     return (await this.snapshot(adminId))?.rows ?? null;
@@ -114,22 +107,13 @@ export class RedisQuestionGridStore implements OnModuleInit, OnModuleDestroy {
     if (rows.some((row) => !row.rowKey || row.rowKey.startsWith('__'))) {
       throw new BadRequestException('Dòng không hợp lệ');
     }
-    const result = await this.redis.eval(
+    return evalGridMerge(
+      this.redis,
       MERGE,
-      3,
-      this.key(adminId),
-      this.markerKey(adminId),
-      this.lockKey(adminId),
-      JSON.stringify(rows),
-      this.maxRows,
-      this.ttl,
-      this.markerTtl,
-      randomUUID(),
+      [this.key(adminId), this.markerKey(adminId), this.lockKey(adminId)],
+      rows,
+      this.gridCfg,
     );
-    if (result === -2) throw new ConflictException('Lưới đang được lưu');
-    if (result === -1)
-      throw new BadRequestException('Lưới vượt số dòng cho phép');
-    return Number(result);
   }
   async remove(adminId: string, rowKey: string): Promise<void> {
     if (rowKey.startsWith('__'))
