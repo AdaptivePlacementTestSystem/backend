@@ -12,7 +12,9 @@ export class ListItemsUseCase {
     private readonly itemRepository: IItemRepository,
   ) {}
 
-  async execute(options?: ItemFilterOptions): Promise<ItemEntity[]> {
+  async execute(
+    options?: ItemFilterOptions,
+  ): Promise<{ items: ItemEntity[]; total: number }> {
     return this.itemRepository.findAll(options);
   }
 }

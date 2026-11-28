@@ -1,27 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AbilityResponseDto {
   @ApiProperty() theta: number;
   @ApiProperty() standardError: number;
   @ApiProperty({ type: [Number] }) confidenceInterval95: number[];
 }
-export class LanguageProfileResponseDto {
-  @ApiProperty() id: string;
-  @ApiProperty() studentId: string;
-  @ApiProperty() testSessionId: string;
-  @ApiProperty({ format: 'date-time' }) completedAt: string;
-  @ApiProperty({ type: AbilityResponseDto })
-  abilityEstimate: AbilityResponseDto;
-  @ApiProperty() cefrLevel: string;
-  @ApiProperty() cefrConfidence: string;
-  @ApiProperty() boundaryEffect: boolean;
-  @ApiProperty({ type: 'array', items: {} }) skillProfiles: unknown[];
-  @ApiProperty({ type: 'array', items: {} }) errorPatterns: unknown[];
-  @ApiProperty({ type: 'object', additionalProperties: true })
-  testMetadata: Record<string, unknown>;
-  @ApiProperty({ type: [String] }) aiRecommendations: string[];
-  @ApiProperty() schemaVersion: string;
-}
+
 export class StudentHistoryResponseDto {
   @ApiProperty() sessionId: string;
   @ApiProperty() examRoundId: string;
@@ -36,6 +20,43 @@ export class StudentHistoryResponseDto {
   @ApiProperty() status: string;
   @ApiProperty({ type: String, nullable: true }) stoppingReason: string | null;
 }
+
+export class ProfileStudentInfoDto {
+  @ApiProperty() id: string;
+  @ApiProperty() studentCode: string;
+  @ApiProperty() fullName: string;
+  @ApiProperty() email: string;
+}
+
+export class ProfileMetaDto {
+  @ApiProperty({ type: String, nullable: true })
+  stoppingReason: string | null;
+  @ApiProperty({ type: Number, nullable: true }) totalItems: number | null;
+  @ApiProperty({ type: Number, nullable: true })
+  itemsAdministered: number | null;
+}
+
+export class LatestProfileDto {
+  @ApiProperty() sessionId: string;
+  @ApiProperty({ format: 'date-time' }) completedAt: string;
+  @ApiProperty() cefrLevel: string;
+  @ApiProperty() cefrConfidence: string;
+  @ApiProperty() boundaryEffect: boolean;
+  @ApiProperty({ type: AbilityResponseDto }) ability: AbilityResponseDto;
+  @ApiProperty({ type: ProfileMetaDto }) meta: ProfileMetaDto;
+  @ApiProperty({ type: 'array', items: {} }) skillProfiles: unknown[];
+  @ApiProperty({ type: 'array', items: {} }) errorPatterns: unknown[];
+  @ApiPropertyOptional({ type: [String] }) aiRecommendations?: string[];
+}
+
+export class LanguageProfileResponseDto {
+  @ApiProperty({ type: ProfileStudentInfoDto }) student: ProfileStudentInfoDto;
+  @ApiProperty({ type: LatestProfileDto, nullable: true })
+  latest: LatestProfileDto | null;
+  @ApiProperty({ type: [StudentHistoryResponseDto] })
+  history: StudentHistoryResponseDto[];
+}
+
 export class EduZOverallDto {
   @ApiProperty() theta: number;
   @ApiProperty() standard_error: number;
@@ -44,6 +65,7 @@ export class EduZOverallDto {
   @ApiProperty() cefr_confidence: string;
   @ApiProperty() boundary_effect: boolean;
 }
+
 export class EduZProfileResponseDto {
   @ApiProperty() schema_version: string;
   @ApiProperty() student_id: string;

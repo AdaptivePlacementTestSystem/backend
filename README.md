@@ -34,7 +34,7 @@ backend/
 │   │   ├── language-profile/ # Hồ sơ năng lực ngôn ngữ theo CEFR
 │   │   ├── llm-gateway/      # Cổng giao tiếp mô hình AI ngôn ngữ lớn
 │   │   ├── mail/             # Dịch vụ gửi email thông báo
-│   │   ├── reporting/        # Báo cáo kết quả lớp học và kỳ thi
+│   │   ├── reporting/        # Báo cáo thống kê kết quả và kỳ thi
 │   │   ├── test-session/     # Quản lý phiên làm bài thích ứng
 │   │   ├── user-admin/       # Quản trị người dùng hệ thống
 │   │   └── user-import/      # Import người dùng và ngân hàng đề hàng loạt

@@ -128,7 +128,7 @@ describe('GetSystemOverviewUseCase', () => {
     });
   });
 
-  it('lô cần xử lý: chỉ READY_TO_ASSIGN, READY_TO_FINALIZE, FAILED, PARTIAL (không có IN_REVIEW)', async () => {
+  it('lô cần xử lý: chỉ READY_TO_ASSIGN, READY_TO_FINALIZE, FAILED, PARTIAL, PARTIALLY_IMPORTED (không có IN_REVIEW)', async () => {
     prisma.itemBatch.count.mockResolvedValue(3);
 
     const result = await useCase.execute(undefined, NOW);

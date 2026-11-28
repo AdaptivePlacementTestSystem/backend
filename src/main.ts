@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ErrorCode } from '@apt/shared-types';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/http-exception.filter';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -30,12 +31,27 @@ async function bootstrap() {
   // Global Exception Filter
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Global Validation Pipe
+  // Global Validation Pipe (WP-7.1: luôn kèm ErrorCode.VALIDATION_FAILED)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.flatMap((err) => {
+          const own = err.constraints ? Object.values(err.constraints) : [];
+          const children =
+            err.children?.flatMap((child) =>
+              child.constraints ? Object.values(child.constraints) : [],
+            ) ?? [];
+          return [...own, ...children];
+        });
+        return new BadRequestException({
+          code: ErrorCode.VALIDATION_FAILED,
+          message:
+            messages.length > 0 ? messages : 'Dữ liệu đầu vào không hợp lệ',
+        });
+      },
     }),
   );
 

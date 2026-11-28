@@ -17,7 +17,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
+  Matches,
 } from 'class-validator';
 import { StartSessionUseCase } from '../application/use-cases/start-session.use-case';
 import {
@@ -75,7 +75,9 @@ export class SubmitResponseBodyDto {
 
 export class StartSessionBodyDto {
   @ApiProperty({ format: 'uuid' })
-  @IsUUID()
+  @Matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, {
+    message: 'examRoundId phải là UUID hợp lệ',
+  })
   examRoundId: string;
 }
 
@@ -240,6 +242,7 @@ export class TestSessionController {
   }
 
   @Get(':id/next-item')
+  @Roles(UserRole.STUDENT)
   @ApiOkResponse({
     schema: {
       oneOf: [
@@ -305,31 +308,42 @@ export class TestSessionController {
       }
     }
 
-    // 4. Chọn kỹ năng tiếp theo (Round-robin)
+    // 4. Reconstruct fallback từ DB nếu Redis mất kết nối/trống cache (bảo toàn tiến trình thi)
+    const responses = session.responses ?? [];
+    const lastDbResponse =
+      responses.length > 0 ? responses[responses.length - 1] : null;
+    const usedIds =
+      cacheState?.itemsAdministered ?? responses.map((r) => r.itemId);
+    const currentTheta =
+      cacheState?.theta ?? lastDbResponse?.thetaAfter ?? -0.5;
+    const currentSe = cacheState?.se ?? lastDbResponse?.seAfter ?? 1.0;
+
+    // 5. Chọn kỹ năng tiếp theo (Round-robin)
     const nextSkill = this.catEngineService.pickNextSkill(
       cacheState?.lastSkillPicked ?? null,
     );
 
-    // 5. Lấy danh sách Top-5 ứng viên gần theta nhất
-    const usedIds = cacheState?.itemsAdministered ?? [];
-    const currentTheta = cacheState?.theta ?? -0.5;
+    // 6. Lấy danh sách Top-5 ứng viên gần theta nhất trong biên độ khó hợp lệ [-4, +4]
+    const topNItems = this.configService.get<number>('cat.topNItems') ?? 5;
+    const itemBMin = this.configService.get<number>('cat.itemBMin') ?? -4.0;
+    const itemBMax = this.configService.get<number>('cat.itemBMax') ?? 4.0;
     const candidates = await this.itemRepository.findForCAT(
       nextSkill,
       usedIds,
       currentTheta,
-      5,
+      topNItems,
+      itemBMin,
+      itemBMax,
     );
 
-    // 6. Chọn ngẫu nhiên đều 1 câu từ Top-5
+    // 7. Chọn ngẫu nhiên đều 1 câu từ Top-5
     const selectedItem = this.catEngineService.selectNextItem(candidates);
     if (!selectedItem) {
       // Hết câu hỏi phù hợp trong ngân hàng đề -> hoàn tất phiên thi với ITEM_BANK_BOUNDARY
-      const currentThetaFinal = cacheState?.theta ?? -0.5;
-      const currentSeFinal = cacheState?.se ?? 1.0;
       await this.computeResultUseCase.execute(
         session.id,
-        currentThetaFinal,
-        currentSeFinal,
+        currentTheta,
+        currentSe,
         StoppingReason.ITEM_BANK_BOUNDARY as any,
       );
       await this.cacheService.deleteState(session.id);
@@ -341,12 +355,12 @@ export class TestSessionController {
       };
     }
 
-    // 7. Cập nhật state machine sang WAITING_FOR_ANSWER
+    // 8. Cập nhật state machine sang WAITING_FOR_ANSWER
     await this.cacheService.setState(sessionId, {
       state: 'WAITING_FOR_ANSWER',
       currentItemId: selectedItem.id,
       theta: currentTheta,
-      se: cacheState?.se ?? 1.0,
+      se: currentSe,
       lastSkillPicked: nextSkill,
       itemsAdministered: usedIds,
       lastUpdated: new Date().toISOString(),
@@ -360,6 +374,7 @@ export class TestSessionController {
   }
 
   @Post(':id/responses')
+  @Roles(UserRole.STUDENT)
   @ApiOkResponse({ type: SubmitSessionResponseDto })
   @Roles(UserRole.STUDENT)
   @HttpCode(HttpStatus.OK)
@@ -387,6 +402,7 @@ export class TestSessionController {
   }
 
   @Get(':id/resume')
+  @Roles(UserRole.STUDENT)
   @ApiOkResponse({ type: ResumeSessionResponseDto })
   @Roles(UserRole.STUDENT)
   async resumeSession(
@@ -413,6 +429,7 @@ export class TestSessionController {
   }
 
   @Get(':id/review')
+  @Roles(UserRole.STUDENT)
   @ApiOkResponse({ type: ReviewEntryDto, isArray: true })
   async getReview(
     @Param('id') sessionId: string,
@@ -426,7 +443,8 @@ export class TestSessionController {
     if (!session) {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
-    if (session.studentId !== user.sub) {
+    // WP-9.1 / K6: Chỉ chính sinh viên chủ sở hữu mới được thao tác phiên làm bài
+    if (user.role !== UserRole.STUDENT || session.studentId !== user.sub) {
       throw new ForbiddenException(
         'Bạn không có quyền thao tác trên phiên làm bài này',
       );

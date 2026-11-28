@@ -5,7 +5,12 @@ import {
   ItemFilterOptions,
 } from '../../domain/repositories/item.repository.interface';
 import { ItemEntity, OptionMap } from '../../domain/entities/item.entity';
-import { Skill, CEFRLevel, ItemStatus } from '@apt/shared-types';
+import {
+  Skill,
+  CEFRLevel,
+  ItemStatus,
+  ItemBatchSource,
+} from '@apt/shared-types';
 
 @Injectable()
 export class PrismaItemRepository implements IItemRepository {
@@ -16,20 +21,60 @@ export class PrismaItemRepository implements IItemRepository {
     return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(options?: ItemFilterOptions): Promise<ItemEntity[]> {
+  async findAll(
+    options?: ItemFilterOptions,
+  ): Promise<{ items: ItemEntity[]; total: number }> {
     const where: any = {};
     if (options?.visibleIds) where.id = { in: options.visibleIds };
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
+    if (options?.cefrTarget) where.cefrTarget = options.cefrTarget;
+    if (options?.source) where.batch = { source: options.source };
 
-    const items = await this.prisma.item.findMany({
-      where,
-      take: options?.limit,
-      skip: options?.offset,
-      orderBy: { createdAt: 'desc' },
-    });
+    const andConditions: any[] = [];
+    if (options?.assignedTeacherId) {
+      // WP-8.2: Tra cứu quyền vai B theo ItemBatch.confirmerId (bỏ phụ thuộc item.confirmerId)
+      andConditions.push({
+        OR: [
+          { reviewerId: options.assignedTeacherId },
+          { batch: { confirmerId: options.assignedTeacherId } },
+        ],
+      });
+    }
+    if (options?.q) {
+      andConditions.push({
+        OR: [
+          { content: { contains: options.q, mode: 'insensitive' } },
+          { topicTag: { contains: options.q, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
 
-    return items.map((i: any) => this.toDomain(i));
+    const take = options?.limit ?? 50;
+    const skip = options?.offset ?? 0;
+
+    const [items, total] = await Promise.all([
+      this.prisma.item.findMany({
+        where,
+        include: {
+          batch: {
+            select: { source: true, confirmerId: true },
+          },
+        },
+        take,
+        skip,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.item.count({ where }),
+    ]);
+
+    return {
+      items: items.map((i: any) => this.toDomain(i)),
+      total,
+    };
   }
 
   async incrementTimesUsed(id: string): Promise<void> {
@@ -51,11 +96,14 @@ export class PrismaItemRepository implements IItemRepository {
     usedIds: string[],
     theta: number,
     limit: number = 5,
+    itemBMin: number = -4.0,
+    itemBMax: number = 4.0,
   ): Promise<ItemEntity[]> {
     const candidates = await this.prisma.item.findMany({
       where: {
         status: 'FINAL_APPROVED',
         skill: skill as any,
+        irtB: { gte: itemBMin, lte: itemBMax },
         id: usedIds.length > 0 ? { notIn: usedIds } : undefined,
       },
       select: {
@@ -114,6 +162,9 @@ export class PrismaItemRepository implements IItemRepository {
       raw.calibrated,
       raw.createdAt,
       raw.updatedAt,
+      raw.batch?.source ?? ItemBatchSource.IMPORTED,
+      raw.reviewerId ?? null,
+      raw.batch?.confirmerId ?? null,
     );
   }
 }

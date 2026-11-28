@@ -15,7 +15,7 @@ export class GetItemUseCase {
       where: { id: itemId },
       include: {
         explanation: true,
-        batch: { select: { id: true, source: true } },
+        batch: { select: { id: true, source: true, confirmerId: true } },
       },
     });
 
@@ -36,6 +36,8 @@ export class GetItemUseCase {
       source: item.batch.source,
       topicTag: item.topicTag,
       timesUsed: item.timesUsed,
+      reviewerId: item.reviewerId,
+      confirmerId: item.batch.confirmerId,
       explanation: item.explanation?.content ?? null,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,

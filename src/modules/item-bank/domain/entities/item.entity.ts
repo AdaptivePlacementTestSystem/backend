@@ -1,4 +1,9 @@
-import { Skill, CEFRLevel, ItemStatus } from '@apt/shared-types';
+import {
+  Skill,
+  CEFRLevel,
+  ItemStatus,
+  ItemBatchSource,
+} from '@apt/shared-types';
 
 export type OptionMap = {
   A: string;
@@ -34,6 +39,9 @@ export class ItemEntity {
     public calibrated: boolean = false,
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
+    public source: ItemBatchSource = ItemBatchSource.IMPORTED,
+    public reviewerId: string | null = null,
+    public confirmerId: string | null = null,
   ) {}
 
   /**
