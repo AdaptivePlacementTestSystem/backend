@@ -15,8 +15,22 @@ type Candidate = {
   explanation: string;
   skill: Skill;
   cefrTarget: CEFRLevel;
+  topicTag?: string | null;
   irtB: number;
 };
+
+export function resolveItemTopicTag(
+  batchTopicTag: string | null,
+  candidateTopicTag?: string | null,
+): string | null {
+  const fixed = batchTopicTag?.trim();
+  if (fixed) return fixed;
+  if (typeof candidateTopicTag === 'string') {
+    const tagged = candidateTopicTag.trim();
+    if (tagged) return tagged.slice(0, 50);
+  }
+  return null;
+}
 
 @Injectable()
 export class ProcessAiBatchUseCase {
@@ -74,7 +88,10 @@ export class ProcessAiBatchUseCase {
       maxOutputTokens: 8192,
     });
     const examples = samples.map(({ id: _id, ...sample }) => sample);
-    const prompt = `Generate ${batch.requestedCount} original English multiple-choice questions for ${batch.skill}, CEFR ${batch.cefrTarget}, topic ${JSON.stringify(batch.topicTag ?? '')}. Use the following examples only as guidance; do not copy them. Each question must have exactly four distinct options A-D, exactly one correct answer and a clear explanation. Return only a JSON array of objects with content, options, correctAnswer, explanation, skill, cefrTarget, and numeric irtB between -4 and 4. Examples: ${JSON.stringify(examples)}`;
+    const topicInstruction = batch.topicTag
+      ? `topic ${JSON.stringify(batch.topicTag)} (keep topicTag equal to ${JSON.stringify(batch.topicTag)})`
+      : 'no fixed topic (assign a concise snake_case topicTag up to 50 chars per question, e.g. "past_simple" or "academic_vocab")';
+    const prompt = `Generate ${batch.requestedCount} original English multiple-choice questions for ${batch.skill}, CEFR ${batch.cefrTarget}, ${topicInstruction}. Use the following examples only as guidance; do not copy them. Each question must have exactly four distinct options A-D, exactly one correct answer and a clear explanation. Return only a JSON array of objects with content, options, correctAnswer, explanation, skill, cefrTarget, topicTag, and numeric irtB between -4 and 4. Examples: ${JSON.stringify(examples)}`;
     await reserveAiCall(this.prisma, batchId, lease);
     const response = await client.generate(prompt);
     let parsed: unknown;
@@ -117,7 +134,7 @@ export class ProcessAiBatchUseCase {
             explanation: { create: { content: item.explanation.trim() } },
             skill: batch.skill!,
             cefrTarget: batch.cefrTarget!,
-            topicTag: batch.topicTag,
+            topicTag: resolveItemTopicTag(batch.topicTag, item.topicTag),
             irtB: average,
             contentHash: contentFingerprint(item),
             status: 'DRAFT',
