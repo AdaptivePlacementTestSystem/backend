@@ -181,6 +181,7 @@ function breakingChanges(oldDoc, newDoc) {
 const WAVE1_ALLOWLIST_PREFIXES = [
   'GET /api/v1/items response 200:',
   'GET /api/v1/placement-profiles/{studentCode} response 200.',
+  'GET /api/v1/reports/error-patterns response 200',
 ];
 
 if (require.main === module) {

@@ -40,4 +40,8 @@ export class ClassErrorPatternDto {
   @ApiProperty() errorRate: number;
   @ApiProperty() totalAttempted: number;
   @ApiProperty() totalIncorrect: number;
+  @ApiProperty() itemsAttempted: number;
+  @ApiProperty() correctCount: number;
+  @ApiProperty() accuracyRate: number;
+  @ApiProperty() severity: string;
 }

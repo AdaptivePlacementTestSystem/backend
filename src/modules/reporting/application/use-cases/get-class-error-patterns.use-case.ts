@@ -9,6 +9,10 @@ export interface ClassErrorPatternDto {
   errorRate: number;
   totalAttempted: number;
   totalIncorrect: number;
+  itemsAttempted: number;
+  correctCount: number;
+  accuracyRate: number;
+  severity: string;
 }
 
 @Injectable()
@@ -94,6 +98,15 @@ export class GetClassErrorPatternsUseCase {
         item.totalAttempted > 0
           ? Math.round((item.totalIncorrect / item.totalAttempted) * 100)
           : 0;
+      const accuracy = 100 - rate;
+      const isSevere = rate >= 60;
+      const isMedium = rate >= 35 && rate < 60;
+      const severity = isSevere
+        ? 'SEVERITY_HIGH'
+        : isMedium
+          ? 'SEVERITY_MEDIUM'
+          : 'SEVERITY_LOW';
+
       results.push({
         topicTag: item.topicTag,
         skill: item.skill,
@@ -101,6 +114,10 @@ export class GetClassErrorPatternsUseCase {
         errorRate: rate,
         totalAttempted: item.totalAttempted,
         totalIncorrect: item.totalIncorrect,
+        itemsAttempted: item.totalAttempted,
+        correctCount: Math.max(0, item.totalAttempted - item.totalIncorrect),
+        accuracyRate: accuracy,
+        severity,
       });
     }
 
