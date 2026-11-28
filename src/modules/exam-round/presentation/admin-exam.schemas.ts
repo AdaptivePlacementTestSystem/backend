@@ -27,6 +27,22 @@ export const roundRecord: SchemaObject = {
     updatedAt: date,
   },
 };
+export const roundListRecord: SchemaObject = {
+  ...roundRecord,
+  required: [
+    ...(roundRecord.required ?? []),
+    'participantCount',
+    'effectiveStatus',
+  ],
+  properties: {
+    ...roundRecord.properties,
+    participantCount: { type: 'integer' },
+    effectiveStatus: {
+      type: 'string',
+      enum: ['DRAFT', 'SCHEDULED', 'OPEN', 'CLOSED'],
+    },
+  },
+};
 export const updateRound: SchemaObject = {
   type: 'object',
   additionalProperties: false,
