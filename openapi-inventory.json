@@ -26,6 +26,11 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/exam-rounds",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
     "path": "/api/v1/exam-rounds/{id}",
     "contract": "documented"
   },
@@ -96,6 +101,11 @@
   },
   {
     "method": "GET",
+    "path": "/api/v1/reports/error-patterns",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
     "path": "/api/v1/reports/export-csv",
     "contract": "documented"
   },
@@ -152,6 +162,56 @@
   {
     "method": "PATCH",
     "path": "/api/v1/students/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/teacher/items/{id}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teacher/items/{id}/approve",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teacher/items/{id}/confirm",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teacher/items/{id}/reject",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teacher/items/{id}/remove",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/teacher/tasks/confirms",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/teacher/tasks/confirms/{batchId}",
+    "contract": "documented"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/teacher/tasks/confirms/{batchId}/confirm-all",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/teacher/tasks/reviews",
+    "contract": "documented"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/teacher/tasks/reviews/{batchId}",
     "contract": "documented"
   },
   {

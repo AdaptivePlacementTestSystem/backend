@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
-import { ReviewTasksResponseDto, ReviewBatchSummaryDto } from '../../dto/teacher-review.dto';
+import {
+  ReviewTasksResponseDto,
+  ReviewBatchSummaryDto,
+} from '../../dto/teacher-review.dto';
 import { ItemStatus } from '@apt/shared-types';
 
 @Injectable()
@@ -28,11 +31,14 @@ export class GetTeacherReviewTasksUseCase {
     });
 
     // 2. Nhóm theo Batch
-    const batchMap = new Map<string, {
-      batchId: string;
-      batchName: string;
-      items: typeof items;
-    }>();
+    const batchMap = new Map<
+      string,
+      {
+        batchId: string;
+        batchName: string;
+        items: typeof items;
+      }
+    >();
 
     for (const item of items) {
       if (!batchMap.has(item.batchId)) {
@@ -81,11 +87,13 @@ export class GetTeacherReviewTasksUseCase {
       });
     }
 
-    // 3. Đếm số câu cần confirm của GV B để hiển thị huy hiệu tab
+    // 3. Đếm số câu cần confirm của GV B theo ItemBatch.confirmerId (WP-2.1)
     const pendingConfirms = await this.prisma.item.count({
       where: {
-        confirmerId: teacherId,
         status: ItemStatus.FIRST_APPROVED,
+        batch: {
+          confirmerId: teacherId,
+        },
       },
     });
 

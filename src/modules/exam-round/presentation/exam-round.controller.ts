@@ -18,6 +18,18 @@ import {
   ApiPropertyOptional,
 } from '@nestjs/swagger';
 
+class ExamRoundSummaryResponseDto {
+  @ApiProperty() id: string;
+  @ApiProperty() name: string;
+  @ApiProperty() status: string;
+  @ApiProperty() effectiveStatus: string;
+  @ApiProperty({ format: 'date-time' }) opensAt: string;
+  @ApiProperty({ format: 'date-time' }) closesAt: string;
+  @ApiProperty() durationMinutes: number;
+  @ApiProperty() participantCount: number;
+  @ApiProperty() sessionCount: number;
+}
+
 class ExamRoundDetailResponseDto {
   @ApiProperty() id: string;
   @ApiProperty() title: string;
@@ -88,6 +100,8 @@ export class ExamRoundController {
   ) {}
 
   @Get()
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: ExamRoundSummaryResponseDto, isArray: true })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async listExamRounds() {
     return this.listExamRoundsUseCase.execute();

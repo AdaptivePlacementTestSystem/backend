@@ -67,9 +67,9 @@ export class GetSessionReviewUseCase {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
 
-    if (userRole === UserRole.STUDENT && session.studentId !== userId) {
+    if (userRole !== UserRole.STUDENT || session.studentId !== userId) {
       throw new ForbiddenException(
-        'Bạn không có quyền xem lại kết quả bài thi này',
+        'Chỉ sinh viên chủ sở hữu mới có quyền xem lại kết quả bài thi này',
       );
     }
 

@@ -1,13 +1,20 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
 import { ReviewItemDetailDto, OptionMap } from '../../dto/teacher-review.dto';
-import { ItemStatus } from '@apt/shared-types';
+import { ErrorCode, ItemStatus, ReviewAction } from '@apt/shared-types';
 
 @Injectable()
 export class GetBatchItemsForConfirmUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(teacherId: string, batchId: string): Promise<{
+  async execute(
+    teacherId: string,
+    batchId: string,
+  ): Promise<{
     batchId: string;
     batchName: string;
     totalCount: number;
@@ -22,16 +29,24 @@ export class GetBatchItemsForConfirmUseCase {
       throw new NotFoundException(`Không tìm thấy lô câu hỏi: ${batchId}`);
     }
 
+    // WP-2.1: Nguồn sự thật GV vai B nằm ở ItemBatch.confirmerId
+    if (batch.confirmerId !== teacherId) {
+      throw new ForbiddenException({
+        code: ErrorCode.NOT_ASSIGNED,
+        message:
+          'Bạn không được phân công xác nhận câu hỏi trong lô này (NOT_ASSIGNED)',
+      });
+    }
+
     const items = await this.prisma.item.findMany({
       where: {
         batchId,
-        confirmerId: teacherId,
         OR: [
           { status: ItemStatus.FIRST_APPROVED },
           { status: ItemStatus.SECOND_APPROVED },
           {
             status: ItemStatus.REJECTED,
-            secondReview: { not: null as any },
+            secondReview: { path: ['action'], equals: ReviewAction.REMOVE },
           },
         ],
       },
@@ -58,13 +73,9 @@ export class GetBatchItemsForConfirmUseCase {
     });
 
     if (items.length === 0) {
-      const anyInBatch = await this.prisma.item.findFirst({
-        where: { batchId },
-      });
-      if (anyInBatch) {
-        throw new ForbiddenException('Bạn không được phân công xác nhận câu hỏi trong lô này (NOT_ASSIGNED)');
-      }
-      throw new NotFoundException('Lô câu hỏi này chưa có câu hỏi nào cần xác nhận');
+      throw new NotFoundException(
+        'Lô câu hỏi này chưa có câu hỏi nào cần xác nhận',
+      );
     }
 
     let decidedCount = 0;
@@ -88,20 +99,25 @@ export class GetBatchItemsForConfirmUseCase {
         irtB: item.irtB,
         status: item.status,
         explanation: item.explanation?.content || '',
-        reviewerName: item.reviewer?.fullName || item.reviewer?.email || 'Giảng viên A',
-        firstReview: firstReview ? {
-          dueAt: firstReview.dueAt,
-          action: firstReview.action || null,
-          reviewedAt: firstReview.reviewedAt || null,
-          comment: firstReview.comment || null,
-          originalSnapshot,
-        } : null,
-        secondReview: secondReview ? {
-          dueAt: secondReview.dueAt,
-          action: secondReview.action || null,
-          confirmedAt: secondReview.confirmedAt || null,
-          comment: secondReview.comment || null,
-        } : null,
+        reviewerName:
+          item.reviewer?.fullName || item.reviewer?.email || 'Giảng viên A',
+        firstReview: firstReview
+          ? {
+              dueAt: firstReview.dueAt,
+              action: firstReview.action || null,
+              reviewedAt: firstReview.reviewedAt || null,
+              comment: firstReview.comment || null,
+              originalSnapshot,
+            }
+          : null,
+        secondReview: secondReview
+          ? {
+              dueAt: secondReview.dueAt,
+              action: secondReview.action || null,
+              confirmedAt: secondReview.confirmedAt || null,
+              comment: secondReview.comment || null,
+            }
+          : null,
         hasEdited: Boolean(originalSnapshot),
         flags: item.checkResults.map((cr) => ({
           level: cr.level,

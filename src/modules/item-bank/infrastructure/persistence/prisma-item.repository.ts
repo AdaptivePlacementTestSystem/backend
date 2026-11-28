@@ -5,7 +5,12 @@ import {
   ItemFilterOptions,
 } from '../../domain/repositories/item.repository.interface';
 import { ItemEntity, OptionMap } from '../../domain/entities/item.entity';
-import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
+import {
+  Skill,
+  CEFRLevel,
+  ItemStatus,
+  ItemBatchSource,
+} from '@apt/shared-types';
 
 @Injectable()
 export class PrismaItemRepository implements IItemRepository {
@@ -16,7 +21,9 @@ export class PrismaItemRepository implements IItemRepository {
     return raw ? this.toDomain(raw) : null;
   }
 
-  async findAll(options?: ItemFilterOptions): Promise<{ items: ItemEntity[]; total: number }> {
+  async findAll(
+    options?: ItemFilterOptions,
+  ): Promise<{ items: ItemEntity[]; total: number }> {
     const where: any = {};
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
@@ -25,10 +32,11 @@ export class PrismaItemRepository implements IItemRepository {
 
     const andConditions: any[] = [];
     if (options?.assignedTeacherId) {
+      // WP-8.2: Tra cứu quyền vai B theo ItemBatch.confirmerId (bỏ phụ thuộc item.confirmerId)
       andConditions.push({
         OR: [
           { reviewerId: options.assignedTeacherId },
-          { confirmerId: options.assignedTeacherId },
+          { batch: { confirmerId: options.assignedTeacherId } },
         ],
       });
     }
@@ -52,7 +60,7 @@ export class PrismaItemRepository implements IItemRepository {
         where,
         include: {
           batch: {
-            select: { source: true },
+            select: { source: true, confirmerId: true },
           },
         },
         take,
@@ -87,11 +95,14 @@ export class PrismaItemRepository implements IItemRepository {
     usedIds: string[],
     theta: number,
     limit: number = 5,
+    itemBMin: number = -4.0,
+    itemBMax: number = 4.0,
   ): Promise<ItemEntity[]> {
     const candidates = await this.prisma.item.findMany({
       where: {
         status: 'FINAL_APPROVED',
         skill: skill as any,
+        irtB: { gte: itemBMin, lte: itemBMax },
         id: usedIds.length > 0 ? { notIn: usedIds } : undefined,
       },
       select: {
@@ -152,7 +163,7 @@ export class PrismaItemRepository implements IItemRepository {
       raw.updatedAt,
       raw.batch?.source ?? ItemBatchSource.IMPORTED,
       raw.reviewerId ?? null,
-      raw.confirmerId ?? null,
+      raw.batch?.confirmerId ?? null,
     );
   }
 }

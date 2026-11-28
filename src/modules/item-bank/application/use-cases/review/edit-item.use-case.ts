@@ -7,9 +7,14 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
-import { EditItemDto, ReviewItemDetailDto, OptionMap } from '../../dto/teacher-review.dto';
-import { ItemStatus, ErrorCode } from '@apt/shared-types';
+import {
+  EditItemDto,
+  ReviewItemDetailDto,
+  OptionMap,
+} from '../../dto/teacher-review.dto';
+import { ItemStatus, ItemBatchStatus, ErrorCode } from '@apt/shared-types';
 import * as crypto from 'crypto';
+import { lockAndAssertBatchInReview } from './batch-review-helper';
 
 export function computeItemContentHash(
   content: string,
@@ -19,7 +24,10 @@ export function computeItemContentHash(
   const normContent = (content || '').trim().toLowerCase().replace(/\s+/g, ' ');
   const optStr = options
     ? ['A', 'B', 'C', 'D']
-        .map((k) => `${k}:${(options[k as keyof OptionMap] || '').trim().toLowerCase()}`)
+        .map(
+          (k) =>
+            `${k}:${(options[k as keyof OptionMap] || '').trim().toLowerCase()}`,
+        )
         .join('|')
     : '';
   const normExp = (explanation || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -33,10 +41,15 @@ export function computeItemContentHash(
 export class EditItemUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(teacherId: string, itemId: string, dto: EditItemDto): Promise<ReviewItemDetailDto> {
+  async execute(
+    teacherId: string,
+    itemId: string,
+    dto: EditItemDto,
+  ): Promise<ReviewItemDetailDto> {
     const item = await this.prisma.item.findUnique({
       where: { id: itemId },
       include: {
+        batch: { select: { id: true, status: true } },
         explanation: true,
         checkResults: true,
       },
@@ -47,11 +60,23 @@ export class EditItemUseCase {
     }
 
     if (item.reviewerId !== teacherId) {
-      throw new ForbiddenException('Bạn không được phân công duyệt câu hỏi này (NOT_ASSIGNED)');
+      throw new ForbiddenException({
+        code: ErrorCode.NOT_ASSIGNED,
+        message: 'Bạn không được phân công duyệt câu hỏi này (NOT_ASSIGNED)',
+      });
+    }
+
+    if (item.batch?.status !== ItemBatchStatus.IN_REVIEW) {
+      throw new ConflictException({
+        code: ErrorCode.CONFLICT,
+        message: 'Lô câu hỏi không còn ở trạng thái đang duyệt (IN_REVIEW).',
+      });
     }
 
     if (item.status !== ItemStatus.DRAFT) {
-      throw new BadRequestException('Chỉ có thể chỉnh sửa câu hỏi khi đang ở trạng thái DRAFT');
+      throw new BadRequestException(
+        'Chỉ có thể chỉnh sửa câu hỏi khi đang ở trạng thái DRAFT',
+      );
     }
 
     // 1. Kiểm tra luật cứng nếu có cập nhật (BR-27: hỏng => 422 INVALID_AFTER_EDIT)
@@ -116,7 +141,8 @@ export class EditItemUseCase {
     if (duplicate) {
       throw new UnprocessableEntityException({
         code: ErrorCode.DUPLICATE_AFTER_EDIT,
-        message: 'Nội dung câu hỏi sau khi chỉnh sửa bị trùng lặp với câu hỏi khác trong hệ thống.',
+        message:
+          'Nội dung câu hỏi sau khi chỉnh sửa bị trùng lặp với câu hỏi khác trong hệ thống.',
       });
     }
 
@@ -140,17 +166,24 @@ export class EditItemUseCase {
 
     // 3. Cập nhật vào cơ sở dữ liệu trong 1 Transaction có điều kiện nguyên tử
     await this.prisma.$transaction(async (tx) => {
+      await lockAndAssertBatchInReview(tx, item.batchId);
+
       // Cập nhật câu hỏi có kiểm tra người được giao và trạng thái
       const updateResult = await tx.item.updateMany({
         where: {
           id: itemId,
           reviewerId: teacherId,
           status: ItemStatus.DRAFT,
+          batch: {
+            status: ItemBatchStatus.IN_REVIEW,
+          },
         },
         data: {
           content: finalContent,
           options: finalOptions as any,
-          correctAnswer: dto.correctAnswer ? dto.correctAnswer.toUpperCase() : item.correctAnswer,
+          correctAnswer: dto.correctAnswer
+            ? dto.correctAnswer.toUpperCase()
+            : item.correctAnswer,
           contentHash: newContentHash,
           firstReview: updatedFirstReview,
         },
@@ -159,7 +192,8 @@ export class EditItemUseCase {
       if (updateResult.count === 0) {
         throw new ConflictException({
           code: ErrorCode.CONFLICT,
-          message: 'Không thể chỉnh sửa do câu hỏi đã đổi trạng thái hoặc bạn không còn được phân công.',
+          message:
+            'Không thể chỉnh sửa do câu hỏi đã đổi trạng thái hoặc bạn không còn được phân công.',
         });
       }
 

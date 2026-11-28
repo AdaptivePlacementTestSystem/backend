@@ -31,7 +31,11 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
         count: vi.fn().mockResolvedValue(0),
       },
       itemBatch: {
-        findUnique: vi.fn(),
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'batch-1',
+          status: ItemBatchStatus.IN_REVIEW,
+          confirmerId: 'teacher-b',
+        }),
         update: vi.fn(),
       },
       explanation: {
@@ -61,7 +65,10 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
           id: 'item-2',
           batchId: 'batch-1',
           status: ItemStatus.FIRST_APPROVED,
-          firstReview: { dueAt: '2026-11-25T23:59:59Z', action: ReviewAction.APPROVE },
+          firstReview: {
+            dueAt: '2026-11-25T23:59:59Z',
+            action: ReviewAction.APPROVE,
+          },
           batch: { id: 'batch-1', name: 'Lô Từ vựng B1', status: 'IN_REVIEW' },
         },
       ]);
@@ -85,6 +92,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       const teacherId = 'teacher-1';
       const existingItem = {
         id: 'item-1',
+        batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
         content: 'Original stem',
@@ -101,7 +110,9 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
         content: 'Updated stem',
         options: { A: '10', B: '20', C: '30', D: '40' },
       });
-      prismaMock.explanation.findUnique.mockResolvedValue({ content: 'Original explanation' });
+      prismaMock.explanation.findUnique.mockResolvedValue({
+        content: 'Original explanation',
+      });
 
       const useCase = new EditItemUseCase(prismaMock);
       const result = await useCase.execute(teacherId, 'item-1', {
@@ -110,6 +121,7 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       });
 
       expect(result.hasEdited).toBe(true);
+      expect(prismaMock.itemReviewEvent.create).not.toHaveBeenCalled();
       expect(result.firstReview?.originalSnapshot).toEqual({
         content: 'Original stem',
         options: { A: '1', B: '2', C: '3', D: '4' },
@@ -121,6 +133,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
     it('từ chối sửa nếu người gọi không phải reviewerId được giao (NOT_ASSIGNED)', async () => {
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
+        batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: 'another-teacher',
         status: ItemStatus.DRAFT,
       });
@@ -134,6 +148,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
     it('từ chối sửa nếu câu không còn ở DRAFT', async () => {
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
+        batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: 'teacher-1',
         status: ItemStatus.FIRST_APPROVED,
       });
@@ -145,21 +161,69 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
     });
   });
 
+  describe('GetBatchItemsForReviewUseCase / ConfirmTasks / GetBatchItemsForConfirm (WP-2.1)', () => {
+    it('GetBatchItemsForReviewUseCase ném NotFoundException nếu lô không tồn tại', async () => {
+      prismaMock.itemBatch.findUnique.mockResolvedValue(null);
+      const useCase = new GetBatchItemsForReviewUseCase(prismaMock);
+      await expect(useCase.execute('teacher-1', 'missing')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('GetTeacherConfirmTasksUseCase lọc theo batch.confirmerId (không đọc item.confirmerId)', async () => {
+      prismaMock.item.findMany.mockResolvedValue([]);
+      prismaMock.item.count.mockResolvedValue(0);
+
+      const useCase = new GetTeacherConfirmTasksUseCase(prismaMock);
+      await useCase.execute('teacher-b');
+
+      expect(prismaMock.item.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            batch: { confirmerId: 'teacher-b' },
+          }),
+        }),
+      );
+    });
+
+    it('GetBatchItemsForConfirmUseCase chặn B cũ với 403 NOT_ASSIGNED khi batch.confirmerId đã đổi', async () => {
+      prismaMock.itemBatch.findUnique.mockResolvedValue({
+        id: 'batch-1',
+        name: 'Lô 1',
+        confirmerId: 'new-teacher-b',
+      });
+
+      const useCase = new GetBatchItemsForConfirmUseCase(prismaMock);
+      await expect(useCase.execute('old-teacher-b', 'batch-1')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
   describe('ReviewItemUseCase (UCGV14)', () => {
     it('duyệt câu hỏi chuyển trạng thái sang FIRST_APPROVED và ghi log kiểm toán', async () => {
       const teacherId = 'teacher-1';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
         batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
         content: 'Sample stem',
         options: { A: '1', B: '2', C: '3', D: '4' },
         firstReview: {},
       });
+      prismaMock.item.count
+        .mockResolvedValueOnce(0) // remainingUnfinished
+        .mockResolvedValueOnce(1); // còn câu SECOND_APPROVED -> READY_TO_FINALIZE
 
       const useCase = new ReviewItemUseCase(prismaMock);
-      const result = await useCase.execute(teacherId, 'item-1', 'APPROVE', 'Câu tốt');
+      const result = await useCase.execute(
+        teacherId,
+        'item-1',
+        'APPROVE',
+        'Câu tốt',
+      );
 
       expect(result.success).toBe(true);
       expect(result.status).toBe(ItemStatus.FIRST_APPROVED);
@@ -187,6 +251,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       const teacherId = 'teacher-1';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
+        batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
         contentHash: 'hash-dup',
@@ -206,6 +272,8 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       const teacherId = 'teacher-1';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
+        batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
         content: 'Stem',
@@ -220,50 +288,70 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       ).rejects.toThrow(ConflictException);
     });
 
-    it('từ chối câu hỏi chuyển trạng thái sang REJECTED và tự chốt lô nếu là câu cuối cùng (READY_TO_FINALIZE)', async () => {
+    it('chặn REJECT nếu comment rỗng hoặc chỉ toàn khoảng trắng (WP-7.1)', async () => {
+      const useCase = new ReviewItemUseCase(prismaMock);
+      await expect(
+        useCase.execute('teacher-1', 'item-1', 'REJECT', '   '),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('từ chối câu cuối cùng khi còn 0 câu SECOND_APPROVED -> chuyển thẳng lô sang DONE (WP-6.1)', async () => {
       const teacherId = 'teacher-1';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
         batchId: 'batch-1',
+        batch: { id: 'batch-1', status: ItemBatchStatus.IN_REVIEW },
         reviewerId: teacherId,
         status: ItemStatus.DRAFT,
         content: 'Sample stem',
         options: { A: '1', B: '2', C: '3', D: '4' },
         firstReview: {},
       });
-      // Câu cuối cùng bị A từ chối: count = 0
-      prismaMock.item.count.mockResolvedValue(0);
+      prismaMock.item.count
+        .mockResolvedValueOnce(0) // remainingUnfinished = 0
+        .mockResolvedValueOnce(0); // secondApprovedCount = 0 -> DONE
 
       const useCase = new ReviewItemUseCase(prismaMock);
-      const result = await useCase.execute(teacherId, 'item-1', 'REJECT');
+      const result = await useCase.execute(
+        teacherId,
+        'item-1',
+        'REJECT',
+        'Sai kiến thức ngữ pháp',
+      );
 
       expect(result.success).toBe(true);
       expect(result.status).toBe(ItemStatus.REJECTED);
       expect(result.batchFinalized).toBe(true);
       expect(prismaMock.itemBatch.update).toHaveBeenCalledWith({
         where: { id: 'batch-1' },
-        data: { status: ItemBatchStatus.READY_TO_FINALIZE },
+        data: { status: ItemBatchStatus.DONE },
       });
       expect(prismaMock.itemReviewEvent.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           action: ReviewAction.REJECT,
+          details: { comment: 'Sai kiến thức ngữ pháp' },
         }),
       });
     });
   });
 
   describe('ConfirmItemUseCase (UCGV15)', () => {
-    it('GV B xác nhận câu chuyển sang SECOND_APPROVED và tự động chốt lô nếu hết câu', async () => {
+    it('GV B xác nhận câu chuyển sang SECOND_APPROVED và tự động chốt lô READY_TO_FINALIZE nếu còn >= 1 câu SECOND_APPROVED', async () => {
       const teacherId = 'teacher-b';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
         batchId: 'batch-1',
-        confirmerId: teacherId,
+        batch: {
+          id: 'batch-1',
+          status: ItemBatchStatus.IN_REVIEW,
+          confirmerId: teacherId,
+        },
         status: ItemStatus.FIRST_APPROVED,
         secondReview: {},
       });
-      // Không còn câu nào chưa duyệt trong lô
-      prismaMock.item.count.mockResolvedValue(0);
+      prismaMock.item.count
+        .mockResolvedValueOnce(0) // remainingUnfinished = 0
+        .mockResolvedValueOnce(1); // >= 1 SECOND_APPROVED -> READY_TO_FINALIZE
 
       const useCase = new ConfirmItemUseCase(prismaMock);
       const result = await useCase.execute(teacherId, 'item-1', 'CONFIRM');
@@ -277,19 +365,54 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
       });
     });
 
+    it('chặn GV B cũ (không còn là batch.confirmerId) với ForbiddenException (WP-2.1)', async () => {
+      prismaMock.item.findUnique.mockResolvedValue({
+        id: 'item-1',
+        batchId: 'batch-1',
+        batch: {
+          id: 'batch-1',
+          status: ItemBatchStatus.IN_REVIEW,
+          confirmerId: 'new-teacher-b',
+        },
+        status: ItemStatus.FIRST_APPROVED,
+        secondReview: {},
+      });
+
+      const useCase = new ConfirmItemUseCase(prismaMock);
+      await expect(
+        useCase.execute('old-teacher-b', 'item-1', 'CONFIRM'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('chặn REMOVE nếu thiếu comment hoặc chỉ toàn khoảng trắng (WP-7.1)', async () => {
+      const useCase = new ConfirmItemUseCase(prismaMock);
+      await expect(
+        useCase.execute('teacher-b', 'item-1', 'REMOVE', '  '),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('GV B loại bỏ câu chuyển sang REJECTED', async () => {
       const teacherId = 'teacher-b';
       prismaMock.item.findUnique.mockResolvedValue({
         id: 'item-1',
         batchId: 'batch-1',
-        confirmerId: teacherId,
+        batch: {
+          id: 'batch-1',
+          status: ItemBatchStatus.IN_REVIEW,
+          confirmerId: teacherId,
+        },
         status: ItemStatus.FIRST_APPROVED,
         secondReview: {},
       });
       prismaMock.item.count.mockResolvedValue(2); // còn câu khác chưa xong
 
       const useCase = new ConfirmItemUseCase(prismaMock);
-      const result = await useCase.execute(teacherId, 'item-1', 'REMOVE', 'Không đạt chuẩn B2');
+      const result = await useCase.execute(
+        teacherId,
+        'item-1',
+        'REMOVE',
+        'Không đạt chuẩn B2',
+      );
 
       expect(result.success).toBe(true);
       expect(result.status).toBe(ItemStatus.REJECTED);
@@ -300,12 +423,18 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
   describe('ConfirmAllItemsUseCase (UCGV15)', () => {
     it('xác nhận hàng loạt tất cả câu FIRST_APPROVED trong lô và ghi log CONFIRM_ALL', async () => {
       const teacherId = 'teacher-b';
-      prismaMock.itemBatch.findUnique.mockResolvedValue({ id: 'batch-1' });
+      prismaMock.itemBatch.findUnique.mockResolvedValue({
+        id: 'batch-1',
+        status: ItemBatchStatus.IN_REVIEW,
+        confirmerId: teacherId,
+      });
       prismaMock.item.findMany.mockResolvedValue([
         { id: 'item-1', secondReview: {} },
         { id: 'item-2', secondReview: {} },
       ]);
-      prismaMock.item.count.mockResolvedValue(0); // Không còn câu nào sót lại
+      prismaMock.item.count
+        .mockResolvedValueOnce(0) // remainingUnfinished
+        .mockResolvedValueOnce(2); // 2 câu SECOND_APPROVED -> READY_TO_FINALIZE
 
       const useCase = new ConfirmAllItemsUseCase(prismaMock);
       const result = await useCase.execute(teacherId, 'batch-1');
@@ -318,8 +447,25 @@ describe('Teacher Review Use Cases (UCGV04, UCGV14, UCGV15)', () => {
           batchId: 'batch-1',
           itemId: null,
           action: ReviewAction.CONFIRM_ALL,
+          details: {
+            updatedCount: 2,
+            itemIds: ['item-1', 'item-2'],
+          },
         }),
       });
+    });
+
+    it('chặn ConfirmAll khi lô không ở trạng thái IN_REVIEW (ConflictException)', async () => {
+      prismaMock.itemBatch.findUnique.mockResolvedValue({
+        id: 'batch-1',
+        status: ItemBatchStatus.DONE,
+        confirmerId: 'teacher-b',
+      });
+
+      const useCase = new ConfirmAllItemsUseCase(prismaMock);
+      await expect(useCase.execute('teacher-b', 'batch-1')).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 });

@@ -1,4 +1,9 @@
-import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
+import {
+  Skill,
+  CEFRLevel,
+  ItemStatus,
+  ItemBatchSource,
+} from '@apt/shared-types';
 
 export type OptionMap = {
   A: string;

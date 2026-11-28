@@ -1,23 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
-import { ConfirmTasksResponseDto, ConfirmBatchSummaryDto } from '../../dto/teacher-review.dto';
-import { ItemStatus } from '@apt/shared-types';
+import {
+  ConfirmTasksResponseDto,
+  ConfirmBatchSummaryDto,
+} from '../../dto/teacher-review.dto';
+import { ItemStatus, ReviewAction } from '@apt/shared-types';
 
 @Injectable()
 export class GetTeacherConfirmTasksUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(teacherId: string): Promise<ConfirmTasksResponseDto> {
-    // 1. Lấy tất cả các câu đã qua vòng 1 hoặc đã được B xử lý
+    // 1. Lấy tất cả câu thuộc các lô có batch.confirmerId === teacherId (WP-2.1)
     const items = await this.prisma.item.findMany({
       where: {
-        confirmerId: teacherId,
+        batch: {
+          confirmerId: teacherId,
+        },
         OR: [
           { status: ItemStatus.FIRST_APPROVED },
           { status: ItemStatus.SECOND_APPROVED },
           {
             status: ItemStatus.REJECTED,
-            secondReview: { not: null as any },
+            secondReview: { path: ['action'], equals: ReviewAction.REMOVE },
           },
         ],
       },
@@ -36,11 +41,14 @@ export class GetTeacherConfirmTasksUseCase {
     });
 
     // 2. Nhóm theo Batch
-    const batchMap = new Map<string, {
-      batchId: string;
-      batchName: string;
-      items: typeof items;
-    }>();
+    const batchMap = new Map<
+      string,
+      {
+        batchId: string;
+        batchName: string;
+        items: typeof items;
+      }
+    >();
 
     for (const item of items) {
       if (!batchMap.has(item.batchId)) {

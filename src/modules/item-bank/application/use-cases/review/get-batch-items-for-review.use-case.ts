@@ -1,12 +1,20 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../../../shared/prisma/prisma.service';
 import { ReviewItemDetailDto, OptionMap } from '../../dto/teacher-review.dto';
+import { ErrorCode } from '@apt/shared-types';
 
 @Injectable()
 export class GetBatchItemsForReviewUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(teacherId: string, batchId: string): Promise<{
+  async execute(
+    teacherId: string,
+    batchId: string,
+  ): Promise<{
     batchId: string;
     batchName: string;
     totalCount: number;
@@ -47,7 +55,11 @@ export class GetBatchItemsForReviewUseCase {
         where: { batchId },
       });
       if (anyItemInBatch) {
-        throw new ForbiddenException('Bạn không được phân công duyệt câu hỏi trong lô này (NOT_ASSIGNED)');
+        throw new ForbiddenException({
+          code: ErrorCode.NOT_ASSIGNED,
+          message:
+            'Bạn không được phân công duyệt câu hỏi trong lô này (NOT_ASSIGNED)',
+        });
       }
       throw new NotFoundException('Lô câu hỏi này chưa có câu hỏi nào');
     }
@@ -72,13 +84,15 @@ export class GetBatchItemsForReviewUseCase {
         irtB: item.irtB,
         status: item.status,
         explanation: item.explanation?.content || '',
-        firstReview: firstReview ? {
-          dueAt: firstReview.dueAt,
-          action: firstReview.action || null,
-          reviewedAt: firstReview.reviewedAt || null,
-          comment: firstReview.comment || null,
-          originalSnapshot,
-        } : null,
+        firstReview: firstReview
+          ? {
+              dueAt: firstReview.dueAt,
+              action: firstReview.action || null,
+              reviewedAt: firstReview.reviewedAt || null,
+              comment: firstReview.comment || null,
+              originalSnapshot,
+            }
+          : null,
         hasEdited: Boolean(originalSnapshot),
         flags: item.checkResults.map((cr) => ({
           level: cr.level,

@@ -11,6 +11,7 @@ import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { Response } from 'express';
 import { ApiBearerAuth, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import {
+  ClassErrorPatternDto,
   DistributionReportDto,
   SystemOverviewDto,
 } from './report-response.dto';
@@ -45,6 +46,8 @@ export class ReportingController {
 
   /** Chủ đề sai phổ biến toàn lớp, có thể lọc theo kỳ thi (UCGV07, S12). */
   @Get('error-patterns')
+  @ApiQuery({ name: 'examRoundId', required: false, type: String })
+  @ApiOkResponse({ type: ClassErrorPatternDto, isArray: true })
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getErrorPatterns(@Query('examRoundId') examRoundId?: string) {
     return this.getClassErrorPatternsUseCase.execute(examRoundId);
@@ -53,6 +56,11 @@ export class ReportingController {
   /** Xuất báo cáo lớp học ra tệp CSV (UCGV08, S12). */
   @Get('export-csv')
   @ApiQuery({ name: 'examRoundId', required: false, type: String })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    enum: ['profiles', 'distribution'],
+  })
   @ApiOkResponse({
     content: { 'text/csv': { schema: { type: 'string', format: 'binary' } } },
     headers: { 'Content-Disposition': { schema: { type: 'string' } } },

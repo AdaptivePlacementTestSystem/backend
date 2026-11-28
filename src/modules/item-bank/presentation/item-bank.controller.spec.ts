@@ -114,9 +114,9 @@ describe('ItemBankController', () => {
     it('ném NotFoundException (404) nếu không tìm thấy câu hỏi', async () => {
       itemServiceMock.getItem.mockResolvedValue(null);
 
-      await expect(controller.getItem(teacherUser, 'not-found')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        controller.getItem(teacherUser, 'not-found'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

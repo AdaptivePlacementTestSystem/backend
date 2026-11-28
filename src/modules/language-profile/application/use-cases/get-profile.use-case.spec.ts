@@ -43,7 +43,9 @@ describe('GetProfileUseCase', () => {
       theta: 0.25,
       standardError: 0.31,
       confidenceInterval95: [-0.36, 0.86],
-      skillProfiles: [{ skill: 'VOCABULARY', itemsAttempted: 12, itemsCorrect: 9 }],
+      skillProfiles: [
+        { skill: 'VOCABULARY', itemsAttempted: 12, itemsCorrect: 9 },
+      ],
       errorPatterns: [{ topicTag: 'past_simple', count: 2 }],
       aiRecommendations: ['Ôn tập thì quá khứ đơn'],
       testMetadata: { totalItems: 24 },

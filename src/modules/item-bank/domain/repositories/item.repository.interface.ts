@@ -1,5 +1,10 @@
 import { ItemEntity } from '../entities/item.entity';
-import { Skill, CEFRLevel, ItemStatus, ItemBatchSource } from '@apt/shared-types';
+import {
+  Skill,
+  CEFRLevel,
+  ItemStatus,
+  ItemBatchSource,
+} from '@apt/shared-types';
 
 export interface ItemFilterOptions {
   status?: ItemStatus;
@@ -14,7 +19,9 @@ export interface ItemFilterOptions {
 
 export interface IItemRepository {
   findById(id: string): Promise<ItemEntity | null>;
-  findAll(options?: ItemFilterOptions): Promise<{ items: ItemEntity[]; total: number }>;
+  findAll(
+    options?: ItemFilterOptions,
+  ): Promise<{ items: ItemEntity[]; total: number }>;
   incrementTimesUsed(id: string): Promise<void>;
 
   /**
@@ -26,5 +33,7 @@ export interface IItemRepository {
     usedIds: string[],
     theta: number,
     limit?: number,
+    itemBMin?: number,
+    itemBMax?: number,
   ): Promise<ItemEntity[]>;
 }
