@@ -17,7 +17,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
+  Matches,
 } from 'class-validator';
 import { StartSessionUseCase } from '../application/use-cases/start-session.use-case';
 import {
@@ -75,7 +75,9 @@ export class SubmitResponseBodyDto {
 
 export class StartSessionBodyDto {
   @ApiProperty({ format: 'uuid' })
-  @IsUUID()
+  @Matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, {
+    message: 'examRoundId phải là UUID hợp lệ',
+  })
   examRoundId: string;
 }
 

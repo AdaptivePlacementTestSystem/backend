@@ -35,7 +35,7 @@ export class ReportingController {
     return this.getSystemOverviewUseCase.execute(query.examRoundId);
   }
 
-  /** Phân phối CEFR toàn lớp, có thể lọc theo kỳ thi (UCGV07, BR-13, S12). */
+  /** Phân phối CEFR, có thể lọc theo kỳ thi (UCGV07, BR-13, S12). */
   @Get(['class-distribution', 'distribution'])
   @ApiQuery({ name: 'examRoundId', required: false, type: String })
   @ApiOkResponse({ type: DistributionReportDto })
@@ -44,7 +44,7 @@ export class ReportingController {
     return this.generateClassReportUseCase.execute(examRoundId);
   }
 
-  /** Chủ đề sai phổ biến toàn lớp, có thể lọc theo kỳ thi (UCGV07, S12). */
+  /** Chủ đề sai phổ biến, có thể lọc theo kỳ thi (UCGV07, S12). */
   @Get('error-patterns')
   @ApiQuery({ name: 'examRoundId', required: false, type: String })
   @ApiOkResponse({ type: ClassErrorPatternDto, isArray: true })
@@ -53,7 +53,7 @@ export class ReportingController {
     return this.getClassErrorPatternsUseCase.execute(examRoundId);
   }
 
-  /** Xuất báo cáo lớp học ra tệp CSV (UCGV08, S12). */
+  /** Xuất báo cáo thống kê ra tệp CSV (UCGV08, S12). */
   @Get('export-csv')
   @ApiQuery({ name: 'examRoundId', required: false, type: String })
   @ApiQuery({

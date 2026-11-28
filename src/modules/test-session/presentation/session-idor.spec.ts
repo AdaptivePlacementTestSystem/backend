@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TestSessionController } from './test-session.controller';
+import {
+  TestSessionController,
+  StartSessionBodyDto,
+} from './test-session.controller';
+import { validate } from 'class-validator';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ROLES_KEY } from '../../../shared/decorators/roles.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
@@ -235,6 +239,18 @@ describe('TestSessionController - IDOR & Authorization Security Tests', () => {
       await expect(
         uc.execute('sess-1', 'student-B-id', UserRole.STUDENT),
       ).rejects.toThrow('Chỉ có thể xem lại bài thi sau khi đã hoàn thành');
+    });
+
+    it('StartSessionBodyDto chấp nhận UUID seed chuẩn PostgreSQL dạng 8-4-4-4-12 hex (a0000000-0000-0000-0000-000000000001)', async () => {
+      const dto = new StartSessionBodyDto();
+      dto.examRoundId = 'a0000000-0000-0000-0000-000000000001';
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+
+      const invalidDto = new StartSessionBodyDto();
+      invalidDto.examRoundId = 'not-a-uuid';
+      const invalidErrors = await validate(invalidDto);
+      expect(invalidErrors.length).toBeGreaterThan(0);
     });
   });
 });
