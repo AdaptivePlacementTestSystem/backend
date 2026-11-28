@@ -219,7 +219,7 @@ export class TestSessionController {
   @Post()
   @ApiCreatedResponse({ type: StartSessionResponseDto })
   @HttpCode(HttpStatus.CREATED)
-  @Roles(UserRole.STUDENT, UserRole.ADMIN)
+  @Roles(UserRole.STUDENT)
   async startSession(
     @CurrentUser() user: JwtPayload,
     @Body() body: StartSessionBodyDto,
@@ -234,7 +234,7 @@ export class TestSessionController {
       allOf: [{ $ref: '#/components/schemas/ActiveSessionDto' }],
     },
   })
-  @Roles(UserRole.STUDENT, UserRole.ADMIN)
+  @Roles(UserRole.STUDENT)
   async getActiveSession(@CurrentUser() user: JwtPayload) {
     return this.getActiveSessionUseCase.execute(user.sub);
   }
@@ -248,6 +248,7 @@ export class TestSessionController {
       ],
     },
   })
+  @Roles(UserRole.STUDENT)
   async getNextItem(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
@@ -360,6 +361,7 @@ export class TestSessionController {
 
   @Post(':id/responses')
   @ApiOkResponse({ type: SubmitSessionResponseDto })
+  @Roles(UserRole.STUDENT)
   @HttpCode(HttpStatus.OK)
   async submitResponse(
     @Param('id') sessionId: string,
@@ -386,6 +388,7 @@ export class TestSessionController {
 
   @Get(':id/resume')
   @ApiOkResponse({ type: ResumeSessionResponseDto })
+  @Roles(UserRole.STUDENT)
   async resumeSession(
     @Param('id') sessionId: string,
     @CurrentUser() user: JwtPayload,
@@ -423,7 +426,7 @@ export class TestSessionController {
     if (!session) {
       throw new NotFoundException('Không tìm thấy phiên làm bài');
     }
-    if (user.role !== UserRole.ADMIN && session.studentId !== user.sub) {
+    if (session.studentId !== user.sub) {
       throw new ForbiddenException(
         'Bạn không có quyền thao tác trên phiên làm bài này',
       );

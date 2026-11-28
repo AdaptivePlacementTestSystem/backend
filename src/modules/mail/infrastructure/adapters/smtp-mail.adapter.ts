@@ -18,7 +18,6 @@ export class SmtpMailAdapter implements IMailPort {
   private readonly logger = new Logger(SmtpMailAdapter.name);
   private transporter: nodemailer.Transporter | null = null;
   private readonly from: string;
-  private readonly isProduction: boolean;
 
   constructor(private readonly configService: ConfigService) {
     const host =
@@ -27,8 +26,6 @@ export class SmtpMailAdapter implements IMailPort {
     const secure = this.configService.get<boolean>('mail.secure') ?? true;
     const user = this.configService.get<string>('mail.user');
     const pass = this.configService.get<string>('mail.pass');
-    this.isProduction =
-      this.configService.get<string>('nodeEnv') === 'production';
     this.from =
       this.configService.get<string>('mail.from') ??
       'Adaptive Placement Test System <noreply@apt.edu.vn>';
@@ -45,23 +42,14 @@ export class SmtpMailAdapter implements IMailPort {
       );
     } else {
       this.logger.warn(
-        'SmtpMailAdapter: Chưa cấu hình mail.user hoặc mail.pass. Email sẽ chỉ được log ra console.',
+        'SmtpMailAdapter: Chưa cấu hình mail.user hoặc mail.pass. Không thể gửi email.',
       );
     }
   }
 
   async sendMail(options: SendMailOptions): Promise<boolean> {
     if (!this.transporter) {
-      if (this.isProduction) {
-        // Production mà thiếu SMTP là lỗi cấu hình: không được nuốt im lặng,
-        // và tuyệt đối không log nội dung (có OTP / mật khẩu tạm).
-        throw new Error('SMTP chưa được cấu hình (thiếu mail.user/mail.pass)');
-      }
-      this.logger.warn(
-        `[DEV MAIL MOCK] Gửi tới: ${options.to} | Tiêu đề: ${options.subject}`,
-      );
-      if (options.text) this.logger.warn(`[DEV MAIL TEXT]: ${options.text}`);
-      return true;
+      throw new Error('SMTP chưa được cấu hình (thiếu mail.user/mail.pass)');
     }
 
     // D6 (#134): gửi ngay trong request; lỗi được ném lên để use-case quyết định

@@ -52,6 +52,10 @@ export const validationSchema = Joi.object({
   // Import tài khoản bằng file và hàng đợi email (đều có default)
   IMPORT_MAX_FILE_BYTES: Joi.number().integer().positive().default(2097152),
   IMPORT_MAX_ROWS: Joi.number().integer().positive().default(1000),
+  IMPORT_MAX_UNCOMPRESSED_BYTES: Joi.number()
+    .integer()
+    .positive()
+    .default(20971520),
   IMPORT_GRID_TTL_SECONDS: Joi.number().integer().positive().default(1800),
   IMPORT_JOB_TTL_SECONDS: Joi.number().integer().positive().default(3600),
   IMPORT_HASH_CONCURRENCY: Joi.number().integer().positive().default(4),

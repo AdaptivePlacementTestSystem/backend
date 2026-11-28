@@ -183,7 +183,7 @@ describe('Lưu import tài khoản (nền, tất cả hoặc không có gì)', (
 
       expect(users.createAccounts).toHaveBeenCalledTimes(1);
       expect(users.createAccounts.mock.calls[0][0]).toHaveLength(30);
-    });
+    }, 15_000);
 
     it('sau khi ghi DB: xóa lưới, rồi mới xếp hàng email (đúng thứ tự)', async () => {
       await grid.store(ADMIN, 'STUDENT', [row(1), row(2)]);

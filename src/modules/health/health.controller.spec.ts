@@ -32,7 +32,7 @@ describe('HealthController', () => {
     } as unknown as PrismaService;
 
     const mockConfig = {
-      get: vi.fn((key: string) => {
+      getOrThrow: vi.fn((key: string) => {
         if (key === 'redis.host') return 'localhost';
         if (key === 'redis.port') return 6379;
         return undefined;

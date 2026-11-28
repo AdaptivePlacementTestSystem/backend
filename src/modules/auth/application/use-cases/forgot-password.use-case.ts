@@ -40,11 +40,8 @@ export class ForgotPasswordUseCase {
           'Yêu cầu quên mật khẩu cho email không tồn tại hoặc tài khoản bị khóa',
         );
       }
-    } catch (err) {
-      this.logger.error(
-        `Lỗi xử lý quên mật khẩu: ${(err as Error).message}`,
-        (err as Error).stack,
-      );
+    } catch {
+      this.logger.error('Lỗi xử lý yêu cầu quên mật khẩu.');
     }
 
     return { success: true };

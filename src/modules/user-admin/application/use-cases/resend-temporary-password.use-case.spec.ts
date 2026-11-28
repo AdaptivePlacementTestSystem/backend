@@ -95,10 +95,13 @@ describe('ResendTemporaryPasswordUseCase', () => {
     );
   });
 
-  it('gửi email lỗi: mật khẩu vẫn được đặt lại, không ném ra ngoài', async () => {
+  it('gửi email lỗi: mật khẩu vẫn đổi và báo thất bại cho Admin', async () => {
     mail.sendTemporaryPassword.mockRejectedValue(new Error('SMTP down'));
 
-    await expect(useCase.execute('target')).resolves.toBeDefined();
+    await expect(useCase.execute('target')).rejects.toMatchObject({
+      status: 503,
+      response: { code: 'MAIL_DELIVERY_FAILED' },
+    });
     expect(repo.updatePassword).toHaveBeenCalledTimes(1);
   });
 

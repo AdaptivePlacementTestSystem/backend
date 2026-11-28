@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { IUserRepository } from '../../../auth/domain/repositories/user.repository.interface';
-import { UserRole } from '../../../auth/domain/enums/user-role.enum';
 import { AccountView, toAccountView } from '../account-view';
 import { accountNotFound, actionForbidden } from '../account-errors';
 
@@ -29,30 +28,21 @@ export class SetAccountActiveUseCase {
   ) {}
 
   async execute(input: SetAccountActiveInput): Promise<AccountView> {
-    const target = await this.userRepository.findAccountByUserId(
+    const result = await this.userRepository.setActiveAtomically(
+      input.actorId,
       input.targetId,
+      input.isActive,
     );
-    if (!target) throw accountNotFound();
-
-    if (!input.isActive) {
-      if (input.actorId === input.targetId) {
-        throw actionForbidden('Bạn không thể tự khóa chính mình.');
-      }
-      if (target.user.role === UserRole.ADMIN) {
-        throw actionForbidden(
-          'Không thể khóa tài khoản quản trị viên. Hãy thu hồi quyền quản trị trước.',
-        );
-      }
+    if (result === 'NOT_FOUND') throw accountNotFound();
+    if (result === 'FORBIDDEN') {
+      throw actionForbidden(
+        'Không thể tự khóa, khóa Admin hoặc thao tác khi quyền quản trị không còn hiệu lực.',
+      );
     }
-
-    if (target.user.isActive === input.isActive) {
-      return toAccountView(target);
-    }
-
-    await this.userRepository.setActive(input.targetId, input.isActive);
     const updated = await this.userRepository.findAccountByUserId(
       input.targetId,
     );
-    return toAccountView(updated ?? target);
+    if (!updated) throw accountNotFound();
+    return toAccountView(updated);
   }
 }
