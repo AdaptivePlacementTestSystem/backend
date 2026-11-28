@@ -351,6 +351,715 @@
         ]
       }
     },
+    "/api/v1/item-batches": {
+      "get": {
+        "operationId": "AdminItemBatchesController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "_count": {
+                            "type": "object",
+                            "properties": {
+                              "items": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "items"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "source",
+                          "status",
+                          "createdAt",
+                          "_count"
+                        ]
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "total",
+                    "page",
+                    "limit"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminItemBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/rejected-stats": {
+      "get": {
+        "operationId": "AdminItemBatchesController_rejectedStats",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "count"
+                        ]
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "page",
+                    "limit",
+                    "hasMore"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminItemBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}": {
+      "get": {
+        "operationId": "AdminItemBatchesController_getDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batch": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "source": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "skill": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "cefrTarget": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "topicTag": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "requestedCount": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "aiCallCount": {
+                          "type": "integer"
+                        },
+                        "aiCallLimit": {
+                          "type": "integer"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "confirmer": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "fullName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "fullName"
+                          ],
+                          "nullable": true
+                        },
+                        "jobs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "attempts": {
+                                "type": "integer"
+                              },
+                              "lastError": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "status",
+                              "attempts",
+                              "lastError"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "source",
+                        "status",
+                        "skill",
+                        "cefrTarget",
+                        "topicTag",
+                        "requestedCount",
+                        "aiCallCount",
+                        "aiCallLimit",
+                        "createdAt",
+                        "confirmer",
+                        "jobs"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "correctAnswer": {
+                            "type": "string"
+                          },
+                          "explanation": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "content"
+                            ],
+                            "nullable": true
+                          },
+                          "checkResults": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "checkpoint": {
+                                  "type": "string"
+                                },
+                                "level": {
+                                  "type": "string"
+                                },
+                                "reasonCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "checkedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "suspectedDuplicateId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "checkpoint",
+                                "level",
+                                "reasonCodes",
+                                "checkedAt",
+                                "suspectedDuplicateId"
+                              ]
+                            }
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "skill": {
+                            "type": "string"
+                          },
+                          "cefrTarget": {
+                            "type": "string"
+                          },
+                          "topicTag": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "irtB": {
+                            "type": "number"
+                          },
+                          "generatedFromRefIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "firstReview": {
+                            "nullable": true,
+                            "description": "Stored review JSON; null until review or assignment."
+                          },
+                          "secondReview": {
+                            "nullable": true,
+                            "description": "Stored review JSON; null until review or assignment."
+                          },
+                          "reviewEvents": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "createdAt"
+                              ]
+                            }
+                          },
+                          "reviewer": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "fullName": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "fullName"
+                            ],
+                            "nullable": true
+                          },
+                          "confirmer": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "fullName": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "fullName"
+                            ],
+                            "nullable": true
+                          },
+                          "administrativelyCancelled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "content",
+                          "options",
+                          "correctAnswer",
+                          "explanation",
+                          "checkResults",
+                          "status",
+                          "skill",
+                          "cefrTarget",
+                          "topicTag",
+                          "irtB",
+                          "generatedFromRefIds",
+                          "firstReview",
+                          "secondReview",
+                          "reviewEvents",
+                          "reviewer",
+                          "confirmer",
+                          "administrativelyCancelled"
+                        ]
+                      }
+                    },
+                    "administrativelyCancelledCount": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "statusCounts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "count"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batch",
+                    "items",
+                    "administrativelyCancelledCount",
+                    "total",
+                    "page",
+                    "limit",
+                    "statusCounts"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AdminItemBatches"
+        ]
+      }
+    },
     "/api/v1/explanations/items/{itemId}": {
       "get": {
         "operationId": "AiExplainerController_getExplanation",
@@ -433,6 +1142,482 @@
         ],
         "tags": [
           "AiExplainer"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/reassign-confirmer": {
+      "post": {
+        "operationId": "AssignBatchController_changeConfirmer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "confirmerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "affected": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "confirmerId",
+                    "affected"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AssignBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/assign-preview": {
+      "post": {
+        "operationId": "AssignBatchController_previewAssignment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batchRevision": {
+                      "type": "string"
+                    },
+                    "assignments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "itemId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "reviewerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "required": [
+                          "itemId",
+                          "content",
+                          "reviewerId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchRevision",
+                    "assignments"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AssignBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/deadlines": {
+      "patch": {
+        "operationId": "AssignBatchController_deadlines",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "firstDueAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "secondDueAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "firstDueAt",
+                    "secondDueAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AssignBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/assign": {
+      "post": {
+        "operationId": "AssignBatchController_assign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "assigned": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "assigned"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AssignBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/reassign": {
+      "post": {
+        "operationId": "AssignBatchController_reassign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reassigned": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "reassigned"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AssignBatch"
         ]
       }
     },
@@ -781,6 +1966,90 @@
         },
         "tags": [
           "Auth"
+        ]
+      }
+    },
+    "/api/v1/item-batches/generate": {
+      "post": {
+        "operationId": "CreateAiBatchController_generate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "CreateAiBatch"
         ]
       }
     },
@@ -2197,6 +3466,663 @@
         ]
       }
     },
+    "/api/v1/item-batches/{id}/cancel-pending": {
+      "post": {
+        "operationId": "FinalizeBatchController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cancelled": {
+                      "type": "integer"
+                    },
+                    "counts": {
+                      "type": "object",
+                      "properties": {
+                        "DRAFT": {
+                          "type": "integer"
+                        },
+                        "FIRST_APPROVED": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "DRAFT",
+                        "FIRST_APPROVED"
+                      ]
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cancelled",
+                    "counts",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/refresh-status": {
+      "post": {
+        "operationId": "FinalizeBatchController_refresh",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    },
+                    "open": {
+                      "type": "integer"
+                    },
+                    "approved": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "changed",
+                    "open",
+                    "approved"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/final-check": {
+      "post": {
+        "operationId": "FinalizeBatchController_check",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "checked": {
+                      "type": "integer"
+                    },
+                    "hardRejected": {
+                      "type": "integer"
+                    },
+                    "softFlagged": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checked",
+                    "hardRejected",
+                    "softFlagged"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      },
+      "get": {
+        "operationId": "FinalizeBatchController_report",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "stale": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "stale": {
+                            "type": "boolean"
+                          },
+                          "checks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "contentHash": {
+                                  "type": "string"
+                                },
+                                "level": {
+                                  "type": "string"
+                                },
+                                "reasonCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "checkedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "suspectedDuplicateId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "contentHash",
+                                "level",
+                                "reasonCodes",
+                                "checkedAt",
+                                "suspectedDuplicateId"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "status",
+                          "stale",
+                          "checks"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status",
+                    "stale",
+                    "items"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/items/{itemId}/flag-decision": {
+      "post": {
+        "operationId": "FinalizeBatchController_decide",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "itemId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "decision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "itemId",
+                    "decision"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/import": {
+      "post": {
+        "operationId": "FinalizeBatchController_import",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "imported": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "imported"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "FinalizeBatch"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "HealthController_getHealth",
@@ -2246,6 +4172,958 @@
         },
         "tags": [
           "Health"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/template": {
+      "get": {
+        "operationId": "ImportQuestionBatchesController_template",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/upload": {
+      "post": {
+        "operationId": "ImportQuestionBatchesController_upload",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "added": {
+                      "type": "integer"
+                    },
+                    "duplicates": {
+                      "type": "integer"
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "reasons": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "reasons"
+                        ]
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "added",
+                    "duplicates",
+                    "rejected",
+                    "rows",
+                    "operationId"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/grid": {
+      "get": {
+        "operationId": "ImportQuestionBatchesController_grid",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      },
+      "delete": {
+        "operationId": "ImportQuestionBatchesController_clear",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/grid/{rowKey}": {
+      "delete": {
+        "operationId": "ImportQuestionBatchesController_remove",
+        "parameters": [
+          {
+            "name": "rowKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/preview": {
+      "post": {
+        "operationId": "ImportQuestionBatchesController_preview",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "reasons": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "reasons"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "rejected"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
+        ]
+      }
+    },
+    "/api/v1/item-batches/import/save": {
+      "post": {
+        "operationId": "ImportQuestionBatchesController_save",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "batches": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "batchId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "batchId",
+                          "status",
+                          "count"
+                        ]
+                      }
+                    },
+                    "batchIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status",
+                    "count",
+                    "batches",
+                    "batchIds"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ImportQuestionBatches"
         ]
       }
     },
@@ -3364,6 +6242,233 @@
         ],
         "tags": [
           "Reporting"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/retry-generation": {
+      "post": {
+        "operationId": "RetryBatchChecksController_retryGeneration",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "jobStatus": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "jobStatus"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RetryBatchChecks"
+        ]
+      }
+    },
+    "/api/v1/item-batches/{id}/retry-checks": {
+      "post": {
+        "operationId": "RetryBatchChecksController_execute",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "jobStatus": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "jobStatus"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "remaining": {
+                          "type": "integer"
+                        },
+                        "exactRejected": {
+                          "type": "integer"
+                        },
+                        "nearRejected": {
+                          "type": "integer"
+                        },
+                        "nearFlagged": {
+                          "type": "integer"
+                        },
+                        "semanticSkipped": {
+                          "type": "boolean"
+                        },
+                        "semanticFlagged": {
+                          "type": "integer"
+                        },
+                        "answerFlagged": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "remaining",
+                        "exactRejected",
+                        "nearRejected",
+                        "nearFlagged",
+                        "semanticSkipped",
+                        "semanticFlagged",
+                        "answerFlagged"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lỗi HTTP có thể xảy ra; không phải mọi trạng thái áp dụng cho mọi trường hợp.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "RetryBatchChecks"
         ]
       }
     },

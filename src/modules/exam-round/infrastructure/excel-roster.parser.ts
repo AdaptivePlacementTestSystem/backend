@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as ExcelJS from 'exceljs';
-import * as yauzl from 'yauzl';
+import { validateXlsxArchive } from '../../../shared/utils/xlsx-archive.util';
 
 export interface RosterSpreadsheetRow {
   row: number;
@@ -21,78 +21,6 @@ function normalizeHeader(text: string): string {
     .replace(/đ/gi, 'd')
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
-}
-
-/** Kiểm kích thước giải nén thật trước khi ExcelJS nạp workbook vào bộ nhớ. */
-async function validateArchive(buffer: Buffer, limit: number): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    yauzl.fromBuffer(
-      buffer,
-      { lazyEntries: true, validateEntrySizes: true },
-      (error, zip) => {
-        if (error || !zip) {
-          reject(new BadRequestException('File .xlsx không hợp lệ'));
-          return;
-        }
-        let total = 0;
-        let ended = false;
-        const fail = (cause: Error) => {
-          if (ended) return;
-          ended = true;
-          zip.close();
-          reject(cause);
-        };
-        zip.on('error', () =>
-          fail(new BadRequestException('File .xlsx không hợp lệ')),
-        );
-        zip.on('end', () => {
-          if (!ended) {
-            ended = true;
-            resolve();
-          }
-        });
-        zip.on('entry', (entry: yauzl.Entry) => {
-          if (
-            (entry.generalPurposeBitFlag & 1) !== 0 ||
-            /(^|\/)vbaproject\.bin$/i.test(entry.fileName)
-          ) {
-            fail(
-              new BadRequestException(
-                'File mã hóa hoặc có macro không được hỗ trợ',
-              ),
-            );
-            return;
-          }
-          if (entry.uncompressedSize > limit - total) {
-            fail(new PayloadTooLargeException('File giải nén vượt giới hạn'));
-            return;
-          }
-          zip.openReadStream(entry, (streamError, stream) => {
-            if (streamError || !stream) {
-              fail(new BadRequestException('File .xlsx không hợp lệ'));
-              return;
-            }
-            stream.on('data', (chunk: Buffer) => {
-              total += chunk.length;
-              if (total > limit) {
-                stream.destroy();
-                fail(
-                  new PayloadTooLargeException('File giải nén vượt giới hạn'),
-                );
-              }
-            });
-            stream.on('error', () =>
-              fail(new BadRequestException('File .xlsx không hợp lệ')),
-            );
-            stream.on('end', () => {
-              if (!ended) zip.readEntry();
-            });
-          });
-        });
-        zip.readEntry();
-      },
-    );
-  });
 }
 
 @Injectable()
@@ -127,7 +55,7 @@ export class ExcelRosterParser {
     }
     if (buffer.length > maxBytes)
       throw new PayloadTooLargeException('File vượt giới hạn dung lượng');
-    await validateArchive(buffer, maxUncompressed);
+    await validateXlsxArchive(buffer, maxUncompressed);
     const workbook = new ExcelJS.Workbook();
     try {
       await workbook.xlsx.load(buffer as unknown as ExcelJS.Buffer);

@@ -1,38 +1,38 @@
-import {
+﻿import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Post,
   Query,
   UseGuards,
-  NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
-import { ItemService } from '../application/services/item.service';
-import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
-import { PrismaService } from '../../../shared/prisma/prisma.service';
-import {
-  CurrentUser,
-  type JwtPayload,
-} from '../../../shared/decorators/current-user.decorator';
-import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { UserRole } from '../../auth/domain/enums/user-role.enum';
-import {
-  Skill,
-  CEFRLevel,
-  ItemStatus,
-  ItemBatchSource,
-  ErrorCode,
-} from '@apt/shared-types';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiQuery,
 } from '@nestjs/swagger';
+import {
+  CEFRLevel,
+  ErrorCode,
+  ItemBatchSource,
+  ItemStatus,
+  Skill,
+} from '@apt/shared-types';
+import {
+  CurrentUser,
+  type JwtPayload,
+} from '../../../shared/decorators/current-user.decorator';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { UserRole } from '../../auth/domain/enums/user-role.enum';
+import { ItemService } from '../application/services/item.service';
+import { TeacherItemAccess } from '../application/services/teacher-item-access';
+import { GenerateExplanationDto } from '../application/use-cases/generate-explanation.use-case';
 import {
   ExplanationResponseDto,
   ItemDetailResponseDto,
@@ -49,27 +49,8 @@ import {
 export class ItemBankController {
   constructor(
     private readonly itemService: ItemService,
-    private readonly prisma?: PrismaService,
+    private readonly access?: TeacherItemAccess,
   ) {}
-
-  private async teacherItemIds(userId: string): Promise<string[]> {
-    if (!this.prisma) return [];
-    const items = await this.prisma.item.findMany({
-      where: {
-        OR: [
-          { reviewerId: userId },
-          {
-            confirmerId: userId,
-            status: {
-              in: ['FIRST_APPROVED', 'SECOND_APPROVED', 'FINAL_APPROVED'],
-            },
-          },
-        ],
-      },
-      select: { id: true },
-    });
-    return items.map((item) => item.id);
-  }
 
   @Get()
   @ApiQuery({ name: 'status', required: false, enum: ItemStatus })
@@ -91,26 +72,16 @@ export class ItemBankController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    if (
-      this.prisma &&
-      user?.role === UserRole.TEACHER &&
-      !page &&
-      !limit &&
-      !cefr &&
-      !source &&
-      !q
-    ) {
-      const visibleIds = await this.teacherItemIds(user.sub);
-      return this.itemService.listItems({ status, skill, visibleIds });
-    }
-
     const pageNum = Math.max(1, parseInt(page || '1', 10) || 1);
     const limitNum = Math.max(1, parseInt(limit || '10', 10) || 10);
     const offset = (pageNum - 1) * limitNum;
 
-    // UCGV02 / BR-16: GV chỉ thấy câu được phân công (vai A hoặc B). Admin xem tất cả.
+    const visibleIds =
+      this.access && user?.role === UserRole.TEACHER
+        ? await this.access.allowedIds(user.sub)
+        : undefined;
     const assignedTeacherId =
-      user?.role === UserRole.TEACHER ? user.sub : undefined;
+      !this.access && user?.role === UserRole.TEACHER ? user.sub : undefined;
 
     const result = await this.itemService.listItems({
       status,
@@ -118,11 +89,12 @@ export class ItemBankController {
       cefrTarget: cefr,
       source,
       q: q?.trim() || undefined,
+      visibleIds,
       assignedTeacherId,
       limit: limitNum,
       offset,
     });
-    return { data: result.items, total: result.total };
+    return result ? { data: result.items, total: result.total } : result;
   }
 
   @Post('generate-explanation')
@@ -144,20 +116,16 @@ export class ItemBankController {
     ) as JwtPayload;
     const id = (typeof idOrUser === 'string' ? idOrUser : userOrId) as string;
 
-    if (this.prisma && user?.role === UserRole.TEACHER) {
-      const allowed = await this.teacherItemIds(user.sub);
-      if (!allowed.includes(id)) {
-        throw new ForbiddenException('Câu hỏi không thuộc phân công');
-      }
-      return this.itemService.getItem(id);
+    if (this.access && user?.role === UserRole.TEACHER) {
+      await this.access.assertAllowed(user.sub, id);
     }
 
     const item = await this.itemService.getItem(id);
     if (!item) {
       throw new NotFoundException('Không tìm thấy câu hỏi');
     }
-    // UCGV02 / BR-16: GV chỉ được xem chi tiết câu được phân công cho mình
     if (
+      !this.access &&
       user?.role === UserRole.TEACHER &&
       item.reviewerId !== user.sub &&
       item.confirmerId !== user.sub

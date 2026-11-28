@@ -1,3 +1,4 @@
+﻿import { TeacherItemAccess } from './application/services/teacher-item-access';
 import { Module } from '@nestjs/common';
 import { ItemBankController } from './presentation/item-bank.controller';
 import { TeacherReviewController } from './presentation/teacher-review.controller';
@@ -21,6 +22,7 @@ import { AiExplainerModule } from '../ai-explainer/ai-explainer.module';
   controllers: [ItemBankController, TeacherReviewController],
   providers: [
     ItemService,
+    TeacherItemAccess,
     ListItemsUseCase,
     GetItemUseCase,
     GenerateExplanationUseCase,
