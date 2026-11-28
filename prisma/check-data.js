@@ -3,11 +3,11 @@ const prisma = new PrismaClient();
 
 async function main() {
   const users = await prisma.user.findMany({
-    select: { id: true, email: true, fullName: true, role: true, mustChangePassword: true, studentProfile: true, teacherProfile: true },
+    select: { id: true, email: true, fullName: true, role: true, studentProfile: true, teacherProfile: true },
   });
   console.log('=== USERS IN DB ===');
   console.log(`Total: ${users.length}`);
-  users.forEach(u => console.log(`- [${u.role}] ${u.email} (${u.fullName}) - StudentCode: ${u.studentProfile?.studentCode || 'N/A'}, mustChangePassword: ${u.mustChangePassword}`));
+  users.forEach(u => console.log(`- [${u.role}] ${u.email} (${u.fullName}) - StudentCode: ${u.studentProfile?.studentCode || 'N/A'}`));
 
   const examRounds = await prisma.examRound.findMany();
   console.log('\n=== EXAM ROUNDS ===');
