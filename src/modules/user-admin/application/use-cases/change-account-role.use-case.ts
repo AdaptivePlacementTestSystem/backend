@@ -37,31 +37,26 @@ export class ChangeAccountRoleUseCase {
       throw invalidRequest('Chỉ có thể đặt quyền Admin hoặc Giảng viên.');
     }
 
-    const target = await this.userRepository.findAccountByUserId(
+    const result = await this.userRepository.changeRoleAtomically(
+      input.actorId,
       input.targetId,
+      input.role,
     );
-    if (!target) throw accountNotFound();
-
-    if (target.user.role === UserRole.STUDENT) {
+    if (result === 'NOT_FOUND') throw accountNotFound();
+    if (result === 'INVALID_TARGET') {
       throw invalidRequest(
         'Chỉ đổi quyền giữa giảng viên và quản trị viên; không áp dụng cho sinh viên.',
       );
     }
-
-    if (input.actorId === input.targetId && input.role !== UserRole.ADMIN) {
+    if (result === 'FORBIDDEN') {
       throw actionForbidden(
-        'Bạn không thể tự thu hồi quyền quản trị của mình.',
+        'Không thể thu hồi quyền của chính mình hoặc thao tác khi quyền quản trị không còn hiệu lực.',
       );
     }
-
-    if (target.user.role === input.role) {
-      return toAccountView(target);
-    }
-
-    await this.userRepository.updateRole(input.targetId, input.role);
     const updated = await this.userRepository.findAccountByUserId(
       input.targetId,
     );
-    return toAccountView(updated ?? target);
+    if (!updated) throw accountNotFound();
+    return toAccountView(updated);
   }
 }

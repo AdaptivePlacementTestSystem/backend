@@ -116,13 +116,11 @@ export class CreateAccountUseCase {
         profile.kind === 'STUDENT' ? profile.studentCode : undefined,
       );
       if (!sent) {
-        this.logger.warn(`Không gửi được email mật khẩu tạm cho ${email}`);
+        this.logger.warn('Không gửi được email mật khẩu tạm.');
       }
-    } catch (error) {
-      // Không ghi mật khẩu vào log; tài khoản vẫn được giữ (BR-05).
-      this.logger.warn(
-        `Lỗi gửi email mật khẩu tạm cho ${email}: ${(error as Error).message}`,
-      );
+    } catch {
+      // Không log nội dung lỗi có thể chứa địa chỉ hoặc thông tin nhạy cảm.
+      this.logger.warn('Không gửi được email mật khẩu tạm.');
     }
   }
 }

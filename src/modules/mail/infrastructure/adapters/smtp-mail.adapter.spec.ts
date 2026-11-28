@@ -13,11 +13,13 @@ describe('escapeHtml', () => {
 });
 
 describe('SmtpMailAdapter khi chưa cấu hình SMTP', () => {
-  it('môi trường dev: giả lập gửi thành công', async () => {
+  it('môi trường dev: báo lỗi khi thiếu SMTP và không log OTP hoặc mật khẩu', async () => {
     const adapter = new SmtpMailAdapter(configWith({ nodeEnv: 'development' }));
+    const warn = vi.spyOn((adapter as any).logger, 'warn');
     await expect(
-      adapter.sendMail({ to: 'a@b.com', subject: 's', text: 't' }),
-    ).resolves.toBe(true);
+      adapter.sendMail({ to: 'a@b.com', subject: 's', text: 'OTP 123456' }),
+    ).rejects.toThrow(/SMTP/);
+    expect(warn.mock.calls.flat().join(' ')).not.toContain('123456');
   });
 
   it('production: ném lỗi, không nuốt im lặng và không log nội dung', async () => {

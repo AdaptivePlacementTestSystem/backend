@@ -66,8 +66,8 @@ import { LoginFailureLimiter } from './infrastructure/throttling/login-failure-l
         ],
         storage: new RedisThrottlerStorage(
           new Redis({
-            host: config.get<string>('redis.host') ?? 'localhost',
-            port: config.get<number>('redis.port') ?? 6379,
+            host: config.getOrThrow<string>('redis.host'),
+            port: config.getOrThrow<number>('redis.port'),
             maxRetriesPerRequest: 1,
           }),
         ),

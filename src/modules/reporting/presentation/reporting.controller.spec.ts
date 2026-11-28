@@ -29,6 +29,8 @@ describe('ReportingController: GET /reports/overview', () => {
       {} as any,
       {} as any,
       overview as any,
+      {} as any,
+      {} as any,
     );
 
     await controller.getOverview({ examRoundId: 'r-1' });

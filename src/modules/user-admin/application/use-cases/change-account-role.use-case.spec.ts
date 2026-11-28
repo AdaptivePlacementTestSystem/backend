@@ -16,100 +16,60 @@ const record = (role: UserRole, id = 'target') => ({
 describe('ChangeAccountRoleUseCase', () => {
   let useCase: ChangeAccountRoleUseCase;
   let repo: any;
-
   beforeEach(() => {
     repo = {
-      findAccountByUserId: vi.fn().mockResolvedValue(record(UserRole.TEACHER)),
-      updateRole: vi.fn().mockResolvedValue(undefined),
+      changeRoleAtomically: vi.fn().mockResolvedValue('UPDATED'),
+      findAccountByUserId: vi.fn().mockResolvedValue(record(UserRole.ADMIN)),
     };
     useCase = new ChangeAccountRoleUseCase(repo);
   });
-
-  it('nâng giảng viên lên Admin', async () => {
+  it('ủy quyền thay role nguyên tử cho repository', async () => {
     await useCase.execute({
       actorId: 'admin-1',
       targetId: 'target',
       role: UserRole.ADMIN,
     });
-
-    expect(repo.updateRole).toHaveBeenCalledWith('target', UserRole.ADMIN);
-  });
-
-  it('thu hồi Admin khác về giảng viên', async () => {
-    repo.findAccountByUserId.mockResolvedValue(
-      record(UserRole.ADMIN, 'admin-2'),
+    expect(repo.changeRoleAtomically).toHaveBeenCalledWith(
+      'admin-1',
+      'target',
+      UserRole.ADMIN,
     );
-
-    await useCase.execute({
-      actorId: 'admin-1',
-      targetId: 'admin-2',
-      role: UserRole.TEACHER,
-    });
-
-    expect(repo.updateRole).toHaveBeenCalledWith('admin-2', UserRole.TEACHER);
   });
-
-  it('Admin không tự thu hồi quyền của mình: 403 và không ghi (cũng bảo đảm không mất Admin cuối)', async () => {
-    repo.findAccountByUserId.mockResolvedValue(
-      record(UserRole.ADMIN, 'admin-1'),
-    );
-
-    const error = await useCase
-      .execute({
-        actorId: 'admin-1',
-        targetId: 'admin-1',
-        role: UserRole.TEACHER,
-      })
-      .catch((e) => e);
-
-    expect(error).toBeInstanceOf(ForbiddenException);
-    expect(repo.updateRole).not.toHaveBeenCalled();
+  it('trả tài khoản khi role không đổi', async () => {
+    repo.changeRoleAtomically.mockResolvedValue('UNCHANGED');
+    expect(
+      (
+        await useCase.execute({
+          actorId: 'a',
+          targetId: 'target',
+          role: UserRole.TEACHER,
+        })
+      ).id,
+    ).toBe('target');
   });
-
-  it('không đổi quyền của sinh viên: 400', async () => {
-    repo.findAccountByUserId.mockResolvedValue(record(UserRole.STUDENT));
-
+  it.each([
+    ['FORBIDDEN', ForbiddenException],
+    ['INVALID_TARGET', BadRequestException],
+    ['NOT_FOUND', NotFoundException],
+  ])('chuyển kết quả %s thành lỗi', async (result, error) => {
+    repo.changeRoleAtomically.mockResolvedValue(result);
     await expect(
       useCase.execute({
-        actorId: 'admin-1',
+        actorId: 'a',
         targetId: 'target',
-        role: UserRole.ADMIN,
+        role: UserRole.TEACHER,
       }),
-    ).rejects.toBeInstanceOf(BadRequestException);
-    expect(repo.updateRole).not.toHaveBeenCalled();
+    ).rejects.toBeInstanceOf(error);
+    expect(repo.findAccountByUserId).not.toHaveBeenCalled();
   });
-
-  it('không đặt role STUDENT hay role lạ: 400', async () => {
+  it('không chấp nhận role STUDENT', async () => {
     await expect(
       useCase.execute({
-        actorId: 'admin-1',
+        actorId: 'a',
         targetId: 'target',
         role: UserRole.STUDENT as any,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
-    expect(repo.findAccountByUserId).not.toHaveBeenCalled();
-  });
-
-  it('idempotent: đặt đúng role hiện tại không ghi lại', async () => {
-    const view = await useCase.execute({
-      actorId: 'admin-1',
-      targetId: 'target',
-      role: UserRole.TEACHER,
-    });
-
-    expect(repo.updateRole).not.toHaveBeenCalled();
-    expect(view.id).toBe('target');
-  });
-
-  it('không tìm thấy tài khoản: 404', async () => {
-    repo.findAccountByUserId.mockResolvedValue(null);
-
-    await expect(
-      useCase.execute({
-        actorId: 'admin-1',
-        targetId: 'none',
-        role: UserRole.ADMIN,
-      }),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(repo.changeRoleAtomically).not.toHaveBeenCalled();
   });
 });

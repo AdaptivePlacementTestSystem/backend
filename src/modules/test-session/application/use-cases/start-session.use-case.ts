@@ -134,7 +134,7 @@ export class StartSessionUseCase {
       [],
       expiresAt,
     );
-    await this.sessionRepository.create(session);
+    const savedSession = await this.sessionRepository.create(session);
 
     await this.cacheService.setState(sessionId, {
       state: 'READY_FOR_NEXT',
@@ -146,6 +146,6 @@ export class StartSessionUseCase {
       lastUpdated: new Date().toISOString(),
     });
 
-    return { sessionId, expiresAt };
+    return { sessionId, expiresAt: savedSession.expiresAt };
   }
 }

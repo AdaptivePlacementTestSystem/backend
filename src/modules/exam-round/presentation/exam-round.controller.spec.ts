@@ -1,8 +1,9 @@
-﻿import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 import { ROLES_KEY } from '../../../shared/decorators/roles.decorator';
 import { UserRole } from '../../auth/domain/enums/user-role.enum';
 import { CreateExamRoundDto } from '../application/dto/create-exam-round.dto';
+import { UpdateExamRoundDto } from '../application/dto/update-exam-round.dto';
 import { ExamRoundController } from './exam-round.controller';
 
 const pipe = new ValidationPipe({
@@ -37,6 +38,41 @@ describe('Admin exam round endpoints', () => {
         )!.value,
       ),
     ).toEqual([UserRole.ADMIN]);
+  });
+  it('restricts updates and publish to ADMIN', () => {
+    expect(
+      Reflect.getMetadata(
+        ROLES_KEY,
+        Object.getOwnPropertyDescriptor(
+          ExamRoundController.prototype,
+          'update',
+        )!.value,
+      ),
+    ).toEqual([UserRole.ADMIN]);
+    expect(
+      Reflect.getMetadata(
+        ROLES_KEY,
+        Object.getOwnPropertyDescriptor(
+          ExamRoundController.prototype,
+          'publish',
+        )!.value,
+      ),
+    ).toEqual([UserRole.ADMIN]);
+  });
+  it('validates partial updates and rejects null or unrecognized fields', async () => {
+    const run = (value: unknown) =>
+      pipe.transform(value, { type: 'body', metatype: UpdateExamRoundDto });
+    await expect(run({ closesAt: valid.closesAt })).resolves.toBeInstanceOf(
+      UpdateExamRoundDto,
+    );
+    for (const value of [
+      { opensAt: null },
+      { durationMinutes: 4 },
+      { status: 'OPEN' },
+      { name: '' },
+    ]) {
+      await expect(run(value)).rejects.toBeDefined();
+    }
   });
   it('validates required fields, duration bounds and forbids fields outside the schema', async () => {
     await expect(validate(valid)).resolves.toBeInstanceOf(CreateExamRoundDto);

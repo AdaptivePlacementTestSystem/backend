@@ -18,6 +18,7 @@ export class PrismaItemRepository implements IItemRepository {
 
   async findAll(options?: ItemFilterOptions): Promise<ItemEntity[]> {
     const where: any = {};
+    if (options?.visibleIds) where.id = { in: options.visibleIds };
     if (options?.status) where.status = options.status;
     if (options?.skill) where.skill = options.skill;
 

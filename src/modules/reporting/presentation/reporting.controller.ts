@@ -2,6 +2,8 @@ import { Controller, Get, UseGuards, Res, Query } from '@nestjs/common';
 import { GenerateClassReportUseCase } from '../application/use-cases/generate-class-report.use-case';
 import { ExportCsvUseCase } from '../application/use-cases/export-csv.use-case';
 import { GetSystemOverviewUseCase } from '../application/use-cases/get-system-overview.use-case';
+import { GetErrorPatternsUseCase } from '../application/use-cases/get-error-patterns.use-case';
+import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { OverviewQueryDto } from '../application/dto/overview-query.dto';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -22,6 +24,8 @@ export class ReportingController {
     private readonly generateClassReportUseCase: GenerateClassReportUseCase,
     private readonly exportCsvUseCase: ExportCsvUseCase,
     private readonly getSystemOverviewUseCase: GetSystemOverviewUseCase,
+    private readonly getErrorPatternsUseCase: GetErrorPatternsUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   /** Tổng quan hệ thống cho Admin (F-29, S36); chỉ ADMIN, GV không xem được. */
@@ -38,6 +42,21 @@ export class ReportingController {
   @Roles(UserRole.TEACHER, UserRole.ADMIN)
   async getDistribution(@Query('examRoundId') examRoundId?: string) {
     return this.generateClassReportUseCase.execute(examRoundId);
+  }
+
+  @Get('error-patterns')
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async getErrorPatterns(@Query() query: OverviewQueryDto) {
+    return this.getErrorPatternsUseCase.execute(query.examRoundId);
+  }
+
+  @Get('exam-rounds')
+  @Roles(UserRole.TEACHER, UserRole.ADMIN)
+  async getReportExamRounds() {
+    return this.prisma.examRound.findMany({
+      select: { id: true, name: true },
+      orderBy: { opensAt: 'desc' },
+    });
   }
 
   @Get('export-csv')
