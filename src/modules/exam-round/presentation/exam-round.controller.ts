@@ -24,6 +24,7 @@ import {
 import {
   participantsResponse,
   roundRecord,
+  roundListRecord,
   updateRound,
 } from './admin-exam.schemas';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
@@ -115,7 +116,7 @@ export class ExamRoundController {
   ) {}
 
   @Get()
-  @ApiOkResponse({ schema: { type: 'array', items: roundRecord } })
+  @ApiOkResponse({ schema: { type: 'array', items: roundListRecord } })
   @Roles(UserRole.ADMIN)
   list() {
     return this.adminExamRoundsUseCase.list();
