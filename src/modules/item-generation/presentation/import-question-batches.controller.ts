@@ -1,3 +1,9 @@
+import {
+  uploadResponse,
+  gridResponse,
+  previewResponse,
+  saveResponse,
+} from './admin-batch-response.schemas';
 import { ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import {
   Body,
@@ -52,9 +58,7 @@ export class ImportQuestionBatchesController {
     response.setHeader('Cache-Control', 'no-store');
     response.send(buffer);
   }
-  @ApiCreatedResponse({
-    schema: { type: 'object', additionalProperties: true },
-  })
+  @ApiCreatedResponse({ schema: uploadResponse })
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }),
@@ -66,24 +70,22 @@ export class ImportQuestionBatchesController {
   ) {
     return this.questionGrid.upload(admin.sub, file);
   }
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: gridResponse })
   @Get('grid')
   grid(@CurrentUser() admin: JwtPayload) {
     return this.questionGrid.load(admin.sub);
   }
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: gridResponse })
   @Delete('grid/:rowKey')
   remove(@CurrentUser() admin: JwtPayload, @Param('rowKey') rowKey: string) {
     return this.questionGrid.remove(admin.sub, rowKey);
   }
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: gridResponse })
   @Delete('grid')
   clear(@CurrentUser() admin: JwtPayload) {
     return this.questionGrid.clear(admin.sub);
   }
-  @ApiCreatedResponse({
-    schema: { type: 'object', additionalProperties: true },
-  })
+  @ApiCreatedResponse({ schema: previewResponse })
   @Post('preview')
   @UseInterceptors(
     FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }),
@@ -98,9 +100,7 @@ export class ImportQuestionBatchesController {
   ) {
     return this.parse.execute(file);
   }
-  @ApiCreatedResponse({
-    schema: { type: 'object', additionalProperties: true },
-  })
+  @ApiCreatedResponse({ schema: saveResponse })
   @Post('save')
   save(
     @CurrentUser() admin: JwtPayload,

@@ -395,7 +395,68 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "_count": {
+                            "type": "object",
+                            "properties": {
+                              "items": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "items"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "source",
+                          "status",
+                          "createdAt",
+                          "_count"
+                        ]
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "total",
+                    "page",
+                    "limit"
+                  ]
                 }
               }
             }
@@ -484,7 +545,45 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "count"
+                        ]
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "page",
+                    "limit",
+                    "hasMore"
+                  ]
                 }
               }
             }
@@ -581,7 +680,326 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "batch": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "source": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "skill": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "cefrTarget": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "topicTag": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "requestedCount": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "aiCallCount": {
+                          "type": "integer"
+                        },
+                        "aiCallLimit": {
+                          "type": "integer"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "confirmer": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "fullName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "fullName"
+                          ],
+                          "nullable": true
+                        },
+                        "jobs": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "attempts": {
+                                "type": "integer"
+                              },
+                              "lastError": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "status",
+                              "attempts",
+                              "lastError"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "source",
+                        "status",
+                        "skill",
+                        "cefrTarget",
+                        "topicTag",
+                        "requestedCount",
+                        "aiCallCount",
+                        "aiCallLimit",
+                        "createdAt",
+                        "confirmer",
+                        "jobs"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "correctAnswer": {
+                            "type": "string"
+                          },
+                          "explanation": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "content"
+                            ],
+                            "nullable": true
+                          },
+                          "checkResults": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "checkpoint": {
+                                  "type": "string"
+                                },
+                                "level": {
+                                  "type": "string"
+                                },
+                                "reasonCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "checkedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "suspectedDuplicateId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "checkpoint",
+                                "level",
+                                "reasonCodes",
+                                "checkedAt",
+                                "suspectedDuplicateId"
+                              ]
+                            }
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "skill": {
+                            "type": "string"
+                          },
+                          "cefrTarget": {
+                            "type": "string"
+                          },
+                          "topicTag": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "irtB": {
+                            "type": "number"
+                          },
+                          "generatedFromRefIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "firstReview": {
+                            "nullable": true,
+                            "description": "Stored review JSON; null until review or assignment."
+                          },
+                          "secondReview": {
+                            "nullable": true,
+                            "description": "Stored review JSON; null until review or assignment."
+                          },
+                          "reviewEvents": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "createdAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "createdAt"
+                              ]
+                            }
+                          },
+                          "reviewer": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "fullName": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "fullName"
+                            ],
+                            "nullable": true
+                          },
+                          "confirmer": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "fullName": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "fullName"
+                            ],
+                            "nullable": true
+                          },
+                          "administrativelyCancelled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "content",
+                          "options",
+                          "correctAnswer",
+                          "explanation",
+                          "checkResults",
+                          "status",
+                          "skill",
+                          "cefrTarget",
+                          "topicTag",
+                          "irtB",
+                          "generatedFromRefIds",
+                          "firstReview",
+                          "secondReview",
+                          "reviewEvents",
+                          "reviewer",
+                          "confirmer",
+                          "administrativelyCancelled"
+                        ]
+                      }
+                    },
+                    "administrativelyCancelledCount": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "statusCounts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "count"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batch",
+                    "items",
+                    "administrativelyCancelledCount",
+                    "total",
+                    "page",
+                    "limit",
+                    "statusCounts"
+                  ]
                 }
               }
             }
@@ -747,7 +1165,19 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "confirmerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "affected": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "confirmerId",
+                    "affected"
+                  ]
                 }
               }
             }
@@ -828,7 +1258,39 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "batchRevision": {
+                      "type": "string"
+                    },
+                    "assignments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "itemId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "reviewerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "required": [
+                          "itemId",
+                          "content",
+                          "reviewerId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchRevision",
+                    "assignments"
+                  ]
                 }
               }
             }
@@ -909,7 +1371,20 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "firstDueAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "secondDueAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "firstDueAt",
+                    "secondDueAt"
+                  ]
                 }
               }
             }
@@ -990,7 +1465,14 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "assigned": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "assigned"
+                  ]
                 }
               }
             }
@@ -1071,7 +1553,14 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "reassigned": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "reassigned"
+                  ]
                 }
               }
             }
@@ -1491,7 +1980,19 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status"
+                  ]
                 }
               }
             }
@@ -2985,7 +3486,34 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "cancelled": {
+                      "type": "integer"
+                    },
+                    "counts": {
+                      "type": "object",
+                      "properties": {
+                        "DRAFT": {
+                          "type": "integer"
+                        },
+                        "FIRST_APPROVED": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "DRAFT",
+                        "FIRST_APPROVED"
+                      ]
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cancelled",
+                    "counts",
+                    "status"
+                  ]
                 }
               }
             }
@@ -3066,7 +3594,26 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "changed": {
+                      "type": "boolean"
+                    },
+                    "open": {
+                      "type": "integer"
+                    },
+                    "approved": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "changed",
+                    "open",
+                    "approved"
+                  ]
                 }
               }
             }
@@ -3147,7 +3694,26 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "checked": {
+                      "type": "integer"
+                    },
+                    "hardRejected": {
+                      "type": "integer"
+                    },
+                    "softFlagged": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checked",
+                    "hardRejected",
+                    "softFlagged"
+                  ]
                 }
               }
             }
@@ -3226,7 +3792,84 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "stale": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "stale": {
+                            "type": "boolean"
+                          },
+                          "checks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "contentHash": {
+                                  "type": "string"
+                                },
+                                "level": {
+                                  "type": "string"
+                                },
+                                "reasonCodes": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "checkedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "suspectedDuplicateId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "contentHash",
+                                "level",
+                                "reasonCodes",
+                                "checkedAt",
+                                "suspectedDuplicateId"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "status",
+                          "stale",
+                          "checks"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status",
+                    "stale",
+                    "items"
+                  ]
                 }
               }
             }
@@ -3315,7 +3958,19 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "itemId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "decision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "itemId",
+                    "decision"
+                  ]
                 }
               }
             }
@@ -3396,7 +4051,18 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "imported": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "imported"
+                  ]
                 }
               }
             }
@@ -3592,7 +4258,104 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "added": {
+                      "type": "integer"
+                    },
+                    "duplicates": {
+                      "type": "integer"
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "reasons": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "reasons"
+                        ]
+                      }
+                    },
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "added",
+                    "duplicates",
+                    "rejected",
+                    "rows",
+                    "operationId"
+                  ]
                 }
               }
             }
@@ -3664,7 +4427,78 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
                 }
               }
             }
@@ -3734,7 +4568,78 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
                 }
               }
             }
@@ -3815,7 +4720,78 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rowKey": {
+                            "type": "string"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "rowKey",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "expired": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "operationId",
+                    "expired"
+                  ]
                 }
               }
             }
@@ -3887,7 +4863,90 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "candidate": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "correctAnswer": {
+                                "type": "string"
+                              },
+                              "explanation": {
+                                "type": "string"
+                              },
+                              "skill": {
+                                "type": "string"
+                              },
+                              "cefrTarget": {
+                                "type": "string"
+                              },
+                              "topicTag": {
+                                "type": "string"
+                              },
+                              "irtB": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "content",
+                              "options",
+                              "correctAnswer",
+                              "explanation",
+                              "skill",
+                              "cefrTarget",
+                              "topicTag",
+                              "irtB"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "rejected": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "row": {
+                            "type": "integer"
+                          },
+                          "reasons": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "row",
+                          "reasons"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "rejected"
+                  ]
                 }
               }
             }
@@ -3959,7 +5018,55 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "batchId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "batches": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "batchId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "batchId",
+                          "status",
+                          "count"
+                        ]
+                      }
+                    },
+                    "batchIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  },
+                  "required": [
+                    "batchId",
+                    "status",
+                    "count",
+                    "batches",
+                    "batchIds"
+                  ]
                 }
               }
             }
@@ -5127,7 +6234,18 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": true
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "jobStatus": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "jobStatus"
+                  ]
                 }
               }
             }
@@ -5207,8 +6325,62 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "jobStatus": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "jobStatus"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string"
+                        },
+                        "remaining": {
+                          "type": "integer"
+                        },
+                        "exactRejected": {
+                          "type": "integer"
+                        },
+                        "nearRejected": {
+                          "type": "integer"
+                        },
+                        "nearFlagged": {
+                          "type": "integer"
+                        },
+                        "semanticSkipped": {
+                          "type": "boolean"
+                        },
+                        "semanticFlagged": {
+                          "type": "integer"
+                        },
+                        "answerFlagged": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "remaining",
+                        "exactRejected",
+                        "nearRejected",
+                        "nearFlagged",
+                        "semanticSkipped",
+                        "semanticFlagged",
+                        "answerFlagged"
+                      ]
+                    }
+                  ]
                 }
               }
             }

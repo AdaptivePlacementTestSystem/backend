@@ -1,3 +1,8 @@
+import {
+  batchListResponse,
+  rejectedStatsResponse,
+  batchDetailResponse,
+} from './admin-batch-response.schemas';
 import { ApiOkResponse } from '@nestjs/swagger';
 import {
   BadRequestException,
@@ -20,7 +25,7 @@ import { ItemBatchSource, ItemBatchStatus } from '@prisma/client';
 export class AdminItemBatchesController {
   constructor(private readonly getAdminBatch: GetAdminBatchUseCase) {}
 
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: batchListResponse })
   @Get()
   @Roles(UserRole.ADMIN)
   list(
@@ -43,7 +48,7 @@ export class AdminItemBatchesController {
     );
   }
 
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: rejectedStatsResponse })
   @Get('rejected-stats')
   @Roles(UserRole.ADMIN)
   rejectedStats(
@@ -60,7 +65,7 @@ export class AdminItemBatchesController {
     );
   }
 
-  @ApiOkResponse({ schema: { type: 'object', additionalProperties: true } })
+  @ApiOkResponse({ schema: batchDetailResponse })
   @Get(':id')
   @Roles(UserRole.ADMIN)
   getDetail(
